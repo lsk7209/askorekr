@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { publicEnv } from "@/env";
 import "./globals.css";
 
@@ -41,6 +42,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        {publicEnv.adsensePubId ? (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publicEnv.adsensePubId}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        ) : null}
+      </head>
       <body>{children}</body>
     </html>
   );
