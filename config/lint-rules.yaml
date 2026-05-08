@@ -1,0 +1,43 @@
+banned_words:
+  medical_claims:
+    - "치료한다"
+    - "낫는다"
+    - "복용 권장"
+    - "효능"
+    - "약효"
+    - "병이 낫"
+  pet_medical_certainty:
+    - "무조건 안전"
+    - "절대 안전"
+    - "먹어도 OK"
+  unsupported_claims:
+    - "연구 결과"
+    - "전문가가"
+
+ai_cliches_threshold:
+  매혹적인: 1
+  놀라운: 2
+  주목할 만한: 1
+
+required_persona_signals:
+  friendly_honorific_min_count: 5
+  plant_personification_min_count: 1
+  friendly_honorific_examples:
+    - "예요"
+    - "답니다"
+  plant_personification_examples:
+    - "이 친구"
+    - "좋아해요"
+
+required_fields:
+  layer1:
+    - scientificName
+    - koreanName
+    - slug
+  layer2:
+    - climateScoreByRegion
+    - indoorOutdoorClass
+  layer3:
+    - summaryOneLiner
+    - quickFactsJson
+    - faqJson

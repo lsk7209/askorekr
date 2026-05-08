@@ -1,0 +1,35 @@
+{
+  "brandName": "플랜티프렌즈",
+  "category": "gardening_lifestyle",
+  "targetAudience": {
+    "primary": "20~35세 MZ 여성, 도시 거주, 반려식물 1~5개 보유 또는 입문 검토 중",
+    "secondary": "30~45세 남녀, 정원·베란다 가드닝 실전 운영자"
+  },
+  "tone": {
+    "voice": "친근·캐주얼한 존댓말",
+    "firstPerson": "저희",
+    "plantPersonification": true,
+    "avoid": [
+      "권위적·학술적 톤",
+      "의료·약효 단정 표현",
+      "과장된 마케팅 카피"
+    ]
+  },
+  "visualDirection": {
+    "palette": ["세이지 그린", "아이보리", "테라코타"],
+    "typography": "Pretendard 또는 Spoqa Han Sans Neo, 본문 16~17px, 행간 1.7",
+    "photography": "자연광·식물 클로즈업 중심, 인스타그램 친화"
+  },
+  "trustSignals": [
+    "공공 데이터 출처를 페이지 하단에 명시",
+    "Quick Facts 박스에 측정 단위와 범위를 명확히 표기",
+    "필자 페이지에 플랜티프렌즈 편집팀 + AI 보조 명시",
+    "각 페이지 마지막 업데이트 일시 노출"
+  ],
+  "ymylClassification": "low",
+  "forbiddenContent": [
+    "의료적 효능·약효 단정",
+    "반려동물 의료 안전 단정",
+    "출처 없는 통계·연구 인용"
+  ]
+}

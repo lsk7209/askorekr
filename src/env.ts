@@ -1,0 +1,26 @@
+const LOCAL_DATABASE_URL = "file:local.db";
+const DEFAULT_SITE_URL = "https://plantyfriends.com";
+
+function readEnv(name: string) {
+  const value = process.env[name]?.trim();
+  return value && value.length > 0 ? value : undefined;
+}
+
+export function getDatabaseConfig() {
+  return {
+    url: readEnv("TURSO_DATABASE_URL") ?? LOCAL_DATABASE_URL,
+    authToken: readEnv("TURSO_AUTH_TOKEN")
+  };
+}
+
+export function getSiteUrl() {
+  return readEnv("NEXT_PUBLIC_SITE_URL") ?? DEFAULT_SITE_URL;
+}
+
+export const publicEnv = {
+  siteUrl: getSiteUrl(),
+  ga4Id: readEnv("NEXT_PUBLIC_GA4_ID"),
+  adsensePubId:
+    readEnv("NEXT_PUBLIC_ADSENSE_PUB_ID") ??
+    readEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID")
+};
