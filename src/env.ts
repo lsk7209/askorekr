@@ -1,5 +1,5 @@
 const LOCAL_DATABASE_URL = "file:local.db";
-const DEFAULT_SITE_URL = "https://plantyfriends.com";
+const DEFAULT_SITE_URL = "https://askore.kr";
 
 function readEnv(name: string) {
   const value = process.env[name]?.trim();

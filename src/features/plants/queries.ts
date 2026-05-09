@@ -32,6 +32,11 @@ export type PlantDetail = {
   updatedAt: Date;
 };
 
+export type PlantSitemapItem = {
+  slug: string;
+  updatedAt: Date;
+};
+
 type FlowerMeaning = {
   primary?: string;
 };
@@ -113,4 +118,13 @@ export async function getPlantBySlug(slug: string): Promise<PlantDetail | null> 
     flowerMeaningPrimary: getPrimaryMeaning(plant.flowerMeaning),
     updatedAt: plant.updatedAt
   };
+}
+
+export async function getPlantSitemapItems(): Promise<PlantSitemapItem[]> {
+  return db
+    .select({
+      slug: plants.slug,
+      updatedAt: plants.updatedAt
+    })
+    .from(plants);
 }

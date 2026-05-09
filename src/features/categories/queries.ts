@@ -17,6 +17,10 @@ export type CategorySummary = {
   plantCount: number | null;
 };
 
+export type CategorySitemapItem = {
+  slug: string;
+};
+
 export type CategoryPlant = {
   id: number;
   slug: string;
@@ -43,6 +47,14 @@ export async function getCategories(): Promise<CategorySummary[]> {
       title: dictionaryCategories.title,
       description: dictionaryCategories.description,
       plantCount: dictionaryCategories.plantCount
+    })
+    .from(dictionaryCategories);
+}
+
+export async function getCategorySitemapItems(): Promise<CategorySitemapItem[]> {
+  return db
+    .select({
+      slug: dictionaryCategories.slug
     })
     .from(dictionaryCategories);
 }

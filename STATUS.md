@@ -1,12 +1,12 @@
 # Status | 마지막: 2026-05-09
 ## 현재 작업
-Google 인증/GA4 태그 적용 및 GitHub 배포 완료
+askore.kr 기준 네이버 인증/사이트맵/RSS/robots 적용 중
 ## 최근 변경 (최근 5개만)
+- 05-09: askore.kr 기준 네이버 인증, sitemap, RSS, robots 추가
 - 05-09: GA4 gtag 스크립트와 NEXT_PUBLIC_GA4_ID env 주입
 - 05-09: Google Search Console 사이트 인증 메타태그 추가
 - 05-09: askorekr GitHub main/preview push 및 Vercel Ready 확인
 - 05-09: app/layout.tsx에 env 기반 AdSense 스크립트 추가
-- 05-09: 농사로 garden live ETL 스크립트와 정규화/metrics/images 매핑 추가
 ## TODO
 - [x] 국립수목원 ETL 샘플 실행 검증
 - [x] 생물자원관 ETL 어댑터 구현
@@ -29,6 +29,7 @@ Google 인증/GA4 태그 적용 및 GitHub 배포 완료
 - 배포 기준 GitHub: https://github.com/lsk7209/askorekr
 - Preview env: preview 브랜치 전용으로 주입
 - 농사로 garden: http://api.nongsaro.go.kr/service/garden, 별도 NONGSARO_API_KEY 필요
+- 대표 도메인: https://askore.kr
 ## 주의
 - 실제 API 키와 Turso 토큰은 커밋하지 않음
 - 공공데이터 키는 농사로 API에서 resultCode 11로 거부됨

@@ -6,6 +6,7 @@ import "./globals.css";
 const siteUrl = publicEnv.siteUrl;
 const GOOGLE_SITE_VERIFICATION =
   "RP69sUcy912-MgKrDEC3ICVzBt5Q_kefbiVQmUOGIWg";
+const NAVER_SITE_VERIFICATION = "abcfd7fa27ee16b626d8d096c9a984a2fcbee6c8";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -36,7 +37,10 @@ export const metadata: Metadata = {
     }
   },
   verification: {
-    google: GOOGLE_SITE_VERIFICATION
+    google: GOOGLE_SITE_VERIFICATION,
+    other: {
+      "naver-site-verification": NAVER_SITE_VERIFICATION
+    }
   }
 };
 
