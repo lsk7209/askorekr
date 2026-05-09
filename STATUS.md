@@ -12,6 +12,7 @@ IndexNow 수동 제출 엔드포인트 구현·검증 완료
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
 - IndexNow keyLocation은 `https://askore.kr/{INDEXNOW_KEY}.txt`
+- IndexNow payload는 제출 URL origin별로 나눠 `host/keyLocation` 생성
 - 대표 도메인: https://askore.kr
 - 배포 기준 GitHub: https://github.com/lsk7209/askorekr
 - DB: Drizzle + libSQL/Turso 호환 SQLite 스키마 우선

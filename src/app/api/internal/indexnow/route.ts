@@ -20,9 +20,17 @@ type IndexNowRequestBody = {
 type SubmitResult = {
   engine: string;
   endpoint: string;
+  targetHost: string;
   ok: boolean;
   status: number;
   body: string;
+};
+
+type IndexNowPayload = {
+  host: string;
+  key: string;
+  keyLocation: string;
+  urlList: string[];
 };
 
 function jsonError(message: string, status: number) {
@@ -113,7 +121,7 @@ async function readBody(request: Request): Promise<IndexNowRequestBody | null> {
 async function submitToIndexNow(
   engine: string,
   endpoint: string,
-  payload: Record<string, unknown>
+  payload: IndexNowPayload
 ): Promise<SubmitResult> {
   try {
     const response = await fetch(endpoint, {
@@ -127,6 +135,7 @@ async function submitToIndexNow(
     return {
       engine,
       endpoint,
+      targetHost: payload.host,
       ok: response.ok,
       status: response.status,
       body: body.slice(0, RESPONSE_BODY_LIMIT)
@@ -135,11 +144,36 @@ async function submitToIndexNow(
     return {
       engine,
       endpoint,
+      targetHost: payload.host,
       ok: false,
       status: 0,
       body: error instanceof Error ? error.message : "Unknown fetch error"
     };
   }
+}
+
+function buildPayloads(urls: string[], key: string) {
+  const groups = new Map<string, IndexNowPayload>();
+
+  for (const submittedUrl of urls) {
+    const url = new URL(submittedUrl);
+    const keyLocation = new URL(`/${key}.txt`, url.origin).toString();
+    const existing = groups.get(url.origin);
+
+    if (existing) {
+      existing.urlList.push(submittedUrl);
+      continue;
+    }
+
+    groups.set(url.origin, {
+      host: url.hostname,
+      key,
+      keyLocation,
+      urlList: [submittedUrl]
+    });
+  }
+
+  return [...groups.values()];
 }
 
 export async function POST(request: Request) {
@@ -167,14 +201,7 @@ export async function POST(request: Request) {
     return jsonError("At least one valid same-site URL is required.", 400);
   }
 
-  const host = new URL(publicEnv.siteUrl).hostname;
-  const keyLocation = new URL(`/${key}.txt`, publicEnv.siteUrl).toString();
-  const payload = {
-    host,
-    key,
-    keyLocation,
-    urlList: urls
-  };
+  const payloads = buildPayloads(urls, key);
 
   if (body.dryRun === true) {
     return NextResponse.json({
@@ -182,14 +209,18 @@ export async function POST(request: Request) {
       submittedUrls: urls,
       invalidUrls: invalid,
       truncated,
-      keyLocation,
-      payload: { ...payload, key: "[redacted]" }
+      payloads: payloads.map((payload) => ({
+        ...payload,
+        key: "[redacted]"
+      }))
     });
   }
 
   const results = await Promise.all(
-    INDEXNOW_ENDPOINTS.map(({ engine, endpoint }) =>
-      submitToIndexNow(engine, endpoint, payload)
+    payloads.flatMap((payload) =>
+      INDEXNOW_ENDPOINTS.map(({ engine, endpoint }) =>
+        submitToIndexNow(engine, endpoint, payload)
+      )
     )
   );
 
@@ -197,7 +228,11 @@ export async function POST(request: Request) {
     submittedUrls: urls,
     invalidUrls: invalid,
     truncated,
-    keyLocation,
+    payloads: payloads.map(({ host, keyLocation, urlList }) => ({
+      host,
+      keyLocation,
+      urlList
+    })),
     results
   });
 }
