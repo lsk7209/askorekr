@@ -1,6 +1,6 @@
 # Status | 마지막: 2026-05-10
 ## 현재 작업
-AdSense readiness 점검 및 색인 품질 보완 중
+AdSense readiness 점검 및 색인 품질 보완 완료
 ## 최근 변경 (최근 5개만)
 - 05-10: 홈을 AdSense 검수용 사용자 안내·FAQ·정책 링크 중심으로 보강
 - 05-10: sitemap 식물 상세 URL을 실제 렌더링 가능한 plantMetrics 보유 식물로 제한
@@ -8,7 +8,7 @@ AdSense readiness 점검 및 색인 품질 보완 중
 - 05-10: `/diagnose/[regionCode]/[env]` SSR 결과 페이지와 진단 결과 링크 추가
 - 05-10: sitemap 식물 상세 lastmod 비정상 미래 날짜 보정
 ## TODO
-- [ ] AdSense 검수 readiness 최종 확인
+- [ ] 본문 콘텐츠 확장용 식물 데이터 추가 수집
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
 - IndexNow keyLocation은 `https://askore.kr/{INDEXNOW_KEY}.txt`
