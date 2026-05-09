@@ -126,5 +126,6 @@ export async function getPlantSitemapItems(): Promise<PlantSitemapItem[]> {
       slug: plants.slug,
       updatedAt: plants.updatedAt
     })
-    .from(plants);
+    .from(plants)
+    .innerJoin(plantMetrics, eq(plants.id, plantMetrics.plantId));
 }
