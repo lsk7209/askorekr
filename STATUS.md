@@ -1,6 +1,6 @@
 # Status | 마지막: 2026-05-09
 ## 현재 작업
-askore.kr 기준 네이버 인증/사이트맵/RSS/robots 적용 중
+askore.kr 기준 네이버 인증/사이트맵/RSS/robots 적용 완료
 ## 최근 변경 (최근 5개만)
 - 05-09: askore.kr 기준 네이버 인증, sitemap, RSS, robots 추가
 - 05-09: GA4 gtag 스크립트와 NEXT_PUBLIC_GA4_ID env 주입
