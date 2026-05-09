@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPlantBySlug } from "@/features/plants/queries";
+import { getPlantFaqs, PlantGuideContent } from "./plant-detail-content";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -47,16 +48,32 @@ export default async function PlantDetailPage({ params }: Props) {
     notFound();
   }
 
+  const faqs = getPlantFaqs(plant);
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
-    headline: `${plant.koreanName} 키우기 가이드`,
-    description: `${plant.koreanName}의 한국 기후 적합도와 기본 관리 정보를 정리한 페이지입니다.`,
-    dateModified: plant.updatedAt.toISOString(),
-    author: {
-      "@type": "Organization",
-      name: "플랜티프렌즈 편집팀"
-    }
+    "@graph": [
+      {
+        "@type": "Article",
+        headline: `${plant.koreanName} 키우기 가이드`,
+        description: `${plant.koreanName}의 한국 기후 적합도와 기본 관리 정보를 정리한 페이지입니다.`,
+        dateModified: plant.updatedAt.toISOString(),
+        author: {
+          "@type": "Organization",
+          name: "플랜티프렌즈 편집팀"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer
+          }
+        }))
+      }
+    ]
   };
 
   return (
@@ -76,90 +93,13 @@ export default async function PlantDetailPage({ params }: Props) {
           <p className="eyebrow">Plant Guide</p>
           <h1>{plant.koreanName}</h1>
           <p className="lead">
-            {plant.koreanName}는 한국 생활 환경에서 적합도와 관리 부담을 함께
-            확인해야 하는 반려식물이에요.
+            {plant.koreanName}는 한국 생활 환경에서 기후 적합도, 빛, 물주기,
+            안전성을 함께 확인해야 오래 키울 수 있는 반려식물입니다.
           </p>
         </header>
 
-        <section className="quick-facts" aria-labelledby="quick-facts-title">
-          <h2 id="quick-facts-title">Quick Facts</h2>
-          <dl>
-            <Fact label="학명" value={plant.scientificName} />
-            <Fact
-              label="과·속"
-              value={`${plant.family ?? "-"} / ${plant.genus ?? "-"}`}
-            />
-            <Fact
-              label="서울 기준 적합도"
-              value={`${plant.climateScore}점 ${plant.climateGrade}`}
-            />
-            <Fact
-              label="관리 난이도"
-              value={plant.difficultyScore ? `${plant.difficultyScore}점` : "-"}
-            />
-            <Fact
-              label="물주기"
-              value={plant.waterFreqDays ? `${plant.waterFreqDays}일 간격` : "-"}
-            />
-            <Fact
-              label="광량"
-              value={formatRange(plant.lightLuxMin, plant.lightLuxMax, "lux")}
-            />
-            <Fact
-              label="온도"
-              value={formatRange(plant.tempMinC, plant.tempMaxC, "℃")}
-            />
-            <Fact
-              label="습도"
-              value={formatRange(plant.humidityMinPct, plant.humidityMaxPct, "%")}
-            />
-          </dl>
-        </section>
-
-        <section className="plant-section" aria-labelledby="safety-title">
-          <h2 id="safety-title">반려동물·아이 안전성</h2>
-          <p>
-            강아지 {formatScore(plant.petSafetyScoreDog)}, 고양이{" "}
-            {formatScore(plant.petSafetyScoreCat)}, 어린 자녀{" "}
-            {formatScore(plant.childSafetyScore)} 기준으로 기록되어 있어요.
-          </p>
-          {plant.toxicityNotes ? <p>{plant.toxicityNotes}</p> : null}
-        </section>
-
-        <section className="plant-section" aria-labelledby="meaning-title">
-          <h2 id="meaning-title">꽃말·문화 기록</h2>
-          <p>
-            {plant.flowerMeaningPrimary
-              ? `${plant.koreanName}의 대표 의미는 "${plant.flowerMeaningPrimary}"으로 정리되어 있어요.`
-              : "아직 정리된 꽃말·문화 기록이 없습니다."}
-          </p>
-        </section>
+        <PlantGuideContent plant={plant} faqs={faqs} />
       </article>
     </main>
   );
-}
-
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-    </div>
-  );
-}
-
-function formatRange(
-  min: number | null,
-  max: number | null,
-  unit: string
-) {
-  if (min === null || max === null) {
-    return "-";
-  }
-
-  return `${min.toLocaleString("ko-KR")}~${max.toLocaleString("ko-KR")}${unit}`;
-}
-
-function formatScore(score: number | null) {
-  return score === null ? "-" : `${score}점`;
 }

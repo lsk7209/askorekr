@@ -529,6 +529,47 @@ h2 {
   margin-bottom: 0;
 }
 
+.plant-care-grid,
+.plant-faq-list {
+  display: grid;
+  gap: 14px;
+}
+
+.plant-care-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.care-item,
+.plant-faq-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.care-item h3,
+.plant-faq-item h3 {
+  margin: 0 0 8px;
+  color: var(--sage-dark);
+  font-size: 17px;
+}
+
+.care-item p,
+.plant-faq-item p {
+  margin-bottom: 0;
+}
+
+.plant-checklist {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding-left: 22px;
+}
+
+.plant-next-actions {
+  background: #f2f0e5;
+}
+
 .category-shell {
   min-height: 100vh;
   padding: 48px 20px 56px;
@@ -745,6 +786,7 @@ h2 {
   .tool-grid,
   .plant-result dl,
   .quick-facts dl,
+  .plant-care-grid,
   .checkbox-group,
   .condition-summary dl,
   .category-card,
