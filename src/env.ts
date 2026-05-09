@@ -17,6 +17,13 @@ export function getSiteUrl() {
   return readEnv("NEXT_PUBLIC_SITE_URL") ?? DEFAULT_SITE_URL;
 }
 
+export function getIndexNowConfig() {
+  return {
+    key: readEnv("INDEXNOW_KEY"),
+    internalToken: readEnv("INTERNAL_API_TOKEN")
+  };
+}
+
 export const publicEnv = {
   siteUrl: getSiteUrl(),
   ga4Id: readEnv("NEXT_PUBLIC_GA4_ID"),
