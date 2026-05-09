@@ -168,7 +168,7 @@ export async function POST(request: Request) {
   }
 
   const host = new URL(publicEnv.siteUrl).hostname;
-  const keyLocation = new URL("/indexnow-key.txt", publicEnv.siteUrl).toString();
+  const keyLocation = new URL(`/${key}.txt`, publicEnv.siteUrl).toString();
   const payload = {
     host,
     key,
