@@ -4,6 +4,8 @@ import { publicEnv } from "@/env";
 import "./globals.css";
 
 const siteUrl = publicEnv.siteUrl;
+const GOOGLE_SITE_VERIFICATION =
+  "RP69sUcy912-MgKrDEC3ICVzBt5Q_kefbiVQmUOGIWg";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -32,6 +34,9 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large"
     }
+  },
+  verification: {
+    google: GOOGLE_SITE_VERIFICATION
   }
 };
 
@@ -42,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <head>
+      <body>
         {publicEnv.adsensePubId ? (
           <Script
             async
@@ -51,8 +56,25 @@ export default function RootLayout({
             strategy="afterInteractive"
           />
         ) : null}
-      </head>
-      <body>{children}</body>
+        {publicEnv.ga4Id ? (
+          <>
+            <Script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${publicEnv.ga4Id}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){window.dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${publicEnv.ga4Id}');
+              `}
+            </Script>
+          </>
+        ) : null}
+        {children}
+      </body>
     </html>
   );
 }

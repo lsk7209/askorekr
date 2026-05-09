@@ -1,12 +1,12 @@
 # Status | 마지막: 2026-05-09
 ## 현재 작업
-AdSense 스크립트 적용 완료
+Google 인증/GA4 태그 적용 완료, GitHub 배포 진행
 ## 최근 변경 (최근 5개만)
+- 05-09: GA4 gtag 스크립트와 NEXT_PUBLIC_GA4_ID env 주입
+- 05-09: Google Search Console 사이트 인증 메타태그 추가
 - 05-09: app/layout.tsx에 env 기반 AdSense 스크립트 추가
 - 05-09: 농사로 garden live ETL 스크립트와 정규화/metrics/images 매핑 추가
 - 05-09: 농사로 garden API 매뉴얼/샘플 분석 및 XML 파서 추가
-- 05-08: askorekr GitHub/Vercel 프로젝트 연결 및 Production/Development/Preview env 주입
-- 05-08: README 추가 및 askorekr 원격 push 준비
 ## TODO
 - [x] 국립수목원 ETL 샘플 실행 검증
 - [x] 생물자원관 ETL 어댑터 구현
