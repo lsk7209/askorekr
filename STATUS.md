@@ -2,11 +2,11 @@
 ## 현재 작업
 AdSense readiness 점검 및 색인 품질 보완 중
 ## 최근 변경 (최근 5개만)
+- 05-10: 홈을 AdSense 검수용 사용자 안내·FAQ·정책 링크 중심으로 보강
 - 05-10: sitemap 식물 상세 URL을 실제 렌더링 가능한 plantMetrics 보유 식물로 제한
 - 05-10: IndexNow 내부 제출 API와 표준 키 파일 라우트 추가
 - 05-10: `/diagnose/[regionCode]/[env]` SSR 결과 페이지와 진단 결과 링크 추가
 - 05-10: sitemap 식물 상세 lastmod 비정상 미래 날짜 보정
-- 05-10: 진단 고급 조건(안전성/광량/경험/관리 시간) 타입·필터·UI 추가
 ## TODO
 - [ ] AdSense 검수 readiness 최종 확인
 ## 결정사항

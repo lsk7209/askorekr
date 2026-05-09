@@ -32,18 +32,19 @@ body {
 .site-shell {
   display: grid;
   gap: 32px;
-  min-height: 100vh;
-  padding: 56px 20px;
+  padding: 44px 20px 56px;
 }
 
 .hero,
-.status-panel {
+.status-panel,
+.home-section-inner {
   width: min(920px, 100%);
   margin: 0 auto;
 }
 
 .hero {
-  padding-top: 8vh;
+  padding-top: 6vh;
+  padding-bottom: 24px;
 }
 
 .eyebrow {
@@ -77,6 +78,33 @@ h2 {
   font-size: 18px;
 }
 
+.home-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--ivory);
+}
+
+.home-nav,
+.home-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: 14px 20px;
+}
+
+.home-nav a,
+.home-footer a {
+  color: var(--sage-dark);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.home-nav a:first-child {
+  margin-right: auto;
+}
+
 .entry-links {
   display: flex;
   flex-wrap: wrap;
@@ -99,6 +127,74 @@ h2 {
   border-radius: 8px;
   background: var(--ivory);
   padding: 24px;
+}
+
+.home-band {
+  margin-inline: -20px;
+  background: #f2f0e5;
+  padding: 36px 20px;
+}
+
+.home-section-inner {
+  display: grid;
+  gap: 18px;
+}
+
+.info-grid,
+.category-link-list,
+.faq-list,
+.split-section {
+  display: grid;
+  gap: 14px;
+}
+
+.info-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.info-card,
+.category-link,
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--ivory);
+  padding: 20px;
+}
+
+.info-card h3,
+.faq-item h3 {
+  margin: 0 0 8px;
+  color: var(--sage-dark);
+  font-size: 18px;
+}
+
+.info-card p,
+.category-link p,
+.faq-item p,
+.split-section p {
+  margin-bottom: 0;
+}
+
+.category-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.category-link span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--sage-dark);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.split-section {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-footer {
+  border-top: 1px solid var(--border);
+  background: var(--ivory);
 }
 
 .status-panel ul {
@@ -642,13 +738,19 @@ h2 {
     padding: 36px 16px;
   }
 
+  .home-nav a:first-child {
+    flex-basis: 100%;
+  }
+
   .tool-grid,
   .plant-result dl,
   .quick-facts dl,
   .checkbox-group,
   .condition-summary dl,
   .category-card,
-  .category-card dl {
+  .category-card dl,
+  .info-grid,
+  .split-section {
     grid-template-columns: 1fr;
   }
 
