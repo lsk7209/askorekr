@@ -51,6 +51,7 @@ export type DiagnoseResultPlant = {
 export type DiagnoseResponse = {
   regionCode: string;
   environment: Environment;
+  resultPath: string;
   safetyTargets: SafetyTarget[];
   lightLevel: LightLevel;
   experience: ExperienceLevel;

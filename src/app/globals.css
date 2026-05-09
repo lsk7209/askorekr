@@ -284,9 +284,22 @@ h2 {
   font-size: 22px;
 }
 
+.result-share-link,
+.primary-link {
+  width: fit-content;
+  border: 1px solid var(--sage-dark);
+  border-radius: 8px;
+  background: var(--sage-dark);
+  color: #ffffff;
+  padding: 9px 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .result-list {
   display: grid;
   gap: 12px;
+  margin-top: 18px;
 }
 
 .plant-result {
@@ -553,6 +566,69 @@ h2 {
   font-weight: 700;
 }
 
+.diagnose-result-shell {
+  display: grid;
+  gap: 24px;
+  min-height: 100vh;
+  padding: 48px 20px 56px;
+}
+
+.diagnose-result-header,
+.condition-summary,
+.diagnose-result-list,
+.newsletter-box {
+  width: min(960px, 100%);
+  margin: 0 auto;
+}
+
+.diagnose-result-header {
+  display: grid;
+  gap: 16px;
+}
+
+.diagnose-result-header h1,
+.diagnose-result-header .lead {
+  margin-bottom: 0;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.condition-summary,
+.diagnose-result-list,
+.newsletter-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--ivory);
+  padding: 22px;
+}
+
+.condition-summary dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.condition-summary dt {
+  color: var(--sage);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.condition-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: 800;
+}
+
+.newsletter-box p:last-child {
+  margin-bottom: 0;
+}
+
 @media (max-width: 640px) {
   .site-shell {
     padding: 36px 16px;
@@ -570,6 +646,7 @@ h2 {
   .plant-result dl,
   .quick-facts dl,
   .checkbox-group,
+  .condition-summary dl,
   .category-card,
   .category-card dl {
     grid-template-columns: 1fr;

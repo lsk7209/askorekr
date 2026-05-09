@@ -16,6 +16,7 @@ import {
   passesSafetyFilter,
   RESULT_LIMIT
 } from "./scoring";
+import { buildDiagnoseResultPath } from "./request";
 
 export { getClimateGrade } from "./scoring";
 export { isEnvironment, parseDiagnoseRequest } from "./request";
@@ -109,6 +110,7 @@ export async function diagnosePlants(
   return {
     regionCode: request.regionCode,
     environment: request.environment,
+    resultPath: buildDiagnoseResultPath(request),
     safetyTargets: request.safetyTargets,
     lightLevel: request.lightLevel,
     experience: request.experience,

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { DiagnoseResponse } from "@/features/diagnose/types";
 import { PlantResultCard } from "./plant-result-card";
 
@@ -17,6 +18,9 @@ export function DiagnoseResults({ result, selectedRegionName }: Props) {
             <p>{selectedRegionName}</p>
             <h2>추천 식물 {result.results.length}종</h2>
           </div>
+          <Link className="result-share-link" href={result.resultPath}>
+            결과 페이지 보기
+          </Link>
           {result.results.length > 0 ? (
             <div className="result-list">
               {result.results.map((plant) => (
