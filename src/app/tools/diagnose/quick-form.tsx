@@ -1,12 +1,16 @@
 "use client";
 
 import { FormEvent, useMemo, useState, useTransition } from "react";
-import Link from "next/link";
 import type {
+  CareTimeLevel,
   DiagnoseResponse,
-  DiagnoseResultPlant,
-  Environment
+  Environment,
+  ExperienceLevel,
+  LightLevel,
+  SafetyTarget
 } from "@/features/diagnose/types";
+import { AdvancedOptions } from "./advanced-options";
+import { DiagnoseResults } from "./diagnose-results";
 
 type RegionOption = {
   code: string;
@@ -25,16 +29,45 @@ const environmentLabels: Record<Environment, string> = {
 };
 
 export function DiagnoseQuickForm({ regions }: Props) {
+  const defaultSido = regions[0]?.sido ?? "";
+  const [selectedSido, setSelectedSido] = useState(defaultSido);
   const [regionCode, setRegionCode] = useState(regions[0]?.code ?? "");
   const [environment, setEnvironment] = useState<Environment>("indoor");
+  const [safetyTargets, setSafetyTargets] = useState<SafetyTarget[]>([]);
+  const [lightLevel, setLightLevel] = useState<LightLevel>("any");
+  const [experience, setExperience] = useState<ExperienceLevel>("any");
+  const [careTime, setCareTime] = useState<CareTimeLevel>("any");
   const [result, setResult] = useState<DiagnoseResponse | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
+  const sidoOptions = useMemo(
+    () => Array.from(new Set(regions.map((region) => region.sido))),
+    [regions]
+  );
+  const sigunguOptions = useMemo(
+    () => regions.filter((region) => region.sido === selectedSido),
+    [regions, selectedSido]
+  );
   const selectedRegionName = useMemo(() => {
-    const region = regions.find((item) => item.code === regionCode);
+    const targetRegionCode = result?.regionCode ?? regionCode;
+    const region = regions.find((item) => item.code === targetRegionCode);
     return region ? `${region.sido} ${region.sigungu}` : "";
-  }, [regionCode, regions]);
+  }, [regionCode, regions, result?.regionCode]);
+
+  function handleSidoChange(nextSido: string) {
+    const nextRegion = regions.find((region) => region.sido === nextSido);
+
+    setSelectedSido(nextSido);
+    setRegionCode(nextRegion?.code ?? "");
+    setResult(null);
+    setError("");
+  }
+
+  function clearResult() {
+    setResult(null);
+    setError("");
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,10 +77,19 @@ export function DiagnoseQuickForm({ regions }: Props) {
       const response = await fetch("/api/diagnose", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ regionCode, environment })
+        body: JSON.stringify({
+          regionCode,
+          environment,
+          safetyTargets,
+          lightLevel,
+          experience,
+          careTime
+        })
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as DiagnoseResponse & {
+        error?: string;
+      };
 
       if (!response.ok) {
         setError(data.error ?? "진단 결과를 불러오지 못했어요.");
@@ -62,19 +104,38 @@ export function DiagnoseQuickForm({ regions }: Props) {
   return (
     <section className="tool-grid" aria-label="진단 입력과 결과">
       <form className="diagnose-form" onSubmit={handleSubmit}>
-        <label>
-          <span>지역</span>
-          <select
-            value={regionCode}
-            onChange={(event) => setRegionCode(event.target.value)}
-          >
-            {regions.map((region) => (
-              <option key={region.code} value={region.code}>
-                {region.sido} {region.sigungu}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="region-fields">
+          <label>
+            <span>시·도</span>
+            <select
+              value={selectedSido}
+              onChange={(event) => handleSidoChange(event.target.value)}
+            >
+              {sidoOptions.map((sido) => (
+                <option key={sido} value={sido}>
+                  {sido}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span>시·군·구</span>
+            <select
+              value={regionCode}
+              onChange={(event) => {
+                setRegionCode(event.target.value);
+                clearResult();
+              }}
+            >
+              {sigunguOptions.map((region) => (
+                <option key={region.code} value={region.code}>
+                  {region.sigungu}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <fieldset>
           <legend>환경</legend>
@@ -84,7 +145,10 @@ export function DiagnoseQuickForm({ regions }: Props) {
                 key={value}
                 type="button"
                 className={environment === value ? "selected" : ""}
-                onClick={() => setEnvironment(value)}
+                onClick={() => {
+                  setEnvironment(value);
+                  clearResult();
+                }}
               >
                 {environmentLabels[value]}
               </button>
@@ -92,63 +156,32 @@ export function DiagnoseQuickForm({ regions }: Props) {
           </div>
         </fieldset>
 
-        <button className="primary-action" type="submit" disabled={isPending}>
+        <AdvancedOptions
+          safetyTargets={safetyTargets}
+          lightLevel={lightLevel}
+          experience={experience}
+          careTime={careTime}
+          onChange={(values) => {
+            setSafetyTargets(values.safetyTargets);
+            setLightLevel(values.lightLevel);
+            setExperience(values.experience);
+            setCareTime(values.careTime);
+            clearResult();
+          }}
+        />
+
+        <button
+          className="primary-action"
+          type="submit"
+          disabled={isPending || !regionCode}
+        >
           {isPending ? "진단 중" : "진단하기"}
         </button>
 
         {error ? <p className="form-error">{error}</p> : null}
       </form>
 
-      <div className="diagnose-results" aria-live="polite">
-        {result ? (
-          <>
-            <div className="result-heading">
-              <p>{selectedRegionName}</p>
-              <h2>추천 식물 {result.results.length}종</h2>
-            </div>
-            <div className="result-list">
-              {result.results.map((plant) => (
-                <PlantResult key={plant.id} plant={plant} />
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="empty-result">
-            <h2>지역과 환경을 선택해 주세요</h2>
-            <p>샘플 데이터 기준으로 적합도 70점 이상인 식물을 보여드립니다.</p>
-          </div>
-        )}
-      </div>
+      <DiagnoseResults result={result} selectedRegionName={selectedRegionName} />
     </section>
-  );
-}
-
-function PlantResult({ plant }: { plant: DiagnoseResultPlant }) {
-  return (
-    <article className="plant-result">
-      <div>
-        <h3>{plant.koreanName}</h3>
-        <p>{plant.scientificName}</p>
-      </div>
-      <dl>
-        <div>
-          <dt>적합도</dt>
-          <dd>
-            {plant.climateScore}점 {plant.climateGrade}
-          </dd>
-        </div>
-        <div>
-          <dt>난이도</dt>
-          <dd>{plant.difficultyScore ?? "-"}점</dd>
-        </div>
-        <div>
-          <dt>물주기</dt>
-          <dd>{plant.waterFreqDays ? `${plant.waterFreqDays}일 간격` : "-"}</dd>
-        </div>
-      </dl>
-      <Link className="text-link" href={`/plant/${plant.slug}`}>
-        도감 보기
-      </Link>
-    </article>
   );
 }

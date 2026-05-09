@@ -1,59 +1,24 @@
-import { eq, inArray, or } from "drizzle-orm";
+import { asc, eq, inArray, or } from "drizzle-orm";
 import { db } from "@/db/client";
 import { plantMetrics, plants, regions, toolsResults } from "@/db/schema";
 import type {
   DiagnoseRequest,
   DiagnoseResponse,
-  DiagnoseResultPlant,
-  Environment
+  DiagnoseResultPlant
 } from "./types";
-import { environments } from "./types";
+import {
+  buildRecommendationReason,
+  getClimateGrade,
+  MIN_CLIMATE_SCORE,
+  passesCareTimeFilter,
+  passesExperienceFilter,
+  passesLightFilter,
+  passesSafetyFilter,
+  RESULT_LIMIT
+} from "./scoring";
 
-const MIN_CLIMATE_SCORE = 70;
-const RESULT_LIMIT = 10;
-
-export function isEnvironment(value: string): value is Environment {
-  return environments.includes(value as Environment);
-}
-
-export function getClimateGrade(score: number) {
-  if (score >= 90) {
-    return "★★★★★";
-  }
-  if (score >= 80) {
-    return "★★★★";
-  }
-  if (score >= 70) {
-    return "★★★";
-  }
-  if (score >= 60) {
-    return "★★";
-  }
-  return "★";
-}
-
-export function parseDiagnoseRequest(input: unknown): DiagnoseRequest | null {
-  if (!input || typeof input !== "object") {
-    return null;
-  }
-
-  const payload = input as Record<string, unknown>;
-  const regionCode = payload.regionCode;
-  const environment = payload.environment;
-
-  if (typeof regionCode !== "string" || regionCode.trim().length === 0) {
-    return null;
-  }
-
-  if (typeof environment !== "string" || !isEnvironment(environment)) {
-    return null;
-  }
-
-  return {
-    regionCode: regionCode.trim(),
-    environment
-  };
-}
+export { getClimateGrade } from "./scoring";
+export { isEnvironment, parseDiagnoseRequest } from "./request";
 
 function getScore(
   scores: Record<string, number> | null,
@@ -69,7 +34,8 @@ export async function getRegions() {
       sido: regions.sido,
       sigungu: regions.sigungu
     })
-    .from(regions);
+    .from(regions)
+    .orderBy(asc(regions.sido), asc(regions.sigungu));
 }
 
 export async function diagnosePlants(
@@ -92,6 +58,9 @@ export async function diagnosePlants(
       climateScoreByRegion: plantMetrics.climateScoreByRegion,
       indoorOutdoorClass: plantMetrics.indoorOutdoorClass,
       difficultyScore: plantMetrics.difficultyScore,
+      petSafetyScoreDog: plantMetrics.petSafetyScoreDog,
+      petSafetyScoreCat: plantMetrics.petSafetyScoreCat,
+      childSafetyScore: plantMetrics.childSafetyScore,
       waterFreqDays: plantMetrics.waterFreqDays,
       lightLuxMin: plantMetrics.lightLuxMin,
       lightLuxMax: plantMetrics.lightLuxMax
@@ -113,12 +82,25 @@ export async function diagnosePlants(
         climateGrade: getClimateGrade(climateScore),
         indoorOutdoorClass: row.indoorOutdoorClass,
         difficultyScore: row.difficultyScore,
+        petSafetyScoreDog: row.petSafetyScoreDog,
+        petSafetyScoreCat: row.petSafetyScoreCat,
+        childSafetyScore: row.childSafetyScore,
         waterFreqDays: row.waterFreqDays,
         lightLuxMin: row.lightLuxMin,
-        lightLuxMax: row.lightLuxMax
+        lightLuxMax: row.lightLuxMax,
+        recommendationReason: buildRecommendationReason(
+          climateScore,
+          row.difficultyScore,
+          row.waterFreqDays,
+          request
+        )
       };
     })
     .filter((plant) => plant.climateScore >= MIN_CLIMATE_SCORE)
+    .filter((plant) => passesSafetyFilter(plant, request.safetyTargets))
+    .filter((plant) => passesLightFilter(plant, request.lightLevel))
+    .filter((plant) => passesExperienceFilter(plant, request.experience))
+    .filter((plant) => passesCareTimeFilter(plant, request.careTime))
     .sort((a, b) => b.climateScore - a.climateScore)
     .slice(0, RESULT_LIMIT);
 
@@ -127,12 +109,23 @@ export async function diagnosePlants(
   return {
     regionCode: request.regionCode,
     environment: request.environment,
+    safetyTargets: request.safetyTargets,
+    lightLevel: request.lightLevel,
+    experience: request.experience,
+    careTime: request.careTime,
     results
   };
 }
 
 async function cacheDiagnoseResult(request: DiagnoseRequest, plantIds: number[]) {
-  const cacheKey = `region:${request.regionCode}|env:${request.environment}`;
+  const cacheKey = [
+    `region:${request.regionCode}`,
+    `env:${request.environment}`,
+    `safety:${request.safetyTargets.join(",") || "none"}`,
+    `light:${request.lightLevel}`,
+    `experience:${request.experience}`,
+    `care:${request.careTime}`
+  ].join("|");
 
   await db
     .insert(toolsResults)
@@ -140,12 +133,16 @@ async function cacheDiagnoseResult(request: DiagnoseRequest, plantIds: number[])
       cacheKey,
       regionCode: request.regionCode,
       environment: request.environment,
+      petType: request.safetyTargets.join(",") || null,
+      experience: request.experience === "any" ? null : request.experience,
       resultPlantIds: plantIds,
       computedAt: new Date()
     })
     .onConflictDoUpdate({
       target: toolsResults.cacheKey,
       set: {
+        petType: request.safetyTargets.join(",") || null,
+        experience: request.experience === "any" ? null : request.experience,
         resultPlantIds: plantIds,
         computedAt: new Date()
       }

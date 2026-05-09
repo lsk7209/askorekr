@@ -3,10 +3,33 @@ import { publicEnv } from "@/env";
 import { getCategorySitemapItems } from "@/features/categories/queries";
 import { getPlantSitemapItems } from "@/features/plants/queries";
 
-const STATIC_ROUTES = ["", "/tools/diagnose"] as const;
+const STATIC_ROUTES = [
+  "",
+  "/tools/diagnose",
+  "/about",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/disclaimer"
+] as const;
+const MAX_FUTURE_DRIFT_MS = 24 * 60 * 60 * 1000;
 
 function absoluteUrl(path: string) {
   return new URL(path, publicEnv.siteUrl).toString();
+}
+
+function safeLastModified(value: Date, fallback: Date) {
+  const time = value.getTime();
+
+  if (!Number.isFinite(time)) {
+    return fallback;
+  }
+
+  if (time > fallback.getTime() + MAX_FUTURE_DRIFT_MS) {
+    return fallback;
+  }
+
+  return value;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -29,7 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
   const plantPages = plants.map((plant) => ({
     url: absoluteUrl(`/plant/${plant.slug}`),
-    lastModified: plant.updatedAt,
+    lastModified: safeLastModified(plant.updatedAt, now),
     changeFrequency: "weekly" as const,
     priority: 0.6
   }));
