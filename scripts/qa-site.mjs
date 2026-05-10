@@ -3,6 +3,18 @@ import { XMLParser } from "fast-xml-parser";
 const DEFAULT_BASE_URL = process.env.QA_SITE_URL ?? "https://www.askore.kr";
 const USER_AGENT = "askorekr-site-qa/1.0";
 const REQUIRED_JSON_LD_PATHS = [/^\/$/, /^\/plant\//, /^\/category\//];
+const STATIC_ENDPOINTS = [
+  ["/robots.txt", "text/plain"],
+  ["/feed.xml", "xml"],
+  ["/sitemap.xml", "xml"],
+  ["/ads.txt", "text/plain"],
+  ["/llms.txt", "text/plain"],
+  ["/llms-full.txt", "text/plain"],
+  ["/ai-index.json", "json"],
+  ["/docs/plant-guide.md", "text/markdown"],
+  ["/docs/category-guide.md", "text/markdown"],
+  ["/docs/diagnose-tool.md", "text/markdown"]
+];
 
 const parser = new XMLParser({
   ignoreAttributes: false
@@ -19,6 +31,10 @@ function toArray(value) {
 
 function getPath(url) {
   return new URL(url).pathname;
+}
+
+function toSiteUrl(url, baseUrl) {
+  return new URL(new URL(url).pathname, `${baseUrl}/`).toString();
 }
 
 async function fetchText(url) {
@@ -92,6 +108,16 @@ async function checkStaticEndpoint(url, expectedType) {
   if (expectedType && !result.contentType.includes(expectedType)) {
     errors.push(`content-type 확인 필요: ${result.contentType}`);
   }
+  if (url.endsWith("/ai-index.json")) {
+    try {
+      const index = JSON.parse(result.text);
+      if (!Array.isArray(index.pages) || index.pages.length < 5) {
+        errors.push("ai-index pages 부족");
+      }
+    } catch {
+      errors.push("ai-index JSON 파싱 실패");
+    }
+  }
 
   return { url, errors, warnings: [] };
 }
@@ -134,9 +160,7 @@ async function main() {
     throw new Error(`사이트맵 요청 실패: HTTP ${sitemap.status}`);
   }
 
-  const urls = extractSitemapUrls(sitemap.text).map((url) =>
-    url.replace(/^https:\/\/askore\.kr/, "https://www.askore.kr")
-  );
+  const urls = extractSitemapUrls(sitemap.text).map((url) => toSiteUrl(url, baseUrl));
   const pageChecks = [];
 
   for (const url of urls) {
@@ -144,12 +168,11 @@ async function main() {
     pageChecks.push(checkPage(url, result));
   }
 
-  const staticChecks = await Promise.all([
-    checkStaticEndpoint(`${baseUrl}/robots.txt`, "text/plain"),
-    checkStaticEndpoint(`${baseUrl}/feed.xml`, "xml"),
-    checkStaticEndpoint(sitemapUrl, "xml"),
-    checkStaticEndpoint(`${baseUrl}/ads.txt`, "text/plain")
-  ]);
+  const staticChecks = await Promise.all(
+    STATIC_ENDPOINTS.map(([path, type]) =>
+      checkStaticEndpoint(`${baseUrl}${path}`, type)
+    )
+  );
 
   summarize([...pageChecks, ...staticChecks]);
 }

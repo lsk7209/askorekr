@@ -1,0 +1,46 @@
+{
+  "site": {
+    "name": "플랜티프렌즈",
+    "url": "https://www.askore.kr",
+    "language": "ko-KR",
+    "description": "한국 생활 환경에 맞는 반려식물 선택을 돕는 데이터 기반 가이드"
+  },
+  "updated": "2026-05-10",
+  "pages": [
+    {
+      "url": "https://www.askore.kr/",
+      "title": "플랜티프렌즈",
+      "type": "home",
+      "description": "한국 집에 맞는 반려식물 선택 기준과 주요 카테고리 안내"
+    },
+    {
+      "url": "https://www.askore.kr/tools/diagnose",
+      "title": "반려식물 진단 도구",
+      "type": "tool",
+      "description": "지역과 실내외 조건을 바탕으로 식물 후보를 비교"
+    },
+    {
+      "url": "https://www.askore.kr/category/indoor-foliage",
+      "title": "실내 관엽식물",
+      "type": "category",
+      "description": "실내 빛과 관리 난이도 기준으로 관엽식물 비교"
+    },
+    {
+      "url": "https://www.askore.kr/category/herbs",
+      "title": "허브 식물",
+      "type": "category",
+      "description": "햇빛, 수확, 물마름 기준으로 허브 식물 비교"
+    },
+    {
+      "url": "https://www.askore.kr/category/balcony-trees",
+      "title": "베란다 나무",
+      "type": "category",
+      "description": "베란다 일조량과 겨울 냉해 기준으로 나무형 식물 비교"
+    }
+  ],
+  "docs": [
+    "https://www.askore.kr/docs/plant-guide.md",
+    "https://www.askore.kr/docs/category-guide.md",
+    "https://www.askore.kr/docs/diagnose-tool.md"
+  ]
+}
