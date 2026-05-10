@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPlantBySlug } from "@/features/plants/queries";
+import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { getPlantFaqs, PlantGuideContent } from "./plant-detail-content";
 
 type Props = {
@@ -25,17 +26,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const title = `${plant.koreanName} 키우기 가이드`;
+  const description = `${plant.koreanName}의 한국 기후 적합도, 난이도, 물주기, 광량, 반려동물 안전성 정보를 확인하세요.`;
+  const image = buildOgImageUrl({
+    title,
+    subtitle: description,
+    label: "Plant Guide"
+  });
+
   return {
-    title: `${plant.koreanName} 키우기 가이드`,
-    description: `${plant.koreanName}의 한국 기후 적합도, 난이도, 물주기, 광량, 반려동물 안전성 정보를 확인하세요.`,
+    title,
+    description,
     alternates: {
       canonical: `/plant/${plant.slug}`
     },
     openGraph: {
       title: `${plant.koreanName} | 플랜티프렌즈`,
-      description: `${plant.koreanName}의 데이터 기반 반려식물 정보를 확인하세요.`,
+      description,
       type: "article",
-      locale: "ko_KR"
+      locale: "ko_KR",
+      images: [
+        {
+          url: image,
+          width: OG_IMAGE_WIDTH,
+          height: OG_IMAGE_HEIGHT,
+          alt: `${plant.koreanName} 키우기 가이드 대표 이미지`
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image]
     }
   };
 }

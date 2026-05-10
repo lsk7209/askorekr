@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategories, getCategoryBySlug } from "@/features/categories/queries";
+import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -28,21 +29,41 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const title = `${category.title} 추천 식물`;
+  const description =
+    category.description ??
+    `${category.title}에 속한 반려식물을 한국 기후 적합도 기준으로 확인하세요.`;
+  const image = buildOgImageUrl({
+    title,
+    subtitle: description,
+    label: "Category Guide"
+  });
+
   return {
-    title: `${category.title} 추천 식물`,
-    description:
-      category.description ??
-      `${category.title}에 속한 반려식물을 한국 기후 적합도 기준으로 확인하세요.`,
+    title,
+    description,
     alternates: {
       canonical: `/category/${category.slug}`
     },
     openGraph: {
       title: `${category.title} | 플랜티프렌즈`,
-      description:
-        category.description ??
-        `${category.title} 식물 목록과 관리 난이도를 확인하세요.`,
+      description,
       type: "website",
-      locale: "ko_KR"
+      locale: "ko_KR",
+      images: [
+        {
+          url: image,
+          width: OG_IMAGE_WIDTH,
+          height: OG_IMAGE_HEIGHT,
+          alt: `${category.title} 추천 식물 대표 이미지`
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image]
     }
   };
 }

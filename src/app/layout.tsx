@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { publicEnv } from "@/env";
+import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import "./globals.css";
 
 const siteUrl = publicEnv.siteUrl;
 const GOOGLE_SITE_VERIFICATION =
   "RP69sUcy912-MgKrDEC3ICVzBt5Q_kefbiVQmUOGIWg";
 const NAVER_SITE_VERIFICATION = "abcfd7fa27ee16b626d8d096c9a984a2fcbee6c8";
+const defaultOgImage = buildOgImageUrl({
+  title: "플랜티프렌즈",
+  subtitle: "한국 집에 맞는 반려식물 선택 가이드"
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -25,7 +30,21 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "플랜티프렌즈",
     locale: "ko_KR",
-    type: "website"
+    type: "website",
+    images: [
+      {
+        url: defaultOgImage,
+        width: OG_IMAGE_WIDTH,
+        height: OG_IMAGE_HEIGHT,
+        alt: "플랜티프렌즈 대표 이미지"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "플랜티프렌즈",
+    description: "한국 집에 맞는 반려식물 선택 가이드",
+    images: [defaultOgImage]
   },
   robots: {
     index: true,
