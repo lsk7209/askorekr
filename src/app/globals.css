@@ -875,6 +875,10 @@ h2 {
     padding: 36px 16px;
   }
 
+  .home-band {
+    margin-inline: -16px;
+  }
+
   .tool-shell {
     padding: 36px 16px;
   }

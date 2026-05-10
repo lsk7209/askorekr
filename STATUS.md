@@ -1,14 +1,14 @@
 # Status | 마지막: 2026-05-10
 ## 현재 작업
-AEO/GEO 정적 인덱스 자산 구현 완료
+AdSense 신청 전 브라우저 표면 QA 완료
 ## 최근 변경 (최근 5개만)
+- 05-10: 홈 모바일 home-band 가로 overflow 수정 및 브라우저 표면 QA 완료
 - 05-10: `llms.txt`, `llms-full.txt`, `ai-index.json`, docs 미러와 QA 검사 추가
 - 05-10: 사이트맵 기반 전 페이지 QA 스크립트와 `qa:site` 명령 추가
 - 05-10: 식물 상세에 같은 카테고리 추천 식물 내부링크 섹션 추가
 - 05-10: 카테고리 허브에 선택 가이드·체크리스트·FAQ·JSON-LD 추가
-- 05-10: seed 식물을 5개에서 18개로 확장하고 실내/허브/베란다 카테고리 매핑 추가
 ## TODO
-- [ ] AdSense 신청 전 브라우저 표면 QA 최종 확인
+- [ ] AdSense 신청 전 운영자 계정에서 최종 제출
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
 - IndexNow keyLocation은 `https://askore.kr/{INDEXNOW_KEY}.txt`
