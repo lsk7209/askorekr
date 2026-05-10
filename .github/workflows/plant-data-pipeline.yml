@@ -1,0 +1,46 @@
+name: plant-data-pipeline
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  collect-and-index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.0 --activate
+          pnpm install --frozen-lockfile
+
+      - name: Verify environment
+        run: |
+          node scripts/env-check.mjs --production
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          NONGSARO_API_KEY: ${{ secrets.NONGSARO_API_KEY }}
+          NONGSARO_GARDEN_API_BASE_URL: ${{ vars.NONGSARO_GARDEN_API_BASE_URL }}
+
+      - name: Collect plant data from public API
+        run: node scripts/etl-nongsaro-garden-live.mjs --limit 60
+        env:
+          NONGSARO_API_KEY: ${{ secrets.NONGSARO_API_KEY }}
+          NONGSARO_GARDEN_API_BASE_URL: ${{ vars.NONGSARO_GARDEN_API_BASE_URL }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+
+      - name: Validate SEO artifacts
+        run: node scripts/qa-site.mjs

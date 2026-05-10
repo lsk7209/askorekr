@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPlantBySlug } from "@/features/plants/queries";
+import { getPlantBySlug, getPlantSitemapItems } from "@/features/plants/queries";
 import { getRelatedPlants } from "@/features/plants/related-queries";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { getPlantFaqs, PlantGuideContent } from "./plant-detail-content";
@@ -14,7 +14,11 @@ export const revalidate = 86400;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return [];
+  const plants = await getPlantSitemapItems();
+
+  return plants.map((plant) => ({
+    slug: plant.slug
+  }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
