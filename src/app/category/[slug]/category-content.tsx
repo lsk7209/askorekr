@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdsenseAd } from "@/components/adsense-ad";
+import { publicEnv } from "@/env";
 import type { CategoryDetail } from "@/features/categories/queries";
 import type { CategoryGuide } from "./category-guides";
 
@@ -69,6 +71,12 @@ export function CategoryGuideContent({ category, guide }: Props) {
         </ul>
       </section>
 
+      <AdsenseAd
+        publisherId={publicEnv.adsensePubId}
+        slot={publicEnv.adsenseSlots.contentMid}
+        label={`${category.title} 본문 중간 광고`}
+      />
+
       <section className="category-guide" aria-labelledby="category-faq-title">
         <h2 id="category-faq-title">자주 묻는 질문</h2>
         <div className="plant-faq-list">
@@ -80,6 +88,12 @@ export function CategoryGuideContent({ category, guide }: Props) {
           ))}
         </div>
       </section>
+
+      <AdsenseAd
+        publisherId={publicEnv.adsensePubId}
+        slot={publicEnv.adsenseSlots.contentBottom}
+        label={`${category.title} 본문 하단 광고`}
+      />
 
       <section className="category-guide category-next-actions" aria-labelledby="category-next-title">
         <h2 id="category-next-title">내 환경에 맞는 식물 찾기</h2>

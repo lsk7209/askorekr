@@ -29,5 +29,10 @@ export const publicEnv = {
   ga4Id: readEnv("NEXT_PUBLIC_GA4_ID"),
   adsensePubId:
     readEnv("NEXT_PUBLIC_ADSENSE_PUB_ID") ??
-    readEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID")
+    readEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID"),
+  adsenseSlots: {
+    homeTop: readEnv("NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP"),
+    contentMid: readEnv("NEXT_PUBLIC_ADSENSE_SLOT_CONTENT_MID"),
+    contentBottom: readEnv("NEXT_PUBLIC_ADSENSE_SLOT_CONTENT_BOTTOM")
+  }
 };

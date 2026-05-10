@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdsenseAd } from "@/components/adsense-ad";
 import { publicEnv } from "@/env";
 
 const primaryLinks = [
@@ -116,6 +117,12 @@ export default function Home() {
           </div>
         </section>
 
+        <AdsenseAd
+          publisherId={publicEnv.adsensePubId}
+          slot={publicEnv.adsenseSlots.homeTop}
+          label="홈 상단 광고"
+        />
+
         <section className="home-band" aria-labelledby="guide-title">
           <div className="home-section-inner">
             <h2 id="guide-title">식물 선택 전 확인할 것</h2>
@@ -130,6 +137,12 @@ export default function Home() {
           </div>
         </section>
 
+        <AdsenseAd
+          publisherId={publicEnv.adsensePubId}
+          slot={publicEnv.adsenseSlots.contentMid}
+          label="홈 중간 광고"
+        />
+
         <section className="home-section-inner" aria-labelledby="category-title">
           <h2 id="category-title">주제별 가이드</h2>
           <div className="category-link-list">
@@ -141,6 +154,12 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        <AdsenseAd
+          publisherId={publicEnv.adsensePubId}
+          slot={publicEnv.adsenseSlots.contentBottom}
+          label="홈 하단 광고"
+        />
 
         <section className="home-band" aria-labelledby="source-title">
           <div className="home-section-inner split-section">

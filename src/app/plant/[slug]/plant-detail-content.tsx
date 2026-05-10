@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdsenseAd } from "@/components/adsense-ad";
+import { publicEnv } from "@/env";
 import type { PlantDetail } from "@/features/plants/queries";
 import type { RelatedPlant } from "@/features/plants/related-queries";
 import {
@@ -83,6 +85,12 @@ export function PlantGuideContent({ plant, faqs, relatedPlants }: Props) {
         </p>
       </section>
 
+      <AdsenseAd
+        publisherId={publicEnv.adsensePubId}
+        slot={publicEnv.adsenseSlots.contentMid}
+        label={`${plant.koreanName} 본문 중간 광고`}
+      />
+
       <section className="plant-section" aria-labelledby="care-title">
         <h2 id="care-title">빛·물·온습도 관리</h2>
         <div className="plant-care-grid">
@@ -142,6 +150,12 @@ export function PlantGuideContent({ plant, faqs, relatedPlants }: Props) {
       </section>
 
       <PlantRelatedLinks plants={relatedPlants} />
+
+      <AdsenseAd
+        publisherId={publicEnv.adsensePubId}
+        slot={publicEnv.adsenseSlots.contentBottom}
+        label={`${plant.koreanName} 본문 하단 광고`}
+      />
 
       <section className="plant-section plant-next-actions" aria-labelledby="next-title">
         <h2 id="next-title">다음에 확인할 것</h2>
