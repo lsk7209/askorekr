@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPlantBySlug } from "@/features/plants/queries";
+import { getRelatedPlants } from "@/features/plants/related-queries";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { getPlantFaqs, PlantGuideContent } from "./plant-detail-content";
 
@@ -72,6 +73,7 @@ export default async function PlantDetailPage({ params }: Props) {
   }
 
   const faqs = getPlantFaqs(plant);
+  const relatedPlants = await getRelatedPlants(plant);
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -121,7 +123,11 @@ export default async function PlantDetailPage({ params }: Props) {
           </p>
         </header>
 
-        <PlantGuideContent plant={plant} faqs={faqs} />
+        <PlantGuideContent
+          plant={plant}
+          faqs={faqs}
+          relatedPlants={relatedPlants}
+        />
       </article>
     </main>
   );

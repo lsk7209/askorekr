@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PlantDetail } from "@/features/plants/queries";
+import type { RelatedPlant } from "@/features/plants/related-queries";
 import {
   formatDifficulty,
   formatDifficultyLabel,
@@ -12,6 +13,7 @@ import {
   formatWaterCycle,
   formatWaterGuide
 } from "./plant-formatters";
+import { PlantRelatedLinks } from "./plant-related-links";
 
 export type PlantFaq = {
   question: string;
@@ -21,6 +23,7 @@ export type PlantFaq = {
 type Props = {
   plant: PlantDetail;
   faqs: PlantFaq[];
+  relatedPlants: RelatedPlant[];
 };
 
 export function getPlantFaqs(plant: PlantDetail): PlantFaq[] {
@@ -40,7 +43,7 @@ export function getPlantFaqs(plant: PlantDetail): PlantFaq[] {
   ];
 }
 
-export function PlantGuideContent({ plant, faqs }: Props) {
+export function PlantGuideContent({ plant, faqs, relatedPlants }: Props) {
   return (
     <>
       <section className="quick-facts" aria-labelledby="quick-facts-title">
@@ -137,6 +140,8 @@ export function PlantGuideContent({ plant, faqs }: Props) {
           ))}
         </div>
       </section>
+
+      <PlantRelatedLinks plants={relatedPlants} />
 
       <section className="plant-section plant-next-actions" aria-labelledby="next-title">
         <h2 id="next-title">다음에 확인할 것</h2>

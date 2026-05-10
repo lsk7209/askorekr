@@ -539,6 +539,63 @@ h2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.section-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.section-heading-row h2,
+.section-heading-row p {
+  margin: 0;
+}
+
+.related-plant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.related-plant-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.related-plant-card span {
+  color: var(--sage-dark);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.related-plant-card small {
+  color: var(--muted);
+}
+
+.related-plant-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.related-plant-card dt {
+  color: var(--sage);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.related-plant-card dd {
+  margin: 0;
+  font-weight: 800;
+}
+
 .care-item,
 .plant-faq-item {
   border: 1px solid var(--border);
@@ -834,6 +891,7 @@ h2 {
   .plant-result dl,
   .quick-facts dl,
   .plant-care-grid,
+  .related-plant-grid,
   .checkbox-group,
   .condition-summary dl,
   .category-card,
@@ -842,6 +900,11 @@ h2 {
   .info-grid,
   .split-section {
     grid-template-columns: 1fr;
+  }
+
+  .section-heading-row {
+    display: grid;
+    gap: 10px;
   }
 
   .result-heading {
