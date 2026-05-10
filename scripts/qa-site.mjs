@@ -13,7 +13,8 @@ const STATIC_ENDPOINTS = [
   ["/ai-index.json", "json"],
   ["/docs/plant-guide.md", "text/markdown"],
   ["/docs/category-guide.md", "text/markdown"],
-  ["/docs/diagnose-tool.md", "text/markdown"]
+  ["/docs/diagnose-tool.md", "text/markdown"],
+  ["/api/health", "json"]
 ];
 
 const parser = new XMLParser({
@@ -116,6 +117,19 @@ async function checkStaticEndpoint(url, expectedType) {
       }
     } catch {
       errors.push("ai-index JSON 파싱 실패");
+    }
+  }
+  if (url.endsWith("/api/health")) {
+    try {
+      const health = JSON.parse(result.text);
+      if (health.status !== "ok") {
+        errors.push(`health status ${health.status}`);
+      }
+      if (health.checks?.database?.status !== "ok") {
+        errors.push("database health 실패");
+      }
+    } catch {
+      errors.push("health JSON 파싱 실패");
     }
   }
 
