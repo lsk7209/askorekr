@@ -1,6 +1,8 @@
 import { XMLParser } from "fast-xml-parser";
 
 const DEFAULT_BASE_URL = process.env.QA_SITE_URL ?? "https://www.askore.kr";
+const DEFAULT_INDEX_ORIGIN =
+  process.env.QA_INDEX_ORIGIN ?? "https://www.askore.kr";
 const USER_AGENT = "askorekr-site-qa/1.0";
 const REQUIRED_JSON_LD_PATHS = [/^\/$/, /^\/plant\//, /^\/category\//];
 const STATIC_ENDPOINTS = [
@@ -101,7 +103,20 @@ function checkPage(url, result) {
   return { url, errors, warnings };
 }
 
-async function checkStaticEndpoint(url, expectedType) {
+function checkSitemapUrls(xml, baseUrl) {
+  const urls = extractSitemapUrls(xml);
+  const invalid = urls.filter((item) => !item.startsWith(`${baseUrl}/`));
+
+  return invalid.length === 0 ? undefined : `다른 호스트 URL ${invalid.length}개`;
+}
+
+function checkRobotsSitemap(text, baseUrl) {
+  const expected = `Sitemap: ${baseUrl}/sitemap.xml`;
+
+  return text.includes(expected) ? undefined : "robots Sitemap URL 불일치";
+}
+
+async function checkStaticEndpoint(url, expectedType, indexOrigin) {
   const result = await fetchText(url);
   const errors = [];
 
@@ -131,6 +146,14 @@ async function checkStaticEndpoint(url, expectedType) {
     } catch {
       errors.push("health JSON 파싱 실패");
     }
+  }
+  if (url.endsWith("/sitemap.xml")) {
+    const error = checkSitemapUrls(result.text, indexOrigin);
+    if (error) errors.push(error);
+  }
+  if (url.endsWith("/robots.txt")) {
+    const error = checkRobotsSitemap(result.text, indexOrigin);
+    if (error) errors.push(error);
   }
 
   return { url, errors, warnings: [] };
@@ -167,6 +190,7 @@ function summarize(checks) {
 
 async function main() {
   const baseUrl = normalizeBaseUrl(process.argv[2] ?? DEFAULT_BASE_URL);
+  const indexOrigin = normalizeBaseUrl(DEFAULT_INDEX_ORIGIN);
   const sitemapUrl = `${baseUrl}/sitemap.xml`;
   const sitemap = await fetchText(sitemapUrl);
 
@@ -184,7 +208,7 @@ async function main() {
 
   const staticChecks = await Promise.all(
     STATIC_ENDPOINTS.map(([path, type]) =>
-      checkStaticEndpoint(`${baseUrl}${path}`, type)
+      checkStaticEndpoint(`${baseUrl}${path}`, type, indexOrigin)
     )
   );
 

@@ -1,19 +1,19 @@
 # Status | 마지막: 2026-05-10
 ## 현재 작업
-헬스 체크 API 구현 완료
+사이트맵 대표 URL www 고정 완료
 ## 최근 변경 (최근 5개만)
+- 05-10: sitemap/robots 대표 URL을 `https://www.askore.kr`로 고정하고 QA 검사 강화
 - 05-10: `/api/health` 추가 및 `qa:site`에 헬스 체크 검사 연결
 - 05-10: 슬롯 env가 있을 때만 렌더링되는 AdSense 공통 컴포넌트와 위치 연결 추가
 - 05-10: 홈 모바일 home-band 가로 overflow 수정 및 브라우저 표면 QA 완료
 - 05-10: `llms.txt`, `llms-full.txt`, `ai-index.json`, docs 미러와 QA 검사 추가
-- 05-10: 사이트맵 기반 전 페이지 QA 스크립트와 `qa:site` 명령 추가
 ## TODO
 - [ ] AdSense 신청 전 운영자 계정에서 최종 제출
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
-- IndexNow keyLocation은 `https://askore.kr/{INDEXNOW_KEY}.txt`
+- IndexNow keyLocation은 `https://www.askore.kr/{INDEXNOW_KEY}.txt`
 - IndexNow payload는 제출 URL origin별로 나눠 `host/keyLocation` 생성
-- 대표 도메인: https://askore.kr
+- 대표 도메인: https://www.askore.kr
 - 배포 기준 GitHub: https://github.com/lsk7209/askorekr
 - DB: Drizzle + libSQL/Turso 호환 SQLite 스키마 우선
 ## 주의
