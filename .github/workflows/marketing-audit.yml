@@ -1,0 +1,63 @@
+name: marketing-audit
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  audit-marketing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.0 --activate
+          pnpm install --frozen-lockfile
+
+      - name: Prepare Google credentials
+        shell: bash
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.MARKETING_AUDIT_SITE_URL }}
+          ADSENSE_REFRESH_TOKEN: ${{ secrets.ADSENSE_REFRESH_TOKEN }}
+          ADSENSE_API_CLIENT_ID: ${{ secrets.ADSENSE_API_CLIENT_ID }}
+          ADSENSE_API_CLIENT_SECRET: ${{ secrets.ADSENSE_API_CLIENT_SECRET }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GSC_SERVICE_ACCOUNT_KEY_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_KEY_JSON }}
+          GA4_SERVICE_ACCOUNT_KEY_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY_JSON }}
+          ADSENSE_OAUTH_CLIENT_JSON: ${{ secrets.ADSENSE_OAUTH_CLIENT_JSON }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/askorekr"
+          if [ -n "$GSC_SERVICE_ACCOUNT_KEY_JSON" ]; then
+            printf '%s' "$GSC_SERVICE_ACCOUNT_KEY_JSON" > "$RUNNER_TEMP/askorekr/gsc-service-account.json"
+            echo "GSC_SERVICE_ACCOUNT_KEY_PATH=$RUNNER_TEMP/askorekr/gsc-service-account.json" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$GA4_SERVICE_ACCOUNT_KEY_JSON" ]; then
+            printf '%s' "$GA4_SERVICE_ACCOUNT_KEY_JSON" > "$RUNNER_TEMP/askorekr/ga4-service-account.json"
+            echo "GA4_SERVICE_ACCOUNT_KEY_PATH=$RUNNER_TEMP/askorekr/ga4-service-account.json" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$ADSENSE_OAUTH_CLIENT_JSON" ]; then
+            printf '%s' "$ADSENSE_OAUTH_CLIENT_JSON" > "$RUNNER_TEMP/askorekr/adsense-oauth-client.json"
+            echo "ADSENSE_OAUTH_CLIENT_PATH=$RUNNER_TEMP/askorekr/adsense-oauth-client.json" >> "$GITHUB_ENV"
+          fi
+          {
+            [ -n "$NEXT_PUBLIC_SITE_URL" ] && echo "NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL"
+            [ -n "$ADSENSE_REFRESH_TOKEN" ] && echo "ADSENSE_REFRESH_TOKEN=$ADSENSE_REFRESH_TOKEN"
+            [ -n "$ADSENSE_API_CLIENT_ID" ] && echo "ADSENSE_API_CLIENT_ID=$ADSENSE_API_CLIENT_ID"
+            [ -n "$ADSENSE_API_CLIENT_SECRET" ] && echo "ADSENSE_API_CLIENT_SECRET=$ADSENSE_API_CLIENT_SECRET"
+            [ -n "$GA4_PROPERTY_ID" ] && echo "GA4_PROPERTY_ID=$GA4_PROPERTY_ID"
+          } >> "$GITHUB_ENV"
+
+      - name: Run marketing audit
+        run: node scripts/audit-marketing.mjs
