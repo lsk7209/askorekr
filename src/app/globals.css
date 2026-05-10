@@ -576,7 +576,8 @@ h2 {
 }
 
 .category-hero,
-.category-list {
+.category-list,
+.category-guide {
   width: min(1080px, 100%);
   margin: 0 auto;
 }
@@ -588,6 +589,7 @@ h2 {
 .category-list {
   display: grid;
   gap: 14px;
+  margin-bottom: 18px;
 }
 
 .category-card {
@@ -627,6 +629,51 @@ h2 {
   margin: 0;
   overflow-wrap: anywhere;
   font-weight: 800;
+}
+
+.category-guide {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--ivory);
+  padding: 22px;
+}
+
+.category-guide + .category-guide {
+  margin-top: 14px;
+}
+
+.category-guide h2,
+.category-guide p {
+  margin-bottom: 0;
+}
+
+.category-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.category-guide-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.category-guide-card h3 {
+  margin: 0 0 8px;
+  color: var(--sage-dark);
+  font-size: 17px;
+}
+
+.category-guide-card p {
+  margin-bottom: 0;
+}
+
+.category-next-actions {
+  background: #f2f0e5;
 }
 
 .policy-shell {
@@ -791,6 +838,7 @@ h2 {
   .condition-summary dl,
   .category-card,
   .category-card dl,
+  .category-guide-grid,
   .info-grid,
   .split-section {
     grid-template-columns: 1fr;

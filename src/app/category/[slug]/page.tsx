@@ -3,6 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategories, getCategoryBySlug } from "@/features/categories/queries";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
+import {
+  CategoryGuideContent,
+  getCategoryJsonLd
+} from "./category-content";
+import { getCategoryGuide } from "./category-guides";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -75,9 +80,15 @@ export default async function CategoryPage({ params }: Props) {
   if (!category) {
     notFound();
   }
+  const guide = getCategoryGuide(category);
+  const jsonLd = getCategoryJsonLd(category, guide);
 
   return (
     <main className="category-shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <section className="category-hero" aria-labelledby="category-title">
         <p className="eyebrow">Category Hub</p>
         <h1 id="category-title">{category.title}</h1>
@@ -123,6 +134,7 @@ export default async function CategoryPage({ params }: Props) {
           </div>
         )}
       </section>
+      <CategoryGuideContent category={category} guide={guide} />
     </main>
   );
 }
