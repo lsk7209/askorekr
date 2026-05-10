@@ -8,7 +8,7 @@
 - 05-10: sitemap 식물 상세 URL을 실제 렌더링 가능한 plantMetrics 보유 식물로 제한
 - 05-10: IndexNow 내부 제출 API와 표준 키 파일 라우트 추가
 ## TODO
-- [ ] 신규 OG 이미지 URL IndexNow 제출
+- [ ] 식물 데이터 추가 수집 및 상세 페이지 다양화
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
 - IndexNow keyLocation은 `https://askore.kr/{INDEXNOW_KEY}.txt`
