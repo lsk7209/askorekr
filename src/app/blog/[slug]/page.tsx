@@ -7,6 +7,7 @@ import {
   getRelatedBlogPosts
 } from "@/features/blog/queries";
 import { publicEnv } from "@/env";
+import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -24,6 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) return { title: "글을 찾을 수 없습니다" };
 
+  const ogImage = buildOgImageUrl({
+    title: post.title,
+    subtitle: post.metaDescription ?? "한국형 반려식물·가드닝 가이드",
+    label: post.category
+  });
+
   return {
     title: post.title,
     description: post.metaDescription ?? undefined,
@@ -35,7 +42,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: "ko_KR",
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
-      tags: post.tags
+      tags: post.tags,
+      images: [
+        {
+          url: ogImage,
+          width: OG_IMAGE_WIDTH,
+          height: OG_IMAGE_HEIGHT,
+          alt: `${post.title} 대표 이미지`
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${post.title} | 플랜티프렌즈`,
+      description: post.metaDescription ?? undefined,
+      images: [ogImage]
     }
   };
 }
@@ -160,11 +181,21 @@ export default async function BlogPostPage({ params }: Props) {
     () => []
   );
 
+  const ogImageAbs = new URL(
+    buildOgImageUrl({
+      title: post.title,
+      subtitle: post.metaDescription ?? "한국형 반려식물·가드닝 가이드",
+      label: post.category
+    }),
+    publicEnv.siteUrl
+  ).toString();
+
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: post.metaDescription,
+    image: [ogImageAbs],
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     author: {
