@@ -83,6 +83,46 @@ export const dictionaryCategories = sqliteTable("dictionary_categories", {
   plantCount: integer("plant_count").default(0)
 });
 
+export const blogPosts = sqliteTable(
+  "blog_posts",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    slug: text("slug").notNull().unique(),
+    title: text("title").notNull(),
+    metaDescription: text("meta_description"),
+    category: text("category").notNull().default("가드닝"),
+    tags: text("tags", { mode: "json" }).$type<string[]>().default([]),
+    bodyMarkdown: text("body_markdown").notNull(),
+    qualityScore: real("quality_score"),
+    qualityBreakdown: text("quality_breakdown", { mode: "json" }).$type<{
+      eeat: number;
+      persona: number;
+      seo: number;
+      factual: number;
+      aiCliche: number;
+    }>(),
+    researchJson: text("research_json", { mode: "json" }),
+    generatedBy: text("generated_by").default("gemini-2.5-pro"),
+    scheduledAt: integer("scheduled_at", { mode: "timestamp" }),
+    publishedAt: integer("published_at", { mode: "timestamp" }),
+    isPublished: integer("is_published", { mode: "boolean" }).default(false),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull()
+  },
+  (table) => ({
+    slugIdx: index("blog_posts_slug_idx").on(table.slug),
+    publishedIdx: index("blog_posts_published_idx").on(
+      table.isPublished,
+      table.publishedAt
+    ),
+    scheduledIdx: index("blog_posts_scheduled_idx").on(
+      table.isPublished,
+      table.scheduledAt
+    ),
+    categoryIdx: index("blog_posts_category_idx").on(table.category)
+  })
+);
+
 export const dedupEmbeddings = sqliteTable(
   "dedup_embeddings",
   {

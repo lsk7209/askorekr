@@ -6,18 +6,27 @@ function readEnv(name: string) {
 }
 
 export function middleware(request: NextRequest) {
-  const key = readEnv("INDEXNOW_KEY");
+  const { pathname, host } = request.nextUrl;
 
-  if (!key || request.nextUrl.pathname !== `/${key}.txt`) {
-    return NextResponse.next();
+  // www → non-www 리다이렉트 (canonical 유지, GSC 불일치 방지)
+  if (host.startsWith("www.")) {
+    const nonWwwUrl = request.nextUrl.clone();
+    nonWwwUrl.host = host.slice(4);
+    return NextResponse.redirect(nonWwwUrl, { status: 301 });
   }
 
-  return new NextResponse(key, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "public, max-age=3600"
-    }
-  });
+  // IndexNow 키 파일 서빙
+  const key = readEnv("INDEXNOW_KEY");
+  if (key && pathname === `/${key}.txt`) {
+    return new NextResponse(key, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=3600"
+      }
+    });
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

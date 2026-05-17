@@ -17,7 +17,7 @@ export const revalidate = 43200;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const categories = await getCategories();
+  const categories = await getCategories().catch(() => []);
 
   return categories.map((category) => ({
     slug: category.slug

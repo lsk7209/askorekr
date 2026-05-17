@@ -95,6 +95,7 @@ export default function Home() {
         <nav className="home-nav" aria-label="주요 메뉴">
           <Link href="/">플랜티프렌즈</Link>
           <Link href="/tools/diagnose">진단</Link>
+          <Link href="/blog">블로그</Link>
           <Link href="/about">소개</Link>
           <Link href="/contact">문의</Link>
         </nav>

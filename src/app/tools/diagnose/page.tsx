@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DiagnosePage() {
-  const regions = await getRegions();
+  const regions = await getRegions().catch(() => []);
 
   return (
     <main className="tool-shell">

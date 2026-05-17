@@ -14,7 +14,7 @@ export const revalidate = 86400;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const plants = await getPlantSitemapItems();
+  const plants = await getPlantSitemapItems().catch(() => []);
 
   return plants.map((plant) => ({
     slug: plant.slug

@@ -63,6 +63,16 @@ export const metadata: Metadata = {
   }
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "플랜티프렌즈",
+  url: siteUrl,
+  logo: `${siteUrl}/icon.svg`,
+  description: "한국 기후 적합도와 생활 환경에 맞는 반려식물 정보를 제공하는 데이터 기반 가드닝 사이트",
+  sameAs: []
+};
+
 export default function RootLayout({
   children
 }: Readonly<{
@@ -70,6 +80,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+        <link
+          rel="preload"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css"
+          as="style"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+      </head>
       <body>
         {publicEnv.adsensePubId ? (
           <Script
@@ -91,7 +119,10 @@ export default function RootLayout({
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){window.dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${publicEnv.ga4Id}');
+                gtag('config', '${publicEnv.ga4Id}', {
+                  page_path: window.location.pathname,
+                  send_page_view: true
+                });
               `}
             </Script>
           </>

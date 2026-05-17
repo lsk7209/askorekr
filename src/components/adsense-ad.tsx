@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -8,16 +8,30 @@ declare global {
   }
 }
 
+type AdFormat = "auto" | "rectangle" | "horizontal" | "vertical";
+
 type Props = {
   publisherId?: string;
   slot?: string;
   label: string;
   className?: string;
+  format?: AdFormat;
+  minHeight?: number;
 };
 
-export function AdsenseAd({ publisherId, slot, label, className }: Props) {
+export function AdsenseAd({
+  publisherId,
+  slot,
+  label,
+  className,
+  format = "auto",
+  minHeight = 90
+}: Props) {
+  const pushed = useRef(false);
+
   useEffect(() => {
-    if (!publisherId || !slot) return;
+    if (!publisherId || !slot || pushed.current) return;
+    pushed.current = true;
 
     try {
       window.adsbygoogle = window.adsbygoogle ?? [];
@@ -34,14 +48,18 @@ export function AdsenseAd({ publisherId, slot, label, className }: Props) {
   const classes = ["adsense-unit", className].filter(Boolean).join(" ");
 
   return (
-    <aside className={classes} aria-label={label}>
+    <aside
+      className={classes}
+      aria-label={label}
+      style={{ minHeight, overflow: "hidden" }}
+    >
       <ins
         className="adsbygoogle"
         data-ad-client={publisherId}
-        data-ad-format="auto"
+        data-ad-format={format}
         data-ad-slot={slot}
         data-full-width-responsive="true"
-        style={{ display: "block" }}
+        style={{ display: "block", minHeight }}
       />
     </aside>
   );

@@ -1,5 +1,6 @@
 const LOCAL_DATABASE_URL = "file:local.db";
-const DEFAULT_SITE_URL = "https://www.askore.kr";
+// GSC 등록 도메인과 일치시켜 색인 불일치 방지 (non-www)
+const DEFAULT_SITE_URL = "https://askore.kr";
 
 function readEnv(name: string) {
   const value = process.env[name]?.trim();

@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Pretendard variable font — font-display:swap prevents invisible text during load */
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.woff2")
+    format("woff2-variations");
+  unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F, U+A960-A97F,
+    U+D7B0-D7FF, U+0030-0039, U+0041-005A, U+0061-007A, U+0020-002F,
+    U+003A-0040, U+005B-0060, U+007B-007E;
+}
+
 :root {
   --background: #fbfaf4;
   --foreground: #233126;
@@ -207,6 +220,8 @@ h2 {
 .home-footer {
   border-top: 1px solid var(--border);
   background: var(--ivory);
+  content-visibility: auto;
+  contain-intrinsic-size: 0 60px;
 }
 
 .status-panel ul {
@@ -929,5 +944,222 @@ h2 {
 
   h1 {
     font-size: 38px;
+  }
+}
+
+/* ── Blog styles ─────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.blog-category-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(920px, 100%);
+  margin: 0 auto;
+}
+
+.blog-category-chip {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--ivory);
+  color: var(--sage-dark);
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.blog-list {
+  display: grid;
+  gap: 16px;
+  width: min(920px, 100%);
+  margin: 0 auto;
+}
+
+.blog-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--ivory);
+  padding: 22px;
+  display: grid;
+  gap: 12px;
+}
+
+.blog-card-category {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--terracotta);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.blog-card-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.blog-card-title a {
+  color: var(--sage-dark);
+  text-decoration: none;
+}
+
+.blog-card-title a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.blog-card-desc {
+  margin: 0;
+  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.blog-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--sage);
+}
+
+.blog-tag {
+  color: var(--sage);
+  font-weight: 700;
+}
+
+.blog-post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--sage);
+}
+
+.blog-content {
+  line-height: 1.8;
+  font-size: 17px;
+}
+
+.blog-content h2 {
+  margin-top: 32px;
+  color: var(--sage-dark);
+  font-size: 22px;
+}
+
+.blog-content h3 {
+  margin-top: 24px;
+  color: var(--sage-dark);
+  font-size: 18px;
+}
+
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 15px;
+}
+
+.blog-content td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+}
+
+.blog-content tr:first-child td {
+  background: #f2f0e5;
+  font-weight: 700;
+}
+
+.blog-content code {
+  background: #f2f0e5;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 14px;
+}
+
+.blog-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+
+@media (max-width: 640px) {
+  .blog-card-title {
+    font-size: 18px;
+  }
+
+  .blog-content {
+    font-size: 16px;
+  }
+}
+
+/* ── Monitoring styles ───────────────────────────── */
+
+.monitoring-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+.monitoring-grid dt {
+  color: var(--sage);
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.monitoring-grid dd {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--sage-dark);
+}
+
+.monitoring-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.monitoring-table th {
+  background: #f2f0e5;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 800;
+  color: var(--sage-dark);
+}
+
+.monitoring-table td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+}
+
+.monitoring-table tr:hover td {
+  background: #fafaf2;
+}
+
+@media (max-width: 640px) {
+  .monitoring-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .monitoring-table {
+    font-size: 12px;
   }
 }

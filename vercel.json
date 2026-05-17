@@ -2,5 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm run env:check -- --production && pnpm run build"
+  "buildCommand": "pnpm run env:check -- --production && pnpm run build",
+  "crons": [
+    {
+      "path": "/api/internal/publish-blog-tick",
+      "schedule": "0 */5 * * *"
+    }
+  ]
 }
