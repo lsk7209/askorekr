@@ -1,8 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#6f8c72" },
+    { media: "(prefers-color-scheme: dark)", color: "#35523a" }
+  ]
+};
 
 const siteUrl = publicEnv.siteUrl;
 const GOOGLE_SITE_VERIFICATION =
