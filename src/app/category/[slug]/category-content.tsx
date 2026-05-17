@@ -13,6 +13,7 @@ export function getCategoryJsonLd(
   category: CategoryDetail,
   guide: CategoryGuide
 ) {
+  const siteUrl = publicEnv.siteUrl;
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -21,15 +22,29 @@ export function getCategoryJsonLd(
         name: `${category.title} 추천 식물`,
         description: category.description ?? guide.intro,
         inLanguage: "ko-KR",
+        url: `${siteUrl}/category/${category.slug}`,
         mainEntity: {
           "@type": "ItemList",
+          numberOfItems: category.plants.length,
           itemListElement: category.plants.map((plant, index) => ({
             "@type": "ListItem",
             position: index + 1,
             name: plant.koreanName,
-            url: `/plant/${plant.slug}`
+            url: `${siteUrl}/plant/${plant.slug}`
           }))
         }
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "홈", item: `${siteUrl}/` },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: category.title,
+            item: `${siteUrl}/category/${category.slug}`
+          }
+        ]
       },
       {
         "@type": "FAQPage",

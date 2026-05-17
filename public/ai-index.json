@@ -1,46 +1,64 @@
 {
   "site": {
     "name": "플랜티프렌즈",
-    "url": "https://www.askore.kr",
+    "url": "https://askore.kr",
     "language": "ko-KR",
-    "description": "한국 생활 환경에 맞는 반려식물 선택을 돕는 데이터 기반 가이드"
+    "description": "한국 생활 환경에 맞는 반려식물 선택·관리를 돕는 데이터 기반 가드닝 가이드",
+    "publisher": "플랜티프렌즈 편집팀"
   },
-  "updated": "2026-05-10",
+  "updated": "2026-05-17",
   "pages": [
     {
-      "url": "https://www.askore.kr/",
+      "url": "https://askore.kr/",
       "title": "플랜티프렌즈",
       "type": "home",
       "description": "한국 집에 맞는 반려식물 선택 기준과 주요 카테고리 안내"
     },
     {
-      "url": "https://www.askore.kr/tools/diagnose",
+      "url": "https://askore.kr/tools/diagnose",
       "title": "반려식물 진단 도구",
       "type": "tool",
-      "description": "지역과 실내외 조건을 바탕으로 식물 후보를 비교"
+      "description": "지역·실내외 조건·빛·관리 시간 기반 식물 추천"
     },
     {
-      "url": "https://www.askore.kr/category/indoor-foliage",
+      "url": "https://askore.kr/blog",
+      "title": "가드닝 블로그",
+      "type": "blog_hub",
+      "description": "키우기 가이드·식물 선택·계절 관리·병충해·꽃말 콘텐츠 허브"
+    },
+    {
+      "url": "https://askore.kr/category/indoor-foliage",
       "title": "실내 관엽식물",
       "type": "category",
-      "description": "실내 빛과 관리 난이도 기준으로 관엽식물 비교"
+      "description": "실내 빛·관리 난이도 기준 관엽식물 비교"
     },
     {
-      "url": "https://www.askore.kr/category/herbs",
+      "url": "https://askore.kr/category/herbs",
       "title": "허브 식물",
       "type": "category",
-      "description": "햇빛, 수확, 물마름 기준으로 허브 식물 비교"
+      "description": "햇빛·수확·물마름 기준 허브 비교"
     },
     {
-      "url": "https://www.askore.kr/category/balcony-trees",
+      "url": "https://askore.kr/category/balcony-trees",
       "title": "베란다 나무",
       "type": "category",
-      "description": "베란다 일조량과 겨울 냉해 기준으로 나무형 식물 비교"
+      "description": "베란다 일조·겨울 냉해 기준 나무형 식물 비교"
     }
   ],
+  "blog_categories": [
+    { "name": "키우기가이드", "url": "https://askore.kr/blog", "description": "식물별 관리·번식·문제 해결" },
+    { "name": "식물선택", "url": "https://askore.kr/blog", "description": "지역·인테리어·꽃말 기준 추천" },
+    { "name": "계절관리", "url": "https://askore.kr/blog", "description": "겨울·여름·환절기 식물 관리" },
+    { "name": "병충해", "url": "https://askore.kr/blog", "description": "응애·깍지벌레·뿌리 썩음 대처" }
+  ],
   "docs": [
-    "https://www.askore.kr/docs/plant-guide.md",
-    "https://www.askore.kr/docs/category-guide.md",
-    "https://www.askore.kr/docs/diagnose-tool.md"
-  ]
+    "https://askore.kr/docs/plant-guide.md",
+    "https://askore.kr/docs/category-guide.md",
+    "https://askore.kr/docs/diagnose-tool.md"
+  ],
+  "sitemap": "https://askore.kr/sitemap.xml",
+  "llms_txt": "https://askore.kr/llms.txt",
+  "feeds": {
+    "rss": "https://askore.kr/feed.xml"
+  }
 }

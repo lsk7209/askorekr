@@ -1,4 +1,4 @@
-import { and, desc, eq, lte } from "drizzle-orm";
+import { and, desc, eq, lte, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { blogPosts } from "@/db/schema";
 
@@ -80,6 +80,40 @@ export async function getBlogSitemapItems(): Promise<BlogSitemapItem[]> {
   return rows
     .filter((r) => r.publishedAt != null)
     .map((r) => ({ slug: r.slug, publishedAt: r.publishedAt! }));
+}
+
+export async function getRelatedBlogPosts(
+  category: string,
+  excludeSlug: string,
+  limit = 4
+): Promise<BlogListItem[]> {
+  const rows = await db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      metaDescription: blogPosts.metaDescription,
+      category: blogPosts.category,
+      tags: blogPosts.tags,
+      publishedAt: blogPosts.publishedAt,
+      updatedAt: blogPosts.updatedAt
+    })
+    .from(blogPosts)
+    .where(
+      and(
+        eq(blogPosts.isPublished, true),
+        eq(blogPosts.category, category),
+        ne(blogPosts.slug, excludeSlug)
+      )
+    )
+    .orderBy(sql`RANDOM()`)
+    .limit(limit);
+
+  return rows.map((r) => ({
+    ...r,
+    tags: r.tags ?? [],
+    publishedAt: r.publishedAt ?? null
+  }));
 }
 
 export async function getScheduledPostsToPublish(): Promise<{ id: number; slug: string }[]> {

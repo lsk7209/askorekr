@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getPlantBySlug, getPlantSitemapItems } from "@/features/plants/queries";
 import { getRelatedPlants } from "@/features/plants/related-queries";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
+import { publicEnv } from "@/env";
 import { getPlantFaqs, PlantGuideContent } from "./plant-detail-content";
 
 type Props = {
@@ -78,6 +79,7 @@ export default async function PlantDetailPage({ params }: Props) {
 
   const faqs = getPlantFaqs(plant);
   const relatedPlants = await getRelatedPlants(plant);
+  const siteUrl = publicEnv.siteUrl;
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -86,10 +88,36 @@ export default async function PlantDetailPage({ params }: Props) {
         headline: `${plant.koreanName} 키우기 가이드`,
         description: `${plant.koreanName}의 한국 기후 적합도와 기본 관리 정보를 정리한 페이지입니다.`,
         dateModified: plant.updatedAt.toISOString(),
+        inLanguage: "ko-KR",
+        url: `${siteUrl}/plant/${plant.slug}`,
         author: {
           "@type": "Organization",
           name: "플랜티프렌즈 편집팀"
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "플랜티프렌즈",
+          url: siteUrl,
+          logo: { "@type": "ImageObject", url: `${siteUrl}/icon.svg` }
         }
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "홈", item: `${siteUrl}/` },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "식물 도감",
+            item: `${siteUrl}/tools/diagnose`
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: plant.koreanName,
+            item: `${siteUrl}/plant/${plant.slug}`
+          }
+        ]
       },
       {
         "@type": "FAQPage",

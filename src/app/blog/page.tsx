@@ -28,7 +28,7 @@ const CATEGORIES = [
   "꽃말문화"
 ] as const;
 
-const jsonLd = {
+const blogJsonLd = {
   "@context": "https://schema.org",
   "@type": "Blog",
   name: "플랜티프렌즈 가드닝 블로그",
@@ -37,19 +37,54 @@ const jsonLd = {
   inLanguage: "ko-KR",
   publisher: {
     "@type": "Organization",
-    name: "플랜티프렌즈"
+    name: "플랜티프렌즈",
+    url: publicEnv.siteUrl,
+    logo: { "@type": "ImageObject", url: `${publicEnv.siteUrl}/icon.svg` }
   }
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "홈", item: `${publicEnv.siteUrl}/` },
+    { "@type": "ListItem", position: 2, name: "블로그", item: `${publicEnv.siteUrl}/blog` }
+  ]
 };
 
 export default async function BlogPage() {
   const posts = await getPublishedBlogPosts(30).catch(() => []);
 
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "최신 가드닝 블로그 글",
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    numberOfItems: posts.length,
+    itemListElement: posts.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${publicEnv.siteUrl}/blog/${p.slug}`,
+      name: p.title
+    }))
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {posts.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        />
+      )}
       <header className="home-header">
         <nav className="home-nav" aria-label="주요 메뉴">
           <Link href="/">플랜티프렌즈</Link>
