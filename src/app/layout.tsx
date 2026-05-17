@@ -99,14 +99,12 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {publicEnv.adsensePubId ? (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publicEnv.adsensePubId}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        ) : null}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3050601904412736"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {publicEnv.ga4Id ? (
           <>
             <Script
