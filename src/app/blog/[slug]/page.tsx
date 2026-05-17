@@ -54,10 +54,13 @@ function markdownToHtml(md: string): string {
 
     if (first.startsWith("### ")) {
       result.push(`<h3>${inline(first.slice(4))}</h3>`);
+      if (lines.length > 1) result.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
     } else if (first.startsWith("## ")) {
       result.push(`<h2>${inline(first.slice(3))}</h2>`);
+      if (lines.length > 1) result.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
     } else if (first.startsWith("# ")) {
       result.push(`<h1>${inline(first.slice(2))}</h1>`);
+      if (lines.length > 1) result.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
     } else if (first === "---") {
       result.push("<hr>");
     } else if (lines.every((l) => l.startsWith("> "))) {
