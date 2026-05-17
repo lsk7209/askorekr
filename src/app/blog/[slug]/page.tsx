@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug, getBlogSitemapItems } from "@/features/blog/queries";
 import { publicEnv } from "@/env";
+import { AdsenseAd } from "@/components/adsense-ad";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -167,9 +168,25 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           </header>
 
+          <AdsenseAd
+            publisherId={publicEnv.adsensePubId}
+            slot={publicEnv.adsenseSlots.contentMid}
+            label="본문 중간 광고"
+            format="auto"
+            minHeight={280}
+          />
+
           <div
             className="plant-section blog-content"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
+
+          <AdsenseAd
+            publisherId={publicEnv.adsensePubId}
+            slot={publicEnv.adsenseSlots.contentBottom}
+            label="본문 하단 광고"
+            format="auto"
+            minHeight={280}
           />
 
           <footer className="plant-section plant-next-actions">
