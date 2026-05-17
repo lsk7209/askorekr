@@ -37,22 +37,56 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function markdownToHtml(md: string): string {
-  return md
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, "<code>$1</code>")
-    .replace(/^\| (.+) \|$/gm, (line) => {
-      const cells = line.slice(1, -1).split("|").map((c) => c.trim());
-      return `<tr>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
-    })
-    .replace(/(<tr>.*<\/tr>\n?)+/g, (rows) => `<table>${rows}</table>`)
-    .replace(/^---$/gm, "<hr>")
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/^(?!<[h|t|u|o|l|p|b|d])/gm, "<p>$&")
-    .replace(/(<p>[^<]*<\/p>)/g, "$1");
+  function inline(text: string): string {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/`(.+?)`/g, "<code>$1</code>");
+  }
+
+  const blocks = md.split(/\n{2,}/);
+  const result: string[] = [];
+
+  for (const block of blocks) {
+    const lines = block.split("\n").filter((l) => l.trim());
+    if (!lines.length) continue;
+    const first = lines[0];
+
+    if (first.startsWith("### ")) {
+      result.push(`<h3>${inline(first.slice(4))}</h3>`);
+    } else if (first.startsWith("## ")) {
+      result.push(`<h2>${inline(first.slice(3))}</h2>`);
+    } else if (first.startsWith("# ")) {
+      result.push(`<h1>${inline(first.slice(2))}</h1>`);
+    } else if (first === "---") {
+      result.push("<hr>");
+    } else if (lines.every((l) => l.startsWith("> "))) {
+      const content = lines.map((l) => l.slice(2)).join(" ");
+      const isCaution = /⚠️|주의|경고|danger/i.test(content);
+      const cls = isCaution ? "blog-callout caution" : "blog-callout tip";
+      result.push(`<div class="${cls}">${inline(content)}</div>`);
+    } else if (lines.every((l) => /^[-*] /.test(l))) {
+      const items = lines.map((l) => `<li>${inline(l.slice(2))}</li>`).join("");
+      result.push(`<ul>${items}</ul>`);
+    } else if (lines.every((l) => /^\d+\. /.test(l))) {
+      const items = lines
+        .map((l) => `<li>${inline(l.replace(/^\d+\. /, ""))}</li>`)
+        .join("");
+      result.push(`<ol>${items}</ol>`);
+    } else if (lines.every((l) => l.startsWith("|"))) {
+      const dataLines = lines.filter((l) => !/^\|[-| :]+\|$/.test(l.trim()));
+      const rows = dataLines.map((l, i) => {
+        const cells = l.slice(1, -1).split("|").map((c) => c.trim());
+        const tag = i === 0 ? "th" : "td";
+        return `<tr>${cells.map((c) => `<${tag}>${inline(c)}</${tag}>`).join("")}</tr>`;
+      });
+      result.push(`<table>${rows.join("")}</table>`);
+    } else {
+      result.push(`<p>${inline(lines.join(" "))}</p>`);
+    }
+  }
+
+  return result.join("\n");
 }
 
 export default async function BlogPostPage({ params }: Props) {
