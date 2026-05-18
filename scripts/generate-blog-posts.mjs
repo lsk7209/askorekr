@@ -440,18 +440,55 @@ function buildResearchPrompt(topic) {
 `.trim();
 }
 
+// ── 구조 변형 시드 (글마다 다른 패턴 유도) ──────────────
+const INTRO_STYLES = [
+  "독자의 실패 경험 공감으로 시작 → 해결책 예고",
+  "한국 기후·계절 이슈 제시 → 이 글이 해결해 주는 이유",
+  "식물의 흥미로운 생물학적 특성으로 시작 → 관리법 연결",
+  "SNS/유행 언급 → 실전 관리 현실 제시",
+  "Q&A 형식: '혹시 이런 경험 있으세요?' 로 시작"
+];
+const STRUCTURE_TYPES = [
+  "문제해결형: 증상별 원인·해결책 → 예방 → 심화 팁 순서",
+  "단계별 가이드형: 구매 전 → 첫날 → 1개월 → 계절별",
+  "비교분석형: 잘못된 방법 vs 올바른 방법 대조",
+  "체크리스트형: 핵심 포인트를 점검표로 구성",
+  "스토리텔링형: 독자 상황 → 문제 → 해결 여정"
+];
+const CLOSING_STYLES = [
+  "독자에게 질문 남기기 ('여러분의 경험을 댓글로 알려주세요')",
+  "다음 단계 행동 유도 ('지금 바로 확인해보세요')",
+  "플랜티프렌즈 사이트 내 관련 기능 안내",
+  "계절별 다음 할 일 미리보기"
+];
+
+function pickRandom(arr, seed) {
+  return arr[seed % arr.length];
+}
+
 // ── 글 생성 프롬프트 ──────────────────────────────────────
-function buildWritePrompt(topic, research) {
+function buildWritePrompt(topic, research, seed = 0) {
+  const introStyle = pickRandom(INTRO_STYLES, seed);
+  const structureType = pickRandom(STRUCTURE_TYPES, seed + 1);
+  const closingStyle = pickRandom(CLOSING_STYLES, seed + 2);
+
   return `
-당신은 플랜티프렌즈(PlantyFriends) 편집팀 AI 작가입니다.
+당신은 플랜티프렌즈(PlantyFriends) 편집팀 시니어 에디터입니다.
 
 ## 사이트 페르소나 규칙 (필수 준수)
 - 브랜드: 플랜티프렌즈
 - 타겟: 20~35세 MZ 여성, 도시 아파트 생활자, 반려식물 1~5개 보유
-- 어투: 친근한 존댓말 (친구 같은 "~예요", "~답니다", "~해요")
-- 식물 의인화: "이 친구는~", "~를 좋아해요" 같은 표현 적극 사용
-- 금지: 의료 효능 단정, "무조건 안전", 출처 없는 통계, 과장된 마케팅 카피
+- 어투: 친근한 존댓말 ("~예요", "~답니다", "~해요")
+- 표현 다양성: 식물 이름 직접 호칭 우선, 의인화는 글당 최대 2회
+- 금지 표현: "이 친구는~" 반복, "기특한", "쏠쏠", "든든한 친구", "국민 식물"
+- 금지: 의료 효능 단정, "무조건 안전", 출처 없는 통계, 과장 마케팅
 - 글 마지막에 "플랜티프렌즈 편집팀" 서명 포함
+
+## 이 글의 고유 구조 (반드시 이 글에서만 사용)
+- 인트로 스타일: ${introStyle}
+- 본문 구조: ${structureType}
+- 마무리 스타일: ${closingStyle}
+- 첫 H2 제목: "인트로"나 "들어가며" 금지 — 주제 핵심어를 담은 고유 제목 사용
 
 ## 주제
 "${topic}"
@@ -459,32 +496,38 @@ function buildWritePrompt(topic, research) {
 ## 리서치 데이터
 ${JSON.stringify(research, null, 2)}
 
+## 필수 포함 요소
+1. Quick Facts 표 (한국 환경 기준 수치 포함: 적정 온도/습도/광량/물주기 간격)
+2. 한국 아파트 환경 특이사항 callout (> 로 시작하는 blockquote 형식)
+3. FAQ 5개 이상 (### 으로 시작, 실제 검색 쿼리 형태로)
+4. 정량 데이터 최소 3개 (온도, 습도, 빛 조도 또는 물주기 일수 등 구체적 수치)
+
 ## 출력 형식 (반드시 JSON만 반환)
 {
   "title": "SEO 최적화 제목 (60자 이하, 핵심 키워드 앞부분 배치)",
   "metaDescription": "검색 결과 노출 설명 (150~160자, 핵심 키워드 포함, 행동 유도)",
-  "slug": "seo-friendly-url-slug-in-korean-romanized-or-english",
+  "slug": "seo-friendly-url-slug-in-english-or-romanized",
   "category": "키우기가이드 또는 식물선택 또는 계절관리 또는 병충해 또는 도구 또는 꽃말문화",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
-  "bodyMarkdown": "## 인트로\\n\\n[공감 인트로 - 독자 상황 공감]\\n\\n## Quick Facts\\n\\n| 항목 | 내용 |\\n|---|---|\\n| 항목1 | 값1 |\\n\\n## [H2 섹션 1]\\n\\n[본문]\\n\\n## [H2 섹션 2]\\n\\n[본문]\\n\\n## [H2 섹션 3]\\n\\n[본문]\\n\\n## [H2 섹션 4]\\n\\n[본문]\\n\\n## 자주 묻는 질문\\n\\n### [FAQ 질문1]\\n[답변1]\\n\\n### [FAQ 질문2]\\n[답변2]\\n\\n### [FAQ 질문3]\\n[답변3]\\n\\n### [FAQ 질문4]\\n[답변4]\\n\\n### [FAQ 질문5]\\n[답변5]\\n\\n---\\n*플랜티프렌즈 편집팀*",
+  "bodyMarkdown": "[위에서 지정한 고유 구조로 작성된 마크다운. 최소 1500자, H2 섹션 5개 이상]",
   "qualityScores": {
     "eeat": 점수(0-20),
-    "persona": 점수(0-20),
+    "structure_uniqueness": 점수(0-20),
     "seo": 점수(0-20),
     "factual": 점수(0-20),
-    "aiCliche": 점수(0-20)
+    "cliche_avoidance": 점수(0-20)
   },
   "totalQuality": 합계점수(0-100)
 }
 
 ## 품질 기준 (totalQuality 90점 이상 필수)
-- eeat 17+: 공공 데이터 출처 명시, 정량 수치 포함
-- persona 18+: 친근 존댓말 5회 이상, 식물 의인화 2회 이상
-- seo 17+: 핵심 키워드 제목·H2·본문에 자연스럽게 포함, Quick Facts 표 필수
-- factual 18+: 틀린 정보 없음, 구체적 수치·환경 조건 명시
-- aiCliche 18+: "매혹적인", "놀라운", "주목할 만한" 과다 사용 없음
+- eeat 17+: 정량 수치 3개 이상, 한국 기후·환경 특화 내용 명시
+- structure_uniqueness 17+: 다른 글과 다른 고유 H2 구조, 지정된 구조 타입 준수
+- seo 17+: 핵심 키워드 제목·H2·본문 자연 배치, Quick Facts 표 포함
+- factual 18+: 틀린 정보 없음, 구체적 수치·조건 명시
+- cliche_avoidance 18+: 금지 표현 미사용, 각 글 고유 어투 유지
 
-본문은 최소 1000자 이상, H2 섹션 5개 이상, FAQ 5개 이상 필수.
+본문은 최소 1500자 이상, H2 섹션 5개 이상, FAQ 5개 이상 필수.
 `.trim();
 }
 
@@ -582,7 +625,7 @@ async function main() {
 
         // Step 2: 글 생성
         console.log(`   ✍️ 글 생성 중...`);
-        const post = await callGemini(PRO_MODEL, buildWritePrompt(topic, research), 0.8);
+        const post = await callGemini(PRO_MODEL, buildWritePrompt(topic, research, startIdx + i), 0.9);
 
         const totalQuality = post.totalQuality ?? (
           (post.qualityScores?.eeat ?? 0) +
