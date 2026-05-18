@@ -1211,10 +1211,7 @@ h2 {
   border-bottom-color: var(--sage);
 }
 
-.blog-content h2 {
-  scroll-margin-top: 80px;
-}
-
+.blog-content h2,
 .blog-content h3 {
   scroll-margin-top: 80px;
 }

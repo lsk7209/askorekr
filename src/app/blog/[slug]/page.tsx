@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-type TocItem = { id: string; text: string; level: 2 | 3 };
+type TocItem = { id: string; text: string };
 type FaqItem = { q: string; a: string };
 type ParseResult = {
   html: string;
@@ -80,9 +80,7 @@ function slugify(text: string): string {
 }
 
 function isQuestionHeading(text: string): boolean {
-  const t = text.trim();
-  if (/[?？]\s*$/.test(t)) return true;
-  return /(나요|까요|인가요|할까요|되나요|있나요|할까|무엇|어떻게|왜|언제|어디|누구)/.test(t);
+  return /[?？]\s*$/.test(text.trim());
 }
 
 function parseMarkdown(md: string): ParseResult {
@@ -116,7 +114,6 @@ function parseMarkdown(md: string): ParseResult {
     if (first.startsWith("### ")) {
       const text = first.slice(4);
       const id = uniqId(slugify(text));
-      toc.push({ id, text, level: 3 });
       html.push(`<h3 id="${id}">${inline(text)}</h3>`);
       if (lines.length > 1) {
         const answer = lines.slice(1).join(" ");
@@ -126,7 +123,7 @@ function parseMarkdown(md: string): ParseResult {
     } else if (first.startsWith("## ")) {
       const text = first.slice(3);
       const id = uniqId(slugify(text));
-      toc.push({ id, text, level: 2 });
+      toc.push({ id, text });
       html.push(`<h2 id="${id}">${inline(text)}</h2>`);
       if (lines.length > 1) html.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
     } else if (first.startsWith("# ")) {
@@ -242,12 +239,6 @@ export default async function BlogPostPage({ params }: Props) {
       {
         "@type": "ListItem",
         position: 3,
-        name: post.category,
-        item: `${publicEnv.siteUrl}/blog`
-      },
-      {
-        "@type": "ListItem",
-        position: 4,
         name: post.title,
         item: `${publicEnv.siteUrl}/blog/${post.slug}`
       }
@@ -352,7 +343,6 @@ export default async function BlogPostPage({ params }: Props) {
               <p className="blog-toc-title">목차</p>
               <ol>
                 {parsed.toc
-                  .filter((item) => item.level === 2)
                   .map((item) => (
                     <li key={item.id}>
                       <a href={`#${item.id}`}>{item.text}</a>

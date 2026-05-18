@@ -108,8 +108,8 @@ export default async function PlantDetailPage({ params }: Props) {
           {
             "@type": "ListItem",
             position: 2,
-            name: "식물 도감",
-            item: `${siteUrl}/tools/diagnose`
+            name: "식물 찾기",
+            item: `${siteUrl}/`
           },
           {
             "@type": "ListItem",

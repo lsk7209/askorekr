@@ -102,6 +102,7 @@ export async function getRelatedBlogPosts(
     .where(
       and(
         eq(blogPosts.isPublished, true),
+        lte(blogPosts.publishedAt, new Date()),
         eq(blogPosts.category, category),
         ne(blogPosts.slug, excludeSlug)
       )

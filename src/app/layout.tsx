@@ -108,12 +108,14 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3050601904412736"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        {process.env.NODE_ENV === "production" && (
+          <Script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3050601904412736"
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
         {publicEnv.ga4Id ? (
           <>
             <Script
