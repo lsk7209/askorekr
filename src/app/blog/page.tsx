@@ -85,16 +85,6 @@ export default async function BlogPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
         />
       )}
-      <header className="home-header">
-        <nav className="home-nav" aria-label="주요 메뉴">
-          <Link href="/">플랜티프렌즈</Link>
-          <Link href="/tools/diagnose">진단</Link>
-          <Link href="/blog" aria-current="page">블로그</Link>
-          <Link href="/about">소개</Link>
-          <Link href="/contact">문의</Link>
-        </nav>
-      </header>
-
       <main className="site-shell">
         <section className="hero" aria-labelledby="blog-title">
           <p className="eyebrow">Gardening Blog</p>
@@ -153,16 +143,6 @@ export default async function BlogPage() {
           </section>
         )}
       </main>
-
-      <footer className="home-footer">
-        <nav aria-label="사이트 정보">
-          <Link href="/about">소개</Link>
-          <Link href="/privacy">개인정보처리방침</Link>
-          <Link href="/terms">이용약관</Link>
-          <Link href="/disclaimer">면책 고지</Link>
-          <Link href="/contact">문의</Link>
-        </nav>
-      </footer>
     </>
   );
 }

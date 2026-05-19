@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -136,7 +138,9 @@ export default function RootLayout({
             </Script>
           </>
         ) : null}
+        <SiteHeader />
         {children}
+        <SiteFooter />
       </body>
     </html>
   );
