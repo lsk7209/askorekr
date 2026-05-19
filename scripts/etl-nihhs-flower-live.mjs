@@ -2,19 +2,16 @@
  * 국립원예특작과학원 오늘의 꽃 조회 서비스(2.0) ETL
  * 실행: node scripts/etl-nihhs-flower-live.mjs [옵션]
  *
- * 366일 일별 꽃 정보 → plants + plant_metrics + plant_images 저장
- * 꽃명(국문/학명), 꽃말, 기르기방법, 이미지 포함
+ * 366일 일별 꽃 → plants + plant_metrics + plant_images 저장
+ * 한국명, 학명, 꽃말, 기르기방법, 이미지 포함
  *
  * 필수 환경변수:
- *   NIHHS_FLOWER_API_KEY  (Decoding 키 사용)
+ *   NIHHS_FLOWER_API_KEY  (Decoding 키)
  *
  * 옵션:
  *   --dry-run    DB 저장 안 함
  *   --resume     기존 슬러그 건너뜀
- *   --delay N    호출 간격 ms (기본: 200)
- *
- * 라이센스: CC BY-NC-SA (저작자표시-비영리-동일조건변경허락)
- * attribution: 국립원예특작과학원
+ *   --delay N    호출 간격 ms (기본: 300)
  */
 
 import { createClient } from "@libsql/client";
@@ -38,22 +35,28 @@ loadEnv();
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const resume = args.includes("--resume");
-const delay = parseInt(args.find(a => a.startsWith("--delay="))?.split("=")[1] ?? "200");
+const delay = parseInt(args.find(a => a.startsWith("--delay="))?.split("=")[1] ?? "300");
 
-const API_KEY = process.env.NIHHS_FLOWER_API_KEY?.trim();
+const API_KEY = encodeURIComponent(process.env.NIHHS_FLOWER_API_KEY?.trim() ?? "");
 if (!API_KEY) {
   console.error("❌ NIHHS_FLOWER_API_KEY 없음");
-  console.error("   data.go.kr → 농촌진흥청 국립원예특작과학원_오늘의 꽃 조회 서비스(2.0) → Decoding 인증키");
   process.exit(1);
 }
 
 const BASE = "https://apis.data.go.kr/1390804/NihhsTodayFlowerInfo01";
-const xmlParser = new XMLParser({ ignoreAttributes: false, trimValues: true, parseTagValue: false });
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  trimValues: true,
+  parseTagValue: false,
+  cdataPropName: "__cdata"
+});
 const EMPTY = new Set(["", "-", "null", "undefined", "없음"]);
 
 function readText(v) {
-  if (typeof v !== "string" && typeof v !== "number") return null;
-  const t = String(v).trim();
+  if (v === null || v === undefined) return null;
+  // Handle CDATA
+  const raw = typeof v === "object" && v.__cdata ? v.__cdata : v;
+  const t = String(raw).trim();
   return EMPTY.has(t.toLowerCase()) ? null : t;
 }
 
@@ -70,65 +73,36 @@ function createSlug(sciName, korName) {
 
 async function fetchXml(url) {
   const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const text = await r.text();
-
-  // Check for error HTML
-  if (text.startsWith("<!") || text.startsWith("<html")) {
-    throw new Error(`Non-XML response: ${text.slice(0, 100)}`);
-  }
-
   const parsed = xmlParser.parse(text);
-  const header = parsed.response?.header;
-  const code = readText(header?.resultCode);
-  if (code && code !== "00") {
-    throw new Error(`API ${code}: ${readText(header?.resultMsg) ?? ""}`);
-  }
-  return parsed;
+  const root = parsed.document?.root ?? parsed.root;
+  const code = String(root?.resultCode ?? "").trim();
+  if (code === "0") throw new Error(`API 접속실패: ${root?.resultMsg ?? ""}`);
+  return root;
 }
 
-// ── 366일 꽃 목록 가져오기 ────────────────────────────────
-async function fetchFlowerList() {
-  const url = new URL(`${BASE}/selectTodayFlowerList01`);
-  url.searchParams.set("serviceKey", API_KEY);
-  url.searchParams.set("pageNo", "1");
-  url.searchParams.set("numOfRows", "366");
-
-  const parsed = await fetchXml(url.toString());
-  const body = parsed.response?.body;
-  const items = body?.items;
-  return {
-    items: asArray(items?.item ?? []),
-    totalCount: Number(readText(body?.totalCount ?? items?.totalCount) ?? 0)
-  };
+// ── 전체 목록 (366개) ───────────────────────────────────────
+async function fetchList() {
+  const url = `${BASE}/selectTodayFlowerList01?serviceKey=${API_KEY}&pageNo=1&numOfRows=366`;
+  const root = await fetchXml(url);
+  return asArray(root?.result ?? []);
 }
 
-// ── 특정 날짜 꽃 상세 정보 ────────────────────────────────
-async function fetchFlowerByDate(fDate) {
-  // fDate format: MMDD (e.g., "0520")
-  const url = new URL(`${BASE}/selectTodayFlower01`);
-  url.searchParams.set("serviceKey", API_KEY);
-  url.searchParams.set("fDate", fDate);
-
-  const parsed = await fetchXml(url.toString());
-  return parsed.response?.body?.item;
+// ── 상세 정보 (dataNo 기준) ─────────────────────────────────
+async function fetchDetail(dataNo) {
+  const url = `${BASE}/selectTodayFlowerView01?serviceKey=${API_KEY}&dataNo=${dataNo}`;
+  const root = await fetchXml(url);
+  const result = root?.result;
+  return Array.isArray(result) ? result[0] : result;
 }
 
-// ── 정규화 ───────────────────────────────────────────────
-function normalize(item) {
-  // Fields: fNm (Korean), fSciNm (scientific), fEngNm (English)
-  // fMean (flower meaning), fContent (usage/info), fManageInfo (growing method)
-  // fOrgplce (origin/habitat)
-  // imgUrl1, imgUrl2, imgUrl3 (images)
-  const sciName = readText(item?.fSciNm) ?? readText(item?.fEngNm);
-  const korName = readText(item?.fNm);
+function normalize(detail) {
+  const korName = readText(detail?.flowNm);
+  const sciName = readText(detail?.fSctNm);
 
-  if (!sciName && !korName) return null;
   if (!korName) return null;
-
   const effectiveSciName = sciName ?? korName;
-
-  const imageUrl = readText(item?.imgUrl1) ?? readText(item?.imgUrl2) ?? readText(item?.imgUrl3);
 
   return {
     plant: {
@@ -137,34 +111,29 @@ function normalize(item) {
       slug: createSlug(effectiveSciName, korName),
       family: null,
       genus: null,
-      synonyms: [],
-      origin: readText(item?.fOrgplce) ?? "국립원예특작과학원",
-      sourceRefs: { "오늘의꽃": `국립원예특작과학원:${readText(item?.fDate) ?? korName}` }
+      synonyms: readText(detail?.fEngNm) ? [readText(detail.fEngNm)] : [],
+      origin: "국립원예특작과학원 오늘의 꽃",
+      sourceRefs: { "오늘의꽃": `NIHHS:${readText(detail?.dataNo) ?? korName}` }
     },
     metrics: {
       difficultyScore: null,
       indoorOutdoorClass: "both",
-      lightLuxMin: null,
-      lightLuxMax: null,
+      lightLuxMin: null, lightLuxMax: null,
       waterFreqDays: null,
-      tempMinC: null,
-      tempMaxC: null,
-      humidityMinPct: null,
-      humidityMaxPct: null,
-      petSafetyScoreDog: null,
-      petSafetyScoreCat: null,
-      childSafetyScore: null,
-      toxicityNotes: null,
-      flowerMeaning: readText(item?.fMean)
+      tempMinC: null, tempMaxC: null,
+      humidityMinPct: null, humidityMaxPct: null,
+      petSafetyScoreDog: null, petSafetyScoreCat: null,
+      childSafetyScore: null, toxicityNotes: null,
+      flowerMeaning: readText(detail?.flowLang)
     },
-    careNotes: readText(item?.fManageInfo),
-    imageUrl,
-    imageUrl2: readText(item?.imgUrl2),
-    imageUrl3: readText(item?.imgUrl3)
+    careNotes: readText(detail?.fGrow),
+    description: readText(detail?.fContent),
+    imageUrl: readText(detail?.imgUrl1),
+    imageUrl2: readText(detail?.imgUrl2),
+    imageUrl3: readText(detail?.imgUrl3)
   };
 }
 
-// ── DB 함수 ───────────────────────────────────────────────
 async function getExistingSlugs(db) {
   const rows = await db.execute("SELECT slug FROM plants");
   return new Set(rows.rows.map(r => String(r.slug)));
@@ -177,11 +146,10 @@ async function upsertPlant(db, n) {
 
   await db.execute({
     sql: `INSERT INTO plants (scientific_name, korean_name, slug, family, genus, synonyms, origin, source_refs, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?,?,?,?,?,?,?,?,?,?)
           ON CONFLICT(slug) DO UPDATE SET
             scientific_name=excluded.scientific_name, korean_name=excluded.korean_name,
-            family=coalesce(excluded.family,plants.family), synonyms=excluded.synonyms,
-            origin=coalesce(excluded.origin,plants.origin),
+            synonyms=excluded.synonyms, origin=coalesce(excluded.origin,plants.origin),
             source_refs=excluded.source_refs, updated_at=excluded.updated_at`,
     args: [n.plant.scientificName, n.plant.koreanName, n.plant.slug, n.plant.family, n.plant.genus,
            JSON.stringify(n.plant.synonyms), n.plant.origin, JSON.stringify(sourceRefs), now, now]
@@ -200,24 +168,21 @@ async function upsertMetrics(db, plantId, m) {
           ON CONFLICT(plant_id) DO UPDATE SET
             flower_meaning=coalesce(excluded.flower_meaning,plant_metrics.flower_meaning),
             derived_at=excluded.derived_at`,
-    args: [plantId, m.petSafetyScoreDog, m.petSafetyScoreCat, m.childSafetyScore,
-           m.toxicityNotes, m.difficultyScore, m.indoorOutdoorClass,
-           m.lightLuxMin, m.lightLuxMax, m.waterFreqDays,
-           m.tempMinC, m.tempMaxC, m.humidityMinPct, m.humidityMaxPct, m.flowerMeaning, Date.now()]
+    args: [plantId, null, null, null, null, null, m.indoorOutdoorClass,
+           null, null, null, null, null, null, null, m.flowerMeaning, Date.now()]
   });
 }
 
-async function insertImageIfNeeded(db, plantId, imageUrl, isPrimary = false) {
+async function insertImage(db, plantId, imageUrl, isPrimary) {
   if (!imageUrl) return;
   const ex = await db.execute({ sql: "SELECT id FROM plant_images WHERE plant_id = ? AND url = ? LIMIT 1", args: [plantId, imageUrl] });
   if (ex.rows.length > 0) return;
   await db.execute({
-    sql: "INSERT INTO plant_images (plant_id, url, source, license, attribution, is_primary) VALUES (?, ?, 'nihhs', 'CC BY-NC-SA', '국립원예특작과학원', ?)",
+    sql: "INSERT INTO plant_images (plant_id, url, source, license, attribution, is_primary) VALUES (?,?,'nihhs','CC BY-NC-SA','국립원예특작과학원',?)",
     args: [plantId, imageUrl, isPrimary ? 1 : 0]
   });
 }
 
-// ── 메인 ──────────────────────────────────────────────────
 async function main() {
   const db = createClient({
     url: process.env.TURSO_DATABASE_URL ?? "file:local.db",
@@ -227,34 +192,44 @@ async function main() {
   const existingSlugs = resume ? await getExistingSlugs(db) : new Set();
   if (resume) console.log(`  ↺ 재개 모드: ${existingSlugs.size}개 건너뜀`);
 
-  console.log("🌸 오늘의 꽃 목록 가져오는 중...");
-  const { items, totalCount } = await fetchFlowerList();
-  console.log(`📋 총 ${totalCount}개 (수신: ${items.length}개)\n`);
+  console.log("🌸 오늘의 꽃 목록 수신 중...");
+  const listItems = await fetchList();
+  console.log(`📋 총 ${listItems.length}개\n`);
 
   let saved = 0, skipped = 0;
   const rejected = [];
 
-  for (const item of items) {
-    const n = normalize(item);
-    if (!n) { rejected.push({ reason: "필수 필드 없음", item }); continue; }
+  for (const item of listItems) {
+    const dataNo = readText(item?.dataNo);
+    if (!dataNo) { rejected.push({ reason: "dataNo 없음" }); continue; }
+
+    await sleep(delay);
+
+    let detail;
+    try {
+      detail = await fetchDetail(dataNo);
+    } catch(e) {
+      rejected.push({ reason: `detail 오류: ${e.message}`, dataNo });
+      continue;
+    }
+
+    const n = normalize(detail);
+    if (!n) { rejected.push({ reason: "필수 필드 없음", dataNo }); continue; }
 
     if (resume && existingSlugs.has(n.plant.slug)) { skipped++; continue; }
 
     if (!dryRun) {
       const plantId = await upsertPlant(db, n);
       await upsertMetrics(db, plantId, n.metrics);
-      await insertImageIfNeeded(db, plantId, n.imageUrl, true);
-      await insertImageIfNeeded(db, plantId, n.imageUrl2, false);
-      await insertImageIfNeeded(db, plantId, n.imageUrl3, false);
+      await insertImage(db, plantId, n.imageUrl, true);
+      await insertImage(db, plantId, n.imageUrl2, false);
+      await insertImage(db, plantId, n.imageUrl3, false);
       existingSlugs.add(n.plant.slug);
     }
     saved++;
     if (saved <= 3 || saved % 50 === 0) {
-      console.log(`  ✅ ${saved}개 — ${n.plant.koreanName} (${n.plant.scientificName})`);
-      if (n.metrics.flowerMeaning) console.log(`     꽃말: ${n.metrics.flowerMeaning}`);
+      console.log(`  ✅ ${saved}개 — ${n.plant.koreanName} (${n.plant.scientificName})  꽃말: ${n.metrics.flowerMeaning ?? "없음"}`);
     }
-
-    await sleep(delay);
   }
 
   const finalCount = dryRun ? "드라이런" :
