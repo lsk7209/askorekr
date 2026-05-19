@@ -169,7 +169,8 @@ async function upsertMetrics(db, plantId, m) {
             flower_meaning=coalesce(excluded.flower_meaning,plant_metrics.flower_meaning),
             derived_at=excluded.derived_at`,
     args: [plantId, null, null, null, null, null, m.indoorOutdoorClass,
-           null, null, null, null, null, null, null, m.flowerMeaning, Date.now()]
+           null, null, null, null, null, null, null,
+           m.flowerMeaning ? JSON.stringify({ primary: m.flowerMeaning }) : null, Date.now()]
   });
 }
 
