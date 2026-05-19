@@ -7,7 +7,8 @@ const EMPTY_VALUES = new Set(["", "-", "null", "undefined"]);
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
-  trimValues: true
+  trimValues: true,
+  parseTagValue: false
 });
 
 export type GardenListItem = {
