@@ -1,4 +1,4 @@
-import { and, desc, eq, lte, ne, sql } from "drizzle-orm";
+import { and, count, desc, eq, lte, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { blogPosts } from "@/db/schema";
 
@@ -22,7 +22,10 @@ export type BlogSitemapItem = {
   publishedAt: Date;
 };
 
-export async function getPublishedBlogPosts(limit = 20, offset = 0): Promise<BlogListItem[]> {
+export async function getPublishedBlogPosts(limit = 20, offset = 0, category?: string): Promise<BlogListItem[]> {
+  const base = eq(blogPosts.isPublished, true);
+  const condition = category ? and(base, eq(blogPosts.category, category)) : base;
+
   const rows = await db
     .select({
       id: blogPosts.id,
@@ -35,7 +38,7 @@ export async function getPublishedBlogPosts(limit = 20, offset = 0): Promise<Blo
       updatedAt: blogPosts.updatedAt
     })
     .from(blogPosts)
-    .where(eq(blogPosts.isPublished, true))
+    .where(condition)
     .orderBy(desc(blogPosts.publishedAt))
     .limit(limit)
     .offset(offset);
@@ -45,6 +48,13 @@ export async function getPublishedBlogPosts(limit = 20, offset = 0): Promise<Blo
     tags: r.tags ?? [],
     publishedAt: r.publishedAt ?? null
   }));
+}
+
+export async function getPublishedBlogPostCount(category?: string): Promise<number> {
+  const base = eq(blogPosts.isPublished, true);
+  const condition = category ? and(base, eq(blogPosts.category, category)) : base;
+  const result = await db.select({ total: count() }).from(blogPosts).where(condition);
+  return result[0]?.total ?? 0;
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {

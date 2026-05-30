@@ -446,14 +446,18 @@ const INTRO_STYLES = [
   "한국 기후·계절 이슈 제시 → 이 글이 해결해 주는 이유",
   "식물의 흥미로운 생물학적 특성으로 시작 → 관리법 연결",
   "SNS/유행 언급 → 실전 관리 현실 제시",
-  "Q&A 형식: '혹시 이런 경험 있으세요?' 로 시작"
+  "Q&A 형식: '혹시 이런 경험 있으세요?' 로 시작",
+  "놀라운 데이터·통계로 시작 → 독자 관심 유도",
+  "계절별 체감 상황 묘사 → 오늘 당장 필요한 이유 제시"
 ];
 const STRUCTURE_TYPES = [
   "문제해결형: 증상별 원인·해결책 → 예방 → 심화 팁 순서",
   "단계별 가이드형: 구매 전 → 첫날 → 1개월 → 계절별",
   "비교분석형: 잘못된 방법 vs 올바른 방법 대조",
   "체크리스트형: 핵심 포인트를 점검표로 구성",
-  "스토리텔링형: 독자 상황 → 문제 → 해결 여정"
+  "스토리텔링형: 독자 상황 → 문제 → 해결 여정",
+  "심층분석형: 원리 이해 → 적용 조건 → 심화 응용",
+  "Q&A형: 독자 자주 묻는 질문 5-7개를 H2로 구성"
 ];
 const CLOSING_STYLES = [
   "독자에게 질문 남기기 ('여러분의 경험을 댓글로 알려주세요')",
@@ -466,11 +470,64 @@ function pickRandom(arr, seed) {
   return arr[seed % arr.length];
 }
 
+// ── 글 유형 감지 (주제별 맞춤 요소) ──────────────────────
+function detectTopicType(topic) {
+  if (/꽃말|꽃의\s*의미|상징|유래/.test(topic)) return "flower-meaning";
+  if (/병충해|해충|곰팡이|무름|바이러스|응급|방제|진단|살충/.test(topic)) return "pest-disease";
+  if (/[0-9]월|봄|여름|가을|겨울|계절|장마|폭염|월동|추위|더위/.test(topic)) return "seasonal";
+  if (/화분|흙|비료|조명|분무기|급수|거치대|행잉|도구|용기/.test(topic)) return "tools";
+  if (/선물|추천|BEST|선택|인테리어|어울리|조합|TOP/.test(topic)) return "plant-selection";
+  return "care-guide";
+}
+
+function getTopicTypeElements(type) {
+  switch (type) {
+    case "flower-meaning":
+      return `- 색깔/품종별 꽃말 비교 표 (필수)
+- 한국·서양 문화 차이 설명
+- 선물 적합 상황별 추천 (생일·기념일·위로 등)
+- 관련 한국 시가·문학·전통 문화 언급
+- 현실적인 구매·관리 팁 연결`;
+    case "pest-disease":
+      return `- 증상 진단 체크리스트 표 (필수: 증상→원인→해결책 3열)
+- 단계별 응급 처치 순서 (번호 목록)
+- 예방법 vs 발생 후 처치 비교 callout
+- ⚠️ 경고 callout: 심각 증상·전파 위험
+- 천연 방제법 + 약제 처리 모두 포함`;
+    case "seasonal":
+      return `- 월별 관리 포인트 표 또는 캘린더 (필수)
+- 한국 기후 특이사항 callout (장마·한파·폭염)
+- 계절 전환 체크리스트
+- "이달의 할 일" 요약 목록
+- 실패 사례 반면교사 포함`;
+    case "tools":
+      return `- 제품/방법 비교 표 (장단점·가격대·추천 대상 3열 이상, 필수)
+- 예산별 추천 (입문·중급·프로)
+- 구매 전 체크리스트
+- 실제 사용 시 주의사항
+- A/S·유지관리 팁`;
+    case "plant-selection":
+      return `- 식물별 적합도 표 (환경·난이도·특성 비교, 필수)
+- 상황별 추천 목록 (공간·생활패턴·예산 기준)
+- 각 식물 Quick Facts 핵심 수치
+- 실패 없는 선택 기준 체크리스트
+- 구매 시 피해야 할 실수`;
+    default:
+      return `- Quick Facts 표 (온도·습도·광량·물주기 수치, 필수)
+- 단계별 실전 관리 가이드
+- 계절별 주의사항
+- 한국 아파트 특화 팁
+- 흔한 실수와 해결법`;
+  }
+}
+
 // ── 글 생성 프롬프트 ──────────────────────────────────────
 function buildWritePrompt(topic, research, seed = 0) {
   const introStyle = pickRandom(INTRO_STYLES, seed);
   const structureType = pickRandom(STRUCTURE_TYPES, seed + 1);
   const closingStyle = pickRandom(CLOSING_STYLES, seed + 2);
+  const topicType = detectTopicType(topic);
+  const typeElements = getTopicTypeElements(topicType);
 
   return `
 당신은 플랜티프렌즈(PlantyFriends) 편집팀 시니어 에디터입니다.
@@ -478,9 +535,9 @@ function buildWritePrompt(topic, research, seed = 0) {
 ## 사이트 페르소나 규칙 (필수 준수)
 - 브랜드: 플랜티프렌즈
 - 타겟: 20~35세 MZ 여성, 도시 아파트 생활자, 반려식물 1~5개 보유
-- 어투: 친근한 존댓말 ("~예요", "~답니다", "~해요")
+- 어투: 친근한 존댓말 ("~예요", "~답니다", "~해요") — 딱딱한 보고서 문체 금지
 - 표현 다양성: 식물 이름 직접 호칭 우선, 의인화는 글당 최대 2회
-- 금지 표현: "이 친구는~" 반복, "기특한", "쏠쏠", "든든한 친구", "국민 식물"
+- 금지 표현: "이 친구는~" 반복, "기특한", "쏠쏠", "든든한 친구", "국민 식물", "완벽한"
 - 금지: 의료 효능 단정, "무조건 안전", 출처 없는 통계, 과장 마케팅
 - 글 마지막에 "플랜티프렌즈 편집팀" 서명 포함
 
@@ -496,20 +553,22 @@ function buildWritePrompt(topic, research, seed = 0) {
 ## 리서치 데이터
 ${JSON.stringify(research, null, 2)}
 
-## 필수 포함 요소
-1. Quick Facts 표 (한국 환경 기준 수치 포함: 적정 온도/습도/광량/물주기 간격)
-2. 한국 아파트 환경 특이사항 callout (> 로 시작하는 blockquote 형식)
-3. FAQ 5개 이상 (### 으로 시작, 실제 검색 쿼리 형태로)
-4. 정량 데이터 최소 3개 (온도, 습도, 빛 조도 또는 물주기 일수 등 구체적 수치)
+## 이 글 유형(${topicType})에 필수 포함 요소
+${typeElements}
+
+## 공통 필수 포함 요소
+- 한국 아파트 환경 특이사항 callout (> 로 시작하는 blockquote 형식, 최소 1개)
+- 정량 데이터 최소 3개 (온도℃, 습도%, 빛 조도lux 또는 물주기 일수 등 구체적 수치)
+- FAQ 5개 이상 (### 으로 시작, 실제 검색 쿼리 형태로 — 질문부호로 끝날 것)
 
 ## 출력 형식 (반드시 JSON만 반환)
 {
-  "title": "SEO 최적화 제목 (60자 이하, 핵심 키워드 앞부분 배치)",
-  "metaDescription": "검색 결과 노출 설명 (150~160자, 핵심 키워드 포함, 행동 유도)",
+  "title": "SEO 최적화 제목 (60자 이하, primaryKeyword 앞배치 + secondaryKeywords 중 1개 자연 포함, 독자 혜택 명시)",
+  "metaDescription": "검색 결과 노출 설명 (150~160자, primaryKeyword + secondaryKeywords 1-2개 자연 포함, 독자 혜택·행동 유도 문장으로 마무리)",
   "slug": "seo-friendly-url-slug-in-english-or-romanized",
   "category": "키우기가이드 또는 식물선택 또는 계절관리 또는 병충해 또는 도구 또는 꽃말문화",
-  "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
-  "bodyMarkdown": "[위에서 지정한 고유 구조로 작성된 마크다운. 최소 1500자, H2 섹션 5개 이상]",
+  "tags": ["primaryKeyword", "secondaryKeyword1", "secondaryKeyword2", "태그4", "태그5"],
+  "bodyMarkdown": "[위에서 지정한 고유 구조 + 글 유형별 필수 요소를 포함한 마크다운. 최소 1800자, H2 섹션 5개 이상]",
   "qualityScores": {
     "eeat": 점수(0-20),
     "structure_uniqueness": 점수(0-20),
@@ -521,13 +580,14 @@ ${JSON.stringify(research, null, 2)}
 }
 
 ## 품질 기준 (totalQuality 90점 이상 필수)
-- eeat 17+: 정량 수치 3개 이상, 한국 기후·환경 특화 내용 명시
-- structure_uniqueness 17+: 다른 글과 다른 고유 H2 구조, 지정된 구조 타입 준수
-- seo 17+: 핵심 키워드 제목·H2·본문 자연 배치, Quick Facts 표 포함
+- eeat 17+: 정량 수치 3개 이상, 한국 기후·환경 특화 내용 명시, 실제 경험 기반 내용
+- structure_uniqueness 17+: 다른 글과 다른 고유 H2 구조, 지정된 구조 타입 준수, 글 유형별 요소 포함
+- seo 17+: title에 primaryKeyword + 연관 키워드 1개, metaDescription에 primaryKeyword + secondaryKeyword 1-2개, H2에 자연 배치
 - factual 18+: 틀린 정보 없음, 구체적 수치·조건 명시
-- cliche_avoidance 18+: 금지 표현 미사용, 각 글 고유 어투 유지
+- cliche_avoidance 18+: 금지 표현 미사용, 각 글 고유 어투 유지, 템플릿 느낌 없음
 
-본문은 최소 1500자 이상, H2 섹션 5개 이상, FAQ 5개 이상 필수.
+본문은 최소 1800자 이상, H2 섹션 5개 이상, FAQ 5개 이상 필수.
+글 유형에 맞는 표·체크리스트·callout이 없으면 totalQuality 85 미만 처리.
 `.trim();
 }
 

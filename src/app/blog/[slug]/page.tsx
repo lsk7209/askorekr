@@ -8,6 +8,7 @@ import {
 } from "@/features/blog/queries";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
+import { AdsenseAd } from "@/components/adsense-ad";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -330,21 +331,38 @@ export default async function BlogPostPage({ params }: Props) {
 
           {parsed.toc.length >= 3 && (
             <nav className="blog-toc" aria-label="목차">
-              <p className="blog-toc-title">목차</p>
+              <p className="blog-toc-title">이 글의 목차</p>
               <ol>
-                {parsed.toc
-                  .map((item) => (
-                    <li key={item.id}>
-                      <a href={`#${item.id}`}>{item.text}</a>
-                    </li>
-                  ))}
+                {parsed.toc.map((item) => (
+                  <li key={item.id}>
+                    <a href={`#${item.id}`}>{item.text}</a>
+                  </li>
+                ))}
               </ol>
             </nav>
           )}
 
+          <AdsenseAd
+            publisherId={publicEnv.adsensePubId}
+            slot={publicEnv.adsenseSlots.contentMid}
+            label="본문 중간 광고"
+            className="blog-ad-mid"
+            format="auto"
+            minHeight={100}
+          />
+
           <div
             className="plant-section blog-content"
             dangerouslySetInnerHTML={{ __html: parsed.html }}
+          />
+
+          <AdsenseAd
+            publisherId={publicEnv.adsensePubId}
+            slot={publicEnv.adsenseSlots.contentBottom}
+            label="본문 하단 광고"
+            className="blog-ad-bottom"
+            format="auto"
+            minHeight={100}
           />
 
           <footer className="plant-section plant-next-actions">
