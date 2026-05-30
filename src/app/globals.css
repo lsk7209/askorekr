@@ -947,6 +947,73 @@ h2 {
   }
 }
 
+/* ── 홈 최신 블로그 그리드 ───────────────────────────── */
+
+.home-blog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-blog-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--ivory);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.home-blog-card:hover {
+  border-color: var(--sage);
+  transform: translateY(-2px);
+}
+
+.home-blog-category {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--terracotta);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.home-blog-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--sage-dark);
+}
+
+.home-blog-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-blog-title a:hover {
+  color: var(--terracotta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-blog-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #5a5a5a;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .home-blog-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Blog styles ─────────────────────────────────── */
 
 .sr-only {
