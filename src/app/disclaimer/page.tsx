@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { publicEnv } from "@/env";
 
-const UPDATED_AT = "2026-05-10";
+const UPDATED_AT = "2026-06-02";
 
 export const metadata: Metadata = {
   title: "면책 고지",
@@ -18,9 +19,21 @@ export const metadata: Metadata = {
   }
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "플랜티프렌즈 면책 고지",
+  url: `${publicEnv.siteUrl}/disclaimer`,
+  description: "플랜티프렌즈 반려식물 정보의 참고 목적, 안전성 한계, 전문가 상담 기준 안내",
+  inLanguage: "ko-KR",
+  publisher: { "@type": "Organization", name: "플랜티프렌즈", url: publicEnv.siteUrl }
+};
+
 export default function DisclaimerPage() {
   return (
-    <main className="policy-shell">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <main className="policy-shell">
       <header className="policy-header">
         <p className="eyebrow">Disclaimer</p>
         <h1>면책 고지</h1>
@@ -70,6 +83,7 @@ export default function DisclaimerPage() {
         <p>마지막 업데이트: {UPDATED_AT}</p>
       </footer>
     </main>
+    </>
   );
 }
 
