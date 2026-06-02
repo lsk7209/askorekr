@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategories, getCategoryBySlug } from "@/features/categories/queries";
+import { getPublishedBlogPosts } from "@/features/blog/queries";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import {
   CategoryGuideContent,
@@ -82,6 +83,7 @@ export default async function CategoryPage({ params }: Props) {
   }
   const guide = getCategoryGuide(category);
   const jsonLd = getCategoryJsonLd(category, guide);
+  const recentPosts = await getPublishedBlogPosts(3, 0).catch(() => []);
 
   return (
     <main className="category-shell">
@@ -135,6 +137,30 @@ export default async function CategoryPage({ params }: Props) {
         )}
       </section>
       <CategoryGuideContent category={category} guide={guide} />
+
+      {recentPosts.length > 0 && (
+        <section className="category-blog-section" aria-labelledby="cat-blog-title">
+          <div className="category-blog-inner">
+            <div className="section-heading-row">
+              <h2 id="cat-blog-title">가드닝 블로그 최신 글</h2>
+              <Link href="/blog" className="text-link">전체 보기 →</Link>
+            </div>
+            <div className="home-blog-grid">
+              {recentPosts.map((post) => (
+                <article key={post.slug} className="home-blog-card">
+                  <span className="home-blog-category">{post.category}</span>
+                  <h3 className="home-blog-title">
+                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  </h3>
+                  {post.metaDescription && (
+                    <p className="home-blog-desc">{post.metaDescription}</p>
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

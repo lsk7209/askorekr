@@ -3,6 +3,7 @@ import { AdsenseAd } from "@/components/adsense-ad";
 import { publicEnv } from "@/env";
 import type { PlantDetail } from "@/features/plants/queries";
 import type { RelatedPlant } from "@/features/plants/related-queries";
+import type { BlogListItem } from "@/features/blog/queries";
 import {
   formatDifficulty,
   formatDifficultyLabel,
@@ -26,6 +27,7 @@ type Props = {
   plant: PlantDetail;
   faqs: PlantFaq[];
   relatedPlants: RelatedPlant[];
+  relatedBlogPosts?: BlogListItem[];
 };
 
 export function getPlantFaqs(plant: PlantDetail): PlantFaq[] {
@@ -45,7 +47,7 @@ export function getPlantFaqs(plant: PlantDetail): PlantFaq[] {
   ];
 }
 
-export function PlantGuideContent({ plant, faqs, relatedPlants }: Props) {
+export function PlantGuideContent({ plant, faqs, relatedPlants, relatedBlogPosts = [] }: Props) {
   return (
     <>
       <section className="quick-facts" aria-labelledby="quick-facts-title">
@@ -156,6 +158,23 @@ export function PlantGuideContent({ plant, faqs, relatedPlants }: Props) {
         slot={publicEnv.adsenseSlots.contentBottom}
         label={`${plant.koreanName} 본문 하단 광고`}
       />
+
+      {relatedBlogPosts.length > 0 && (
+        <section className="plant-section" aria-labelledby="plant-blog-title">
+          <h2 id="plant-blog-title">관련 가드닝 가이드</h2>
+          <div className="plant-blog-list">
+            {relatedBlogPosts.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="plant-blog-card">
+                <span className="plant-blog-category">{post.category}</span>
+                <span className="plant-blog-title">{post.title}</span>
+                {post.metaDescription && (
+                  <span className="plant-blog-desc">{post.metaDescription}</span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="plant-section plant-next-actions" aria-labelledby="next-title">
         <h2 id="next-title">다음에 확인할 것</h2>

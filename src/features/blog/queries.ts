@@ -127,6 +127,26 @@ export async function getRelatedBlogPosts(
   }));
 }
 
+export async function getBlogPostsForPlant(limit = 2): Promise<BlogListItem[]> {
+  const rows = await db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      metaDescription: blogPosts.metaDescription,
+      category: blogPosts.category,
+      tags: blogPosts.tags,
+      publishedAt: blogPosts.publishedAt,
+      updatedAt: blogPosts.updatedAt
+    })
+    .from(blogPosts)
+    .where(and(eq(blogPosts.isPublished, true), eq(blogPosts.category, "키우기가이드")))
+    .orderBy(sql`RANDOM()`)
+    .limit(limit);
+
+  return rows.map((r) => ({ ...r, tags: r.tags ?? [], publishedAt: r.publishedAt ?? null }));
+}
+
 export async function getScheduledPostsToPublish(): Promise<{ id: number; slug: string }[]> {
   const now = new Date();
   return db

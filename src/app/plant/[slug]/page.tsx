@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPlantBySlug, getPlantSitemapItems } from "@/features/plants/queries";
 import { getRelatedPlants } from "@/features/plants/related-queries";
+import { getBlogPostsForPlant } from "@/features/blog/queries";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { publicEnv } from "@/env";
 import { getPlantFaqs, PlantGuideContent } from "./plant-detail-content";
@@ -102,7 +103,10 @@ export default async function PlantDetailPage({ params }: Props) {
   }
 
   const faqs = getPlantFaqs(plant);
-  const relatedPlants = await getRelatedPlants(plant);
+  const [relatedPlants, relatedBlogPosts] = await Promise.all([
+    getRelatedPlants(plant),
+    getBlogPostsForPlant(2).catch(() => [])
+  ]);
   const siteUrl = publicEnv.siteUrl;
   const ogImage = buildOgImageUrl({
     title: `${plant.koreanName} 키우기 가이드`,
@@ -174,6 +178,7 @@ export default async function PlantDetailPage({ params }: Props) {
           plant={plant}
           faqs={faqs}
           relatedPlants={relatedPlants}
+          relatedBlogPosts={relatedBlogPosts}
         />
       </article>
     </main>
