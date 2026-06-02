@@ -32,6 +32,7 @@ const args = process.argv.slice(2);
 const startIdx = parseInt(args.find((a) => a.startsWith("--start="))?.split("=")[1] ?? "0");
 const count = parseInt(args.find((a) => a.startsWith("--count="))?.split("=")[1] ?? "300");
 const isDryRun = args.includes("--dry-run");
+const forceCategory = args.find((a) => a.startsWith("--category="))?.split("=")[1] ?? null;
 
 // ── DB 연결 ────────────────────────────────────────────────
 const client = createClient({ url: TURSO_URL, authToken: TURSO_TOKEN });
@@ -662,6 +663,9 @@ function buildWritePrompt(topic, research, seed = 0) {
   const introStyle = pickRandom(INTRO_STYLES, seed);
   const structureType = pickRandom(STRUCTURE_TYPES, seed + 1);
   const closingStyle = pickRandom(CLOSING_STYLES, seed + 2);
+  const categoryInstruction = forceCategory
+    ? `반드시 "${forceCategory}"로 고정 (다른 값 불가)`
+    : "키우기가이드 또는 식물선택 또는 계절관리 또는 병충해 또는 도구 또는 꽃말문화";
   const topicType = detectTopicType(topic);
   const typeElements = getTopicTypeElements(topicType);
 
@@ -709,7 +713,7 @@ ${typeElements}
   "title": "SEO 최적화 제목 (60자 이하, primaryKeyword 앞배치 + secondaryKeywords 중 1개 자연 포함, 독자 혜택 명시)",
   "metaDescription": "검색 결과 노출 설명 (150~160자, primaryKeyword + secondaryKeywords 1-2개 자연 포함, 독자 혜택·행동 유도 문장으로 마무리)",
   "slug": "seo-friendly-url-slug-in-english-or-romanized",
-  "category": "키우기가이드 또는 식물선택 또는 계절관리 또는 병충해 또는 도구 또는 꽃말문화",
+  "category": "${categoryInstruction}",
   "tags": ["primaryKeyword", "secondaryKeyword1", "secondaryKeyword2", "태그4", "태그5"],
   "bodyMarkdown": "[위에서 지정한 고유 구조 + 글 유형별 필수 요소를 포함한 마크다운. 최소 1800자, H2 섹션 5개 이상]",
   "qualityScores": {
@@ -788,6 +792,7 @@ async function main() {
   console.log(`   발행 간격: ${PUBLISH_INTERVAL_HOURS}시간`);
   console.log(`   품질 기준: ${QUALITY_THRESHOLD}점 이상`);
   console.log(`   드라이런: ${isDryRun ? "예 (DB 저장 안 함)" : "아니오"}`);
+  if (forceCategory) console.log(`   카테고리 강제: ${forceCategory}`);
   console.log("");
 
   const existingSlugs = await getExistingSlugs();

@@ -1,6 +1,6 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { plantMetrics, plants } from "@/db/schema";
+import { plantImages, plantMetrics, plants } from "@/db/schema";
 import { getClimateGrade } from "@/features/diagnose/logic";
 
 const DEFAULT_REGION_CODE = "11680";
@@ -127,6 +127,37 @@ export type PlantCard = {
   climateGrade: string;
   difficultyScore: number | null;
 };
+
+export type PlantImage = {
+  url: string;
+  source: string;
+  license: string;
+  attribution: string | null;
+  width: number | null;
+  height: number | null;
+};
+
+export async function getPrimaryPlantImage(plantId: number): Promise<PlantImage | null> {
+  // is_primary 우선, 없으면 첫 번째 이미지
+  const rows = await db
+    .select({
+      url: plantImages.url,
+      source: plantImages.source,
+      license: plantImages.license,
+      attribution: plantImages.attribution,
+      width: plantImages.width,
+      height: plantImages.height,
+      isPrimary: plantImages.isPrimary
+    })
+    .from(plantImages)
+    .where(eq(plantImages.plantId, plantId))
+    .orderBy(desc(plantImages.isPrimary))
+    .limit(1);
+
+  if (!rows[0]) return null;
+  const { isPrimary: _, ...rest } = rows[0];
+  return rest;
+}
 
 export type PlantNameMap = Record<string, string>; // koreanName → slug
 

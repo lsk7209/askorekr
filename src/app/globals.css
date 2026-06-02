@@ -585,6 +585,34 @@ h2 {
   min-height: 160px;
 }
 
+/* ── 식물 사진 ── */
+
+.plant-photo {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f4f7f1;
+  border: 1px solid var(--border);
+}
+
+.plant-photo-img {
+  display: block;
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.plant-photo-caption {
+  padding: 8px 14px;
+  font-size: 11px;
+  color: var(--sage);
+  font-weight: 600;
+  border-top: 1px solid var(--border);
+}
+
+/* ── ── ── ── ── ── ── ── ── ── ── ── ── */
+
 .plant-shell {
   min-height: 100vh;
   padding: 40px 20px 56px;

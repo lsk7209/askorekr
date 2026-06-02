@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPlantBySlug, getPlantSitemapItems } from "@/features/plants/queries";
+import { getPlantBySlug, getPlantSitemapItems, getPrimaryPlantImage } from "@/features/plants/queries";
 import { getRelatedPlants } from "@/features/plants/related-queries";
 import { getBlogPostsForPlant } from "@/features/blog/queries";
 import {
@@ -109,17 +109,21 @@ export default async function PlantDetailPage({ params }: Props) {
   }
 
   const faqs = getPlantFaqs(plant);
-  const [relatedPlants, relatedBlogPosts] = await Promise.all([
+  const [relatedPlants, relatedBlogPosts, primaryImage] = await Promise.all([
     getRelatedPlants(plant),
-    getBlogPostsForPlant(2).catch(() => [])
+    getBlogPostsForPlant(2).catch(() => []),
+    getPrimaryPlantImage(plant.id).catch(() => null)
   ]);
   const siteUrl = publicEnv.siteUrl;
-  const ogImage = buildOgImageUrl({
+  const ogImageGenerated = buildOgImageUrl({
     title: `${plant.koreanName} 키우기 가이드`,
     subtitle: `서울 적합도 ${plant.climateScore}점 · ${plant.koreanName} 관리법`,
     label: "Plant Guide"
   });
-  const ogImageAbs = new URL(ogImage, siteUrl).toString();
+  // 실제 식물 사진이 있으면 OG 이미지로 우선 사용
+  const ogImageAbs = primaryImage?.url
+    ? primaryImage.url
+    : new URL(ogImageGenerated, siteUrl).toString();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -197,6 +201,7 @@ export default async function PlantDetailPage({ params }: Props) {
           faqs={faqs}
           relatedPlants={relatedPlants}
           relatedBlogPosts={relatedBlogPosts}
+          primaryImage={primaryImage}
         />
       </article>
     </main>

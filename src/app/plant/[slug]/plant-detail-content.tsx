@@ -4,6 +4,7 @@ import { publicEnv } from "@/env";
 import type { PlantDetail } from "@/features/plants/queries";
 import type { RelatedPlant } from "@/features/plants/related-queries";
 import type { BlogListItem } from "@/features/blog/queries";
+import type { PlantImage } from "@/features/plants/queries";
 import {
   formatDifficulty,
   formatDifficultyLabel,
@@ -28,6 +29,7 @@ type Props = {
   faqs: PlantFaq[];
   relatedPlants: RelatedPlant[];
   relatedBlogPosts?: BlogListItem[];
+  primaryImage?: PlantImage | null;
 };
 
 export function getPlantFaqs(plant: PlantDetail): PlantFaq[] {
@@ -47,9 +49,28 @@ export function getPlantFaqs(plant: PlantDetail): PlantFaq[] {
   ];
 }
 
-export function PlantGuideContent({ plant, faqs, relatedPlants, relatedBlogPosts = [] }: Props) {
+export function PlantGuideContent({ plant, faqs, relatedPlants, relatedBlogPosts = [], primaryImage }: Props) {
   return (
     <>
+      {primaryImage && (
+        <figure className="plant-photo">
+          <img
+            src={primaryImage.url}
+            alt={`${plant.koreanName} 실물 사진`}
+            className="plant-photo-img"
+            loading="lazy"
+            decoding="async"
+            width={primaryImage.width ?? 800}
+            height={primaryImage.height ?? 600}
+          />
+          {primaryImage.attribution && (
+            <figcaption className="plant-photo-caption">
+              사진 출처: {primaryImage.source.toUpperCase()} · {primaryImage.license} · {primaryImage.attribution}
+            </figcaption>
+          )}
+        </figure>
+      )}
+
       <section className="quick-facts" aria-labelledby="quick-facts-title">
         <h2 id="quick-facts-title">Quick Facts</h2>
         <dl>
