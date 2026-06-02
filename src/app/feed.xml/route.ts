@@ -1,9 +1,9 @@
 import { publicEnv } from "@/env";
-import { getCategories } from "@/features/categories/queries";
+import { getPublishedBlogPosts } from "@/features/blog/queries";
 
-const FEED_TITLE = "플랜티프렌즈";
+const FEED_TITLE = "플랜티프렌즈 가드닝 블로그";
 const FEED_DESCRIPTION =
-  "한국 기후와 생활 환경에 맞는 반려식물 선택을 돕는 데이터 기반 가드닝 가이드입니다.";
+  "한국 기후와 생활 환경에 맞는 반려식물·가드닝 실용 정보를 전합니다.";
 
 function absoluteUrl(path: string) {
   return new URL(path, publicEnv.siteUrl).toString();
@@ -19,28 +19,23 @@ function escapeXml(value: string) {
 }
 
 export async function GET() {
-  const categories = await getCategories();
+  const posts = await getPublishedBlogPosts(50, 0).catch(() => []);
   const now = new Date().toUTCString();
-  const items = [
-    {
-      title: "반려식물 진단",
-      description: "지역과 실내외 환경을 기준으로 반려식물 후보를 찾아보세요.",
-      url: absoluteUrl("/tools/diagnose"),
-      pubDate: now
-    },
-    ...categories.map((category) => ({
-      title: category.title,
-      description:
-        category.description ?? `${category.title} 반려식물 목록입니다.`,
-      url: absoluteUrl(`/category/${category.slug}`),
-      pubDate: now
-    }))
-  ];
+
+  const items = posts.map((post) => ({
+    title: post.title,
+    description: post.metaDescription ?? `${post.category} — 플랜티프렌즈`,
+    url: absoluteUrl(`/blog/${post.slug}`),
+    pubDate: post.publishedAt?.toUTCString() ?? now,
+    category: post.category
+  }));
+
   const body = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(FEED_TITLE)}</title>
-    <link>${absoluteUrl("/")}</link>
+    <link>${absoluteUrl("/blog")}</link>
+    <atom:link href="${absoluteUrl("/feed.xml")}" rel="self" type="application/rss+xml"/>
     <description>${escapeXml(FEED_DESCRIPTION)}</description>
     <language>ko-KR</language>
     <lastBuildDate>${now}</lastBuildDate>
@@ -49,8 +44,9 @@ ${items
     (item) => `    <item>
       <title>${escapeXml(item.title)}</title>
       <link>${item.url}</link>
-      <guid>${item.url}</guid>
+      <guid isPermaLink="true">${item.url}</guid>
       <description>${escapeXml(item.description)}</description>
+      <category>${escapeXml(item.category)}</category>
       <pubDate>${item.pubDate}</pubDate>
     </item>`
   )
@@ -61,7 +57,7 @@ ${items
   return new Response(body, {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",
-      "Cache-Control": "public, max-age=3600"
+      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400"
     }
   });
 }

@@ -92,6 +92,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <link rel="alternate" type="application/rss+xml" title="플랜티프렌즈 가드닝 블로그" href={`${siteUrl}/feed.xml`} />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
