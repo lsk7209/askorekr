@@ -1267,6 +1267,17 @@ h2 {
   background: rgba(111, 140, 114, 0.04);
 }
 
+.blog-card-readtime {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(111, 140, 114, 0.1);
+  color: var(--sage-dark);
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .blog-card-date {
   margin-left: auto;
   font-size: 11px;

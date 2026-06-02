@@ -139,32 +139,41 @@ export default async function BlogPage({ searchParams }: Props) {
             <section aria-labelledby="blog-list-title">
               <h2 id="blog-list-title" className="sr-only">블로그 글 목록</h2>
               <div className="blog-list">
-                {posts.map((post) => (
-                  <article key={post.slug} className="blog-card">
-                    <header>
-                      <span className="blog-card-category">{post.category}</span>
-                      <h2 className="blog-card-title">
-                        <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                      </h2>
-                      {post.metaDescription && (
-                        <p className="blog-card-desc">{post.metaDescription}</p>
-                      )}
-                    </header>
-                    <footer className="blog-card-meta">
-                      {post.tags.slice(0, 2).map((tag) => (
-                        <span key={tag} className="blog-tag">#{tag}</span>
-                      ))}
-                      {post.publishedAt && (
-                        <time dateTime={post.publishedAt.toISOString()} className="blog-card-date">
-                          {post.publishedAt.toLocaleDateString("ko-KR", {
-                            month: "short",
-                            day: "numeric"
-                          })}
-                        </time>
-                      )}
-                    </footer>
-                  </article>
-                ))}
+                {posts.map((post) => {
+                  const now = new Date();
+                  const pubAt = post.publishedAt;
+                  const dateStr = pubAt
+                    ? pubAt.toLocaleDateString("ko-KR", {
+                        year: pubAt.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+                        month: "short",
+                        day: "numeric"
+                      })
+                    : null;
+                  return (
+                    <article key={post.slug} className="blog-card">
+                      <header>
+                        <span className="blog-card-category">{post.category}</span>
+                        <h2 className="blog-card-title">
+                          <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                        </h2>
+                        {post.metaDescription && (
+                          <p className="blog-card-desc">{post.metaDescription}</p>
+                        )}
+                      </header>
+                      <footer className="blog-card-meta">
+                        {post.tags.slice(0, 2).map((tag) => (
+                          <span key={tag} className="blog-tag">#{tag}</span>
+                        ))}
+                        <span className="blog-card-readtime">약 5분</span>
+                        {dateStr && pubAt && (
+                          <time dateTime={pubAt.toISOString()} className="blog-card-date">
+                            {dateStr}
+                          </time>
+                        )}
+                      </footer>
+                    </article>
+                  );
+                })}
               </div>
             </section>
 
