@@ -7,6 +7,7 @@ import {
   getRelatedBlogPosts
 } from "@/features/blog/queries";
 import { getSuggestedPlants } from "@/features/plants/queries";
+import { CopyLinkBtn } from "@/components/copy-link-btn";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { AdsenseAd } from "@/components/adsense-ad";
@@ -314,9 +315,9 @@ export default async function BlogPostPage({ params }: Props) {
               <p className="lead">{post.metaDescription}</p>
             )}
             <div className="blog-post-meta">
-              {post.tags.map((tag) => (
-                <span key={tag} className="blog-tag">#{tag}</span>
-              ))}
+              <span className="blog-author">
+                <Link href="/about" className="blog-author-link">플랜티프렌즈 편집팀</Link>
+              </span>
               {post.publishedAt && (
                 <time dateTime={post.publishedAt.toISOString()}>
                   {post.publishedAt.toLocaleDateString("ko-KR", {
@@ -329,6 +330,11 @@ export default async function BlogPostPage({ params }: Props) {
               <span className="blog-reading-time" aria-label="예상 읽는 시간">
                 약 {readingMin}분 읽기
               </span>
+            </div>
+            <div className="blog-tag-row">
+              {post.tags.map((tag) => (
+                <span key={tag} className="blog-tag">#{tag}</span>
+              ))}
             </div>
           </header>
 
@@ -374,9 +380,12 @@ export default async function BlogPostPage({ params }: Props) {
               따라 작성되었습니다. 반려동물·건강 관련 문제는 전문가 상담을
               권장합니다.
             </p>
-            <Link href="/tools/diagnose" className="primary-link">
-              나에게 맞는 식물 찾기 →
-            </Link>
+            <div className="blog-post-actions">
+              <Link href="/tools/diagnose" className="primary-link">
+                나에게 맞는 식물 찾기 →
+              </Link>
+              <CopyLinkBtn url={`${publicEnv.siteUrl}/blog/${post.slug}`} />
+            </div>
           </footer>
 
           {suggestedPlants.length > 0 && (

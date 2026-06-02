@@ -1497,6 +1497,67 @@ h2 {
   margin: 36px 0;
 }
 
+/* ── 작성자 표시 ── */
+
+.blog-author {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sage-dark);
+}
+
+.blog-author-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--sage);
+  padding-bottom: 1px;
+  transition: color 0.15s;
+}
+
+.blog-author-link:hover {
+  color: var(--terracotta);
+}
+
+.blog-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* ── 글 하단 액션 ── */
+
+.blog-post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.copy-link-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--ivory);
+  color: var(--sage-dark);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.copy-link-btn:hover {
+  background: var(--sage-dark);
+  border-color: var(--sage-dark);
+  color: #ffffff;
+}
+
 /* ── 읽는 시간 ── */
 
 .blog-reading-time {
