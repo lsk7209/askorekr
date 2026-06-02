@@ -246,6 +246,72 @@ h2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* ── 사이트 푸터 (기존 home-footer 대체) ── */
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: var(--ivory);
+  content-visibility: auto;
+  contain-intrinsic-size: 0 120px;
+  padding: 24px 20px;
+}
+
+.site-footer-inner {
+  display: grid;
+  gap: 14px;
+  width: min(920px, 100%);
+  margin: 0 auto;
+}
+
+.site-footer-nav,
+.site-footer-policy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.site-footer-brand {
+  font-weight: 900;
+  font-size: 15px;
+  color: var(--sage-dark);
+  text-decoration: none;
+  margin-right: 6px;
+}
+
+.site-footer-nav a:not(.site-footer-brand),
+.site-footer-policy a {
+  color: var(--sage-dark);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.site-footer-nav a:not(.site-footer-brand):hover,
+.site-footer-policy a:hover {
+  color: var(--terracotta);
+}
+
+.site-footer-policy {
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.site-footer-policy a {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sage);
+}
+
+.site-footer-copy {
+  margin: 0;
+  font-size: 12px;
+  color: var(--sage);
+}
+
+/* 기존 호환용 — home-footer 제거 시 같이 제거 가능 */
 .home-footer {
   border-top: 1px solid var(--border);
   background: var(--ivory);
@@ -1485,6 +1551,39 @@ h2 {
   scroll-margin-top: 80px;
 }
 
+/* ── 관련 식물 추천 (블로그 → 식물 내부링크) ── */
+
+.blog-plant-suggest {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 2px solid #e8f2e8;
+}
+
+.blog-plant-suggest-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.blog-plant-suggest-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 16px;
+  background: #f4f7f1;
+  border: 1px solid #d0e3ca;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.blog-plant-suggest-card:hover {
+  border-color: var(--sage);
+  transform: translateY(-2px);
+}
+
 /* ── 관련 글 ── */
 
 .blog-related {
@@ -1591,6 +1690,10 @@ h2 {
 
   .blog-toc ol {
     font-size: 14px;
+  }
+
+  .blog-plant-suggest-list {
+    grid-template-columns: 1fr;
   }
 
   .blog-related-list {

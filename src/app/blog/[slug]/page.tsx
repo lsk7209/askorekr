@@ -6,6 +6,7 @@ import {
   getBlogSitemapItems,
   getRelatedBlogPosts
 } from "@/features/blog/queries";
+import { getSuggestedPlants } from "@/features/plants/queries";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { AdsenseAd } from "@/components/adsense-ad";
@@ -176,9 +177,10 @@ export default async function BlogPostPage({ params }: Props) {
 
   const parsed = parseMarkdown(post.bodyMarkdown);
   const readingMin = estimateReadingMinutes(parsed.charCount);
-  const relatedPosts = await getRelatedBlogPosts(post.category, post.slug, 4).catch(
-    () => []
-  );
+  const [relatedPosts, suggestedPlants] = await Promise.all([
+    getRelatedBlogPosts(post.category, post.slug, 4).catch(() => []),
+    getSuggestedPlants(3).catch(() => [])
+  ]);
 
   const ogImageAbs = new URL(
     buildOgImageUrl({
@@ -376,6 +378,29 @@ export default async function BlogPostPage({ params }: Props) {
               나에게 맞는 식물 찾기 →
             </Link>
           </footer>
+
+          {suggestedPlants.length > 0 && (
+            <section className="blog-plant-suggest" aria-labelledby="plant-suggest-title">
+              <h2 id="plant-suggest-title" className="blog-related-title">
+                함께 보면 좋은 식물 가이드
+              </h2>
+              <div className="blog-plant-suggest-list">
+                {suggestedPlants.map((plant) => (
+                  <Link
+                    key={plant.slug}
+                    href={`/plant/${plant.slug}`}
+                    className="blog-plant-suggest-card"
+                  >
+                    <span className="blog-related-category">서울 적합 {plant.climateScore}점</span>
+                    <span className="blog-related-card-title">{plant.koreanName} 키우기</span>
+                    <span className="blog-related-card-desc">
+                      {plant.difficultyScore !== null && plant.difficultyScore <= 35 ? "초보자도 쉬운 식물" : "관리 가이드 보기"} →
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           {relatedPosts.length > 0 && (
             <section className="blog-related" aria-labelledby="related-title">

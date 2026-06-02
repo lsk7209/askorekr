@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { plantMetrics, plants } from "@/db/schema";
 import { getClimateGrade } from "@/features/diagnose/logic";
@@ -118,6 +118,36 @@ export async function getPlantBySlug(slug: string): Promise<PlantDetail | null> 
     flowerMeaningPrimary: getPrimaryMeaning(plant.flowerMeaning),
     updatedAt: plant.updatedAt
   };
+}
+
+export type PlantCard = {
+  slug: string;
+  koreanName: string;
+  climateScore: number;
+  climateGrade: string;
+  difficultyScore: number | null;
+};
+
+export async function getSuggestedPlants(limit = 3): Promise<PlantCard[]> {
+  const rows = await db
+    .select({
+      slug: plants.slug,
+      koreanName: plants.koreanName,
+      climateScoreByRegion: plantMetrics.climateScoreByRegion,
+      difficultyScore: plantMetrics.difficultyScore
+    })
+    .from(plants)
+    .innerJoin(plantMetrics, eq(plants.id, plantMetrics.plantId))
+    .orderBy(sql`RANDOM()`)
+    .limit(limit * 4);
+
+  return rows
+    .map((r) => {
+      const score = getClimateScore(r.climateScoreByRegion);
+      return { slug: r.slug, koreanName: r.koreanName, climateScore: score, climateGrade: getClimateGrade(score), difficultyScore: r.difficultyScore };
+    })
+    .sort((a, b) => b.climateScore - a.climateScore)
+    .slice(0, limit);
 }
 
 export async function getPlantSitemapItems(): Promise<PlantSitemapItem[]> {
