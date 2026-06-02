@@ -82,6 +82,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+function buildPlantLead(plant: Awaited<ReturnType<typeof getPlantBySlug>> & object): string {
+  const d = plant.difficultyScore;
+  const diffLabel = !d ? "관리 정보를 확인해야 하는" : d <= 35 ? "초보자도 쉽게 키울 수 있는" : d <= 65 ? "어느 정도 경험이 있으면 잘 자라는" : "세심한 관리가 필요한";
+  const climate = `서울 기준 기후 적합도 ${plant.climateScore}점(${plant.climateGrade})`;
+  const water = plant.waterFreqDays ? `물주기는 약 ${plant.waterFreqDays}일 간격이 기준이며,` : "물주기는 흙 상태 기준으로 확인하며,";
+  const pet = (plant.petSafetyScoreDog ?? 0) >= 4 && (plant.petSafetyScoreCat ?? 0) >= 4
+    ? "반려동물 안전도 높아 함께 키우기 좋습니다."
+    : "반려동물 독성 여부를 먼저 확인해야 합니다.";
+  return `${diffLabel} 식물로, ${climate}입니다. ${water} ${pet}`;
+}
+
 export default async function PlantDetailPage({ params }: Props) {
   const { slug } = await params;
   const plant = await getPlantBySlug(slug);
@@ -93,20 +104,25 @@ export default async function PlantDetailPage({ params }: Props) {
   const faqs = getPlantFaqs(plant);
   const relatedPlants = await getRelatedPlants(plant);
   const siteUrl = publicEnv.siteUrl;
+  const ogImage = buildOgImageUrl({
+    title: `${plant.koreanName} 키우기 가이드`,
+    subtitle: `서울 적합도 ${plant.climateScore}점 · ${plant.koreanName} 관리법`,
+    label: "Plant Guide"
+  });
+  const ogImageAbs = new URL(ogImage, siteUrl).toString();
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Article",
         headline: `${plant.koreanName} 키우기 가이드`,
-        description: `${plant.koreanName}의 한국 기후 적합도와 기본 관리 정보를 정리한 페이지입니다.`,
+        description: `${plant.koreanName}(${plant.scientificName}) 서울 기준 기후 적합도 ${plant.climateScore}점. 물주기, 빛, 온도, 반려동물 안전성 데이터 기반 실전 관리법.`,
         dateModified: plant.updatedAt.toISOString(),
         inLanguage: "ko-KR",
         url: `${siteUrl}/plant/${plant.slug}`,
-        author: {
-          "@type": "Organization",
-          name: "플랜티프렌즈 편집팀"
-        },
+        image: [{ "@type": "ImageObject", url: ogImageAbs, width: OG_IMAGE_WIDTH, height: OG_IMAGE_HEIGHT }],
+        author: { "@type": "Organization", name: "플랜티프렌즈 편집팀" },
         publisher: {
           "@type": "Organization",
           name: "플랜티프렌즈",
@@ -118,18 +134,8 @@ export default async function PlantDetailPage({ params }: Props) {
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "홈", item: `${siteUrl}/` },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "식물 찾기",
-            item: `${siteUrl}/`
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: plant.koreanName,
-            item: `${siteUrl}/plant/${plant.slug}`
-          }
+          { "@type": "ListItem", position: 2, name: "식물 진단", item: `${siteUrl}/tools/diagnose` },
+          { "@type": "ListItem", position: 3, name: plant.koreanName, item: `${siteUrl}/plant/${plant.slug}` }
         ]
       },
       {
@@ -137,10 +143,7 @@ export default async function PlantDetailPage({ params }: Props) {
         mainEntity: faqs.map((faq) => ({
           "@type": "Question",
           name: faq.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.answer
-          }
+          acceptedAnswer: { "@type": "Answer", text: faq.answer }
         }))
       }
     ]
@@ -153,7 +156,9 @@ export default async function PlantDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <nav className="breadcrumb" aria-label="경로">
-        <Link href="/tools/diagnose">진단 도구</Link>
+        <Link href="/">홈</Link>
+        <span aria-hidden="true">/</span>
+        <Link href="/tools/diagnose">식물 진단</Link>
         <span aria-hidden="true">/</span>
         <span>{plant.koreanName}</span>
       </nav>
@@ -162,10 +167,7 @@ export default async function PlantDetailPage({ params }: Props) {
         <header className="plant-header">
           <p className="eyebrow">Plant Guide</p>
           <h1>{plant.koreanName}</h1>
-          <p className="lead">
-            {plant.koreanName}는 한국 생활 환경에서 기후 적합도, 빛, 물주기,
-            안전성을 함께 확인해야 오래 키울 수 있는 반려식물입니다.
-          </p>
+          <p className="lead">{buildPlantLead(plant)}</p>
         </header>
 
         <PlantGuideContent
