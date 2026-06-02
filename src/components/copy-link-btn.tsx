@@ -2,35 +2,44 @@
 
 import { useState } from "react";
 
-export function CopyLinkBtn({ url }: { url: string }) {
+type Props = { url: string; title?: string };
+
+export function CopyLinkBtn({ url, title }: Props) {
   const [copied, setCopied] = useState(false);
 
-  async function handleCopy() {
+  async function handleShare() {
+    // 모바일 네이티브 공유 우선
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title: title ?? "플랜티프렌즈", url });
+        return;
+      } catch {
+        // 취소하거나 지원 안 하면 클립보드로 폴백
+      }
+    }
+    // 클립보드 복사 폴백
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
-      // 구형 브라우저 폴백
       const input = document.createElement("input");
       input.value = url;
       document.body.appendChild(input);
       input.select();
       document.execCommand("copy");
       document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
     <button
       type="button"
-      onClick={handleCopy}
+      onClick={handleShare}
       className="copy-link-btn"
-      aria-label="글 링크 복사"
+      aria-label="글 공유"
     >
-      {copied ? "✓ 복사됨" : "링크 복사"}
+      {copied ? "✓ 복사됨" : "공유"}
     </button>
   );
 }

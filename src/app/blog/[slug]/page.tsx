@@ -402,7 +402,7 @@ export default async function BlogPostPage({ params }: Props) {
               <Link href="/tools/diagnose" className="primary-link">
                 나에게 맞는 식물 찾기 →
               </Link>
-              <CopyLinkBtn url={`${publicEnv.siteUrl}/blog/${post.slug}`} />
+              <CopyLinkBtn url={`${publicEnv.siteUrl}/blog/${post.slug}`} title={post.title} />
             </div>
           </footer>
 
