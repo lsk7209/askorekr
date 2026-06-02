@@ -6,7 +6,7 @@ import {
   getBlogSitemapItems,
   getRelatedBlogPosts
 } from "@/features/blog/queries";
-import { getSuggestedPlants } from "@/features/plants/queries";
+import { getSuggestedPlants, getPlantNameSlugMap } from "@/features/plants/queries";
 import { CopyLinkBtn } from "@/components/copy-link-btn";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
@@ -86,7 +86,20 @@ function isQuestionHeading(text: string): boolean {
   return /[?？]\s*$/.test(text.trim());
 }
 
-function parseMarkdown(md: string): ParseResult {
+function buildPlantLinker(nameMap: Record<string, string>) {
+  const names = Object.keys(nameMap).sort((a, b) => b.length - a.length);
+  if (names.length === 0) return (text: string) => text;
+  const pattern = new RegExp(`(${names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
+  return (text: string) =>
+    text.replace(pattern, (match) => {
+      const slug = nameMap[match];
+      return slug ? `<a href="/plant/${slug}">${match}</a>` : match;
+    });
+}
+
+function parseMarkdown(md: string, plantNameMap: Record<string, string> = {}): ParseResult {
+  const linkPlantNames = buildPlantLinker(plantNameMap);
+
   function inline(text: string): string {
     return text
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
@@ -94,6 +107,10 @@ function parseMarkdown(md: string): ParseResult {
       .replace(/\*(.+?)\*/g, "<em>$1</em>")
       .replace(/==(.+?)==/g, "<mark>$1</mark>")
       .replace(/`(.+?)`/g, "<code>$1</code>");
+  }
+
+  function inlineWithPlants(text: string): string {
+    return linkPlantNames(inline(text));
   }
 
   const blocks = md.split(/\n{2,}/);
@@ -143,11 +160,11 @@ function parseMarkdown(md: string): ParseResult {
       const cls = isCaution ? "blog-callout caution" : "blog-callout tip";
       html.push(`<div class="${cls}">${inline(content)}</div>`);
     } else if (lines.every((l) => /^[-*] /.test(l))) {
-      const items = lines.map((l) => `<li>${inline(l.slice(2))}</li>`).join("");
+      const items = lines.map((l) => `<li>${inlineWithPlants(l.slice(2))}</li>`).join("");
       html.push(`<ul>${items}</ul>`);
     } else if (lines.every((l) => /^\d+\. /.test(l))) {
       const items = lines
-        .map((l) => `<li>${inline(l.replace(/^\d+\. /, ""))}</li>`)
+        .map((l) => `<li>${inlineWithPlants(l.replace(/^\d+\. /, ""))}</li>`)
         .join("");
       html.push(`<ol>${items}</ol>`);
     } else if (lines.every((l) => l.startsWith("|"))) {
@@ -159,7 +176,7 @@ function parseMarkdown(md: string): ParseResult {
       });
       html.push(`<table>${rows.join("")}</table>`);
     } else {
-      html.push(`<p>${inline(lines.join(" "))}</p>`);
+      html.push(`<p>${inlineWithPlants(lines.join(" "))}</p>`);
     }
   }
 
@@ -176,12 +193,13 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  const parsed = parseMarkdown(post.bodyMarkdown);
-  const readingMin = estimateReadingMinutes(parsed.charCount);
-  const [relatedPosts, suggestedPlants] = await Promise.all([
+  const [relatedPosts, suggestedPlants, plantNameMap] = await Promise.all([
     getRelatedBlogPosts(post.category, post.slug, 4).catch(() => []),
-    getSuggestedPlants(3).catch(() => [])
+    getSuggestedPlants(3).catch(() => []),
+    getPlantNameSlugMap().catch(() => ({} as Record<string, string>))
   ]);
+  const parsed = parseMarkdown(post.bodyMarkdown, plantNameMap);
+  const readingMin = estimateReadingMinutes(parsed.charCount);
 
   const ogImageAbs = new URL(
     buildOgImageUrl({

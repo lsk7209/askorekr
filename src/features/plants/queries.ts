@@ -128,6 +128,17 @@ export type PlantCard = {
   difficultyScore: number | null;
 };
 
+export type PlantNameMap = Record<string, string>; // koreanName → slug
+
+export async function getPlantNameSlugMap(): Promise<PlantNameMap> {
+  const rows = await db
+    .select({ koreanName: plants.koreanName, slug: plants.slug })
+    .from(plants);
+  const map: PlantNameMap = {};
+  for (const r of rows) map[r.koreanName] = r.slug;
+  return map;
+}
+
 export async function getSuggestedPlants(limit = 3): Promise<PlantCard[]> {
   const rows = await db
     .select({

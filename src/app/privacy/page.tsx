@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { publicEnv } from "@/env";
 
-const UPDATED_AT = "2026-05-10";
+const UPDATED_AT = "2026-06-02";
 
 export const metadata: Metadata = {
   title: "개인정보처리방침",
@@ -18,8 +19,19 @@ export const metadata: Metadata = {
   }
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "플랜티프렌즈 개인정보처리방침",
+  url: `${publicEnv.siteUrl}/privacy`,
+  inLanguage: "ko-KR",
+  publisher: { "@type": "Organization", name: "플랜티프렌즈", url: publicEnv.siteUrl }
+};
+
 export default function PrivacyPage() {
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <main className="policy-shell">
       <header className="policy-header">
         <p className="eyebrow">Privacy</p>
@@ -69,6 +81,7 @@ export default function PrivacyPage() {
         <p>시행일 및 마지막 업데이트: {UPDATED_AT}</p>
       </footer>
     </main>
+    </>
   );
 }
 

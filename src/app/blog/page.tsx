@@ -5,18 +5,35 @@ import { publicEnv } from "@/env";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "가드닝 블로그",
-  description:
-    "반려식물 키우기, 계절 관리, 병충해 대처, 식물 선택 가이드 등 한국 생활 환경에 맞는 실용적인 가드닝 정보를 전합니다.",
-  alternates: { canonical: "/blog" },
-  openGraph: {
-    title: "가드닝 블로그 | 플랜티프렌즈",
-    description: "한국 반려식물·가드닝 실용 정보 블로그",
-    type: "website",
-    locale: "ko_KR"
-  }
-};
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { page = "1", cat = "전체" } = await searchParams;
+  const pageNum = Math.max(1, parseInt(page) || 1);
+  const activeCategory = CATEGORIES.includes(cat as typeof CATEGORIES[number]) ? cat : "전체";
+
+  const params = new URLSearchParams();
+  if (activeCategory !== "전체") params.set("cat", activeCategory);
+  if (pageNum > 1) params.set("page", String(pageNum));
+  const qs = params.toString();
+  const canonical = `/blog${qs ? `?${qs}` : ""}`;
+
+  const titleSuffix = [
+    activeCategory !== "전체" ? activeCategory : "",
+    pageNum > 1 ? `${pageNum}페이지` : ""
+  ].filter(Boolean).join(" · ");
+
+  return {
+    title: titleSuffix ? `가드닝 블로그 — ${titleSuffix}` : "가드닝 블로그",
+    description:
+      "반려식물 키우기, 계절 관리, 병충해 대처, 식물 선택 가이드 등 한국 생활 환경에 맞는 실용적인 가드닝 정보를 전합니다.",
+    alternates: { canonical },
+    openGraph: {
+      title: "가드닝 블로그 | 플랜티프렌즈",
+      description: "한국 반려식물·가드닝 실용 정보 블로그",
+      type: "website",
+      locale: "ko_KR"
+    }
+  };
+}
 
 const CATEGORIES = [
   "전체",
