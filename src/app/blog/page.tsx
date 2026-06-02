@@ -104,7 +104,7 @@ export default async function BlogPage({ searchParams }: Props) {
       )}
 
       <main className="site-shell">
-        <section className="hero" aria-labelledby="blog-title">
+        <section className="blog-hero" aria-labelledby="blog-title">
           <p className="eyebrow">Gardening Blog</p>
           <h1 id="blog-title">가드닝 블로그</h1>
           <p className="lead">

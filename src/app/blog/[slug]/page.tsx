@@ -90,6 +90,7 @@ function parseMarkdown(md: string): ParseResult {
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/==(.+?)==/g, "<mark>$1</mark>")
       .replace(/`(.+?)`/g, "<code>$1</code>");
   }
 
@@ -329,7 +330,7 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           </header>
 
-          {parsed.toc.length >= 3 && (
+          {parsed.toc.length >= 2 && (
             <nav className="blog-toc" aria-label="목차">
               <p className="blog-toc-title">이 글의 목차</p>
               <ol>
@@ -342,6 +343,11 @@ export default async function BlogPostPage({ params }: Props) {
             </nav>
           )}
 
+          <div
+            className="plant-section blog-content"
+            dangerouslySetInnerHTML={{ __html: parsed.html }}
+          />
+
           <AdsenseAd
             publisherId={publicEnv.adsensePubId}
             slot={publicEnv.adsenseSlots.contentMid}
@@ -349,11 +355,6 @@ export default async function BlogPostPage({ params }: Props) {
             className="blog-ad-mid"
             format="auto"
             minHeight={100}
-          />
-
-          <div
-            className="plant-section blog-content"
-            dangerouslySetInnerHTML={{ __html: parsed.html }}
           />
 
           <AdsenseAd

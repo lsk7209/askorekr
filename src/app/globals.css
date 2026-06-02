@@ -1026,6 +1026,15 @@ h2 {
   clip-path: inset(50%);
 }
 
+/* ── 블로그 페이지 히어로 (1080px 맞춤) ── */
+
+.blog-hero {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding-top: 4vh;
+  padding-bottom: 0;
+}
+
 /* ── 블로그 카테고리 필터 네비 ── */
 
 .blog-category-nav {
@@ -1274,12 +1283,12 @@ h2 {
   font-weight: 700;
 }
 
-/* ── 글 색상 강조 (strong/em) ── */
+/* ── 글 색상 강조 (strong / em / mark) ── */
 
 .blog-content strong {
   color: var(--sage-dark);
   font-weight: 700;
-  background: rgba(111, 140, 114, 0.1);
+  background: rgba(111, 140, 114, 0.13);
   padding: 1px 5px;
   border-radius: 3px;
 }
@@ -1287,6 +1296,15 @@ h2 {
 .blog-content em {
   color: var(--terracotta);
   font-style: normal;
+  font-weight: 600;
+}
+
+/* mark — 형광펜 하이라이트 (노란 계열) */
+.blog-content mark {
+  background: #fff0a8;
+  color: #5a4000;
+  padding: 1px 4px;
+  border-radius: 3px;
   font-weight: 600;
 }
 
@@ -1505,6 +1523,10 @@ h2 {
 }
 
 @media (max-width: 640px) {
+  .blog-hero {
+    padding-top: 3vh;
+  }
+
   .blog-list {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -1516,14 +1538,24 @@ h2 {
 
   .blog-content {
     font-size: 16px;
+    padding: 18px;
   }
 
   .blog-content h2 {
     font-size: 20px;
+    padding-left: 10px;
   }
 
   .blog-content h3 {
     font-size: 17px;
+  }
+
+  .blog-toc {
+    padding: 14px 16px;
+  }
+
+  .blog-toc ol {
+    font-size: 14px;
   }
 
   .blog-related-list {
