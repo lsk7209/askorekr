@@ -193,9 +193,13 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
+  const INDOOR_KEYWORDS = ["아파트", "실내", "거실", "방", "사무실", "반려동물", "초보"];
+  const preferIndoor = INDOOR_KEYWORDS.some(
+    (k) => post.title.includes(k) || post.tags.some((t) => t.includes(k))
+  );
   const [relatedPosts, suggestedPlants, plantNameMap] = await Promise.all([
     getRelatedBlogPosts(post.category, post.slug, 4).catch(() => []),
-    getSuggestedPlants(3).catch(() => []),
+    getSuggestedPlants(3, preferIndoor).catch(() => []),
     getPlantNameSlugMap().catch(() => ({} as Record<string, string>))
   ]);
   const parsed = parseMarkdown(post.bodyMarkdown, plantNameMap);

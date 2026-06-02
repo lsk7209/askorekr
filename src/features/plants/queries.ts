@@ -170,8 +170,8 @@ export async function getPlantNameSlugMap(): Promise<PlantNameMap> {
   return map;
 }
 
-export async function getSuggestedPlants(limit = 3): Promise<PlantCard[]> {
-  const rows = await db
+export async function getSuggestedPlants(limit = 3, preferIndoor = false): Promise<PlantCard[]> {
+  const base = db
     .select({
       slug: plants.slug,
       koreanName: plants.koreanName,
@@ -179,9 +179,11 @@ export async function getSuggestedPlants(limit = 3): Promise<PlantCard[]> {
       difficultyScore: plantMetrics.difficultyScore
     })
     .from(plants)
-    .innerJoin(plantMetrics, eq(plants.id, plantMetrics.plantId))
-    .orderBy(sql`RANDOM()`)
-    .limit(limit * 4);
+    .innerJoin(plantMetrics, eq(plants.id, plantMetrics.plantId));
+
+  const rows = await (preferIndoor
+    ? base.where(eq(plantMetrics.indoorOutdoorClass, "indoor")).orderBy(sql`RANDOM()`).limit(limit * 4)
+    : base.orderBy(sql`RANDOM()`).limit(limit * 4));
 
   return rows
     .map((r) => {
