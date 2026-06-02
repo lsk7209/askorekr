@@ -4,6 +4,7 @@ import { publicEnv } from "@/env";
 import { getPublishedBlogPosts } from "@/features/blog/queries";
 
 export const revalidate = 3600;
+export const dynamic = "force-static";
 
 const primaryLinks = [
   { href: "/tools/diagnose", label: "반려식물 진단 시작" },
@@ -96,7 +97,7 @@ const jsonLd = {
 };
 
 export default async function Home() {
-  const recentPosts = await getPublishedBlogPosts(4, 0).catch(() => []);
+  const recentPosts = await getPublishedBlogPosts(6, 0).catch(() => []);
 
   return (
     <>
@@ -109,8 +110,7 @@ export default async function Home() {
           <p className="eyebrow">Korean Plant Guide</p>
           <h1 id="home-title">한국 집에 맞는 반려식물 선택 가이드</h1>
           <p className="lead">
-            플랜티프렌즈는 지역, 실내 환경, 빛, 관리 시간, 반려동물 안전성을
-            함께 비교해 오래 키울 수 있는 식물을 찾도록 돕습니다.
+            지역 기후, 실내 빛, 반려동물 안전성까지 함께 비교해 우리 집에 오래 살아남는 식물을 찾아드립니다.
           </p>
           <div className="entry-links" aria-label="주요 기능">
             {primaryLinks.map((link) => (
@@ -159,6 +159,28 @@ export default async function Home() {
           </div>
         </section>
 
+        {recentPosts.length > 0 && (
+          <section className="home-section-inner" aria-labelledby="blog-recent-title">
+            <div className="section-heading-row">
+              <h2 id="blog-recent-title">최신 가드닝 글</h2>
+              <Link href="/blog" className="text-link">전체 보기 →</Link>
+            </div>
+            <div className="home-blog-grid">
+              {recentPosts.map((post) => (
+                <article key={post.slug} className="home-blog-card">
+                  <span className="home-blog-category">{post.category}</span>
+                  <h3 className="home-blog-title">
+                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  </h3>
+                  {post.metaDescription && (
+                    <p className="home-blog-desc">{post.metaDescription}</p>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
         <AdsenseAd
           publisherId={publicEnv.adsensePubId}
           slot={publicEnv.adsenseSlots.contentBottom}
@@ -185,28 +207,6 @@ export default async function Home() {
             </div>
           </div>
         </section>
-
-        {recentPosts.length > 0 && (
-          <section className="home-section-inner" aria-labelledby="blog-recent-title">
-            <div className="section-heading-row">
-              <h2 id="blog-recent-title">최신 가드닝 글</h2>
-              <Link href="/blog" className="text-link">전체 보기 →</Link>
-            </div>
-            <div className="home-blog-grid">
-              {recentPosts.map((post) => (
-                <article key={post.slug} className="home-blog-card">
-                  <span className="home-blog-category">{post.category}</span>
-                  <h3 className="home-blog-title">
-                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                  </h3>
-                  {post.metaDescription && (
-                    <p className="home-blog-desc">{post.metaDescription}</p>
-                  )}
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
 
         <section className="home-section-inner" aria-labelledby="faq-title">
           <h2 id="faq-title">자주 묻는 질문</h2>
