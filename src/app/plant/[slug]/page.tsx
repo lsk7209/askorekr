@@ -39,12 +39,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const title = `${plant.koreanName} 키우기 가이드`;
+  const titleHighlights: string[] = [];
+  if (plant.difficultyScore !== null) {
+    titleHighlights.push(plant.difficultyScore <= 35 ? "초보 OK" : plant.difficultyScore <= 65 ? "중급" : "고급");
+  }
+  if (plant.waterFreqDays !== null) titleHighlights.push(`물주기 ${plant.waterFreqDays}일`);
+  const titleSuffix = titleHighlights.length > 0 ? ` | ${titleHighlights.join(" · ")}` : "";
+  const title = `${plant.koreanName} 키우기 가이드${titleSuffix}`;
 
   const metaParts: string[] = [];
   if (plant.waterFreqDays !== null) metaParts.push(`물주기 ${plant.waterFreqDays}일 간격`);
   if (plant.difficultyScore !== null) {
-    const diff = plant.difficultyScore <= 2 ? "초보 적합" : plant.difficultyScore <= 3 ? "중급" : "고급";
+    const diff = plant.difficultyScore <= 35 ? "초보 적합" : plant.difficultyScore <= 65 ? "중급" : "고급";
     metaParts.push(`난이도 ${diff}`);
   }
   const hasPetData = plant.petSafetyScoreDog !== null || plant.petSafetyScoreCat !== null;
@@ -52,8 +58,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const petSafe = (plant.petSafetyScoreDog ?? 0) >= 4 && (plant.petSafetyScoreCat ?? 0) >= 4;
     metaParts.push(petSafe ? "반려동물 안전" : "반려동물 독성 주의");
   }
-  const dataStr = metaParts.length > 0 ? ` ${metaParts.join(" · ")}.` : "";
-  const description = `${plant.koreanName} 키우기 완전 가이드.${dataStr} 한국 기후 적합도, 광량, 온도, 습도 기준 실전 관리법을 데이터로 확인하세요.`.slice(0, 160);
+  const dataLead = metaParts.length > 0 ? `${metaParts.join(" · ")}. ` : "";
+  const description = `${dataLead}${plant.koreanName} 실전 키우기 가이드 — 서울 적합도 ${plant.climateScore}점, 빛·온도·습도 관리 데이터를 한눈에 확인하세요.`.slice(0, 160);
   const image = buildOgImageUrl({
     title,
     subtitle: description,

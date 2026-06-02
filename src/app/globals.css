@@ -1066,7 +1066,34 @@ h2 {
   }
 
   h1 {
-    font-size: 38px;
+    font-size: 28px;
+  }
+
+  .lead {
+    font-size: 15px;
+  }
+
+  .hero {
+    padding-top: 4vh;
+    padding-bottom: 16px;
+  }
+
+  .entry-links {
+    flex-direction: column;
+  }
+
+  .entry-links a {
+    text-align: center;
+  }
+
+  .entry-links a:first-child {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+  }
+
+  .entry-links a:first-child:hover {
+    background: #b05e38;
+    border-color: #b05e38;
   }
 }
 
