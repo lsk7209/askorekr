@@ -3,6 +3,8 @@ import { AdsenseAd } from "@/components/adsense-ad";
 import { publicEnv } from "@/env";
 import { getPublishedBlogPosts } from "@/features/blog/queries";
 
+export const revalidate = 3600;
+
 const primaryLinks = [
   { href: "/tools/diagnose", label: "반려식물 진단 시작" },
   { href: "/category/indoor-foliage", label: "실내 관엽식물 보기" },
@@ -69,7 +71,15 @@ const jsonLd = {
       url: publicEnv.siteUrl,
       inLanguage: "ko-KR",
       description:
-        "한국 생활 환경에 맞는 반려식물 선택을 돕는 데이터 기반 가드닝 가이드"
+        "한국 생활 환경에 맞는 반려식물 선택을 돕는 데이터 기반 가드닝 가이드",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${publicEnv.siteUrl}/tools/diagnose?q={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
+      }
     },
     {
       "@type": "FAQPage",

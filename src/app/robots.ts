@@ -17,7 +17,8 @@ export default function robots(): MetadataRoute.Robots {
           "OAI-SearchBot",
           "Google-Extended"
         ],
-        allow: "/"
+        allow: "/",
+        disallow: ["/api/", "/admin/"]
       },
       {
         userAgent: "Bytespider",
@@ -25,7 +26,8 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "*",
-        allow: "/"
+        allow: "/",
+        disallow: ["/api/", "/admin/"]
       }
     ],
     sitemap: new URL("/sitemap.xml", publicEnv.siteUrl).toString()

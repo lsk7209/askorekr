@@ -112,10 +112,25 @@ h2 {
   color: var(--sage-dark);
   font-weight: 800;
   text-decoration: none;
+  transition: color 0.15s;
+}
+
+.home-nav a:hover {
+  color: var(--terracotta);
+}
+
+.home-nav a[aria-current="page"] {
+  color: var(--terracotta);
+  border-bottom: 2px solid var(--terracotta);
+  padding-bottom: 2px;
 }
 
 .home-nav a:first-child {
   margin-right: auto;
+}
+
+.home-nav a:first-child:hover {
+  color: var(--sage-dark);
 }
 
 .entry-links {
@@ -133,6 +148,12 @@ h2 {
   padding: 10px 14px;
   font-weight: 800;
   text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.entry-links a:hover {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
 }
 
 .adsense-unit {
@@ -140,11 +161,19 @@ h2 {
   min-height: 90px;
   margin: 0 auto;
   overflow: hidden;
+  contain: layout style;
 }
 
 .plant-article .adsense-unit,
 .category-shell .adsense-unit {
   width: 100%;
+}
+
+/* CLS 최소화: 광고 슬롯 공간 사전 예약 */
+.blog-ad-mid,
+.blog-ad-bottom {
+  min-height: 100px;
+  contain: layout style;
 }
 
 .status-panel {
@@ -1578,6 +1607,7 @@ h2 {
   margin: 8px 0;
   border-radius: 8px;
   overflow: hidden;
+  contain: layout style;
 }
 
 /* ── Monitoring styles ───────────────────────────── */
