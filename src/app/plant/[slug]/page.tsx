@@ -4,6 +4,12 @@ import { notFound } from "next/navigation";
 import { getPlantBySlug, getPlantSitemapItems } from "@/features/plants/queries";
 import { getRelatedPlants } from "@/features/plants/related-queries";
 import { getBlogPostsForPlant } from "@/features/blog/queries";
+import {
+  formatWaterGuide,
+  formatLightGuide,
+  formatTemperatureGuide,
+  formatHumidityGuide
+} from "./plant-formatters";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { publicEnv } from "@/env";
 import { getPlantFaqs, PlantGuideContent } from "./plant-detail-content";
@@ -149,6 +155,18 @@ export default async function PlantDetailPage({ params }: Props) {
           name: faq.question,
           acceptedAnswer: { "@type": "Answer", text: faq.answer }
         }))
+      },
+      {
+        "@type": "HowTo",
+        name: `${plant.koreanName} 키우기`,
+        description: `한국 생활 환경에서 ${plant.koreanName}을 올바르게 관리하는 방법`,
+        inLanguage: "ko-KR",
+        step: [
+          { "@type": "HowToStep", position: 1, name: "빛 관리", text: formatLightGuide(plant) },
+          { "@type": "HowToStep", position: 2, name: "물주기", text: formatWaterGuide(plant) },
+          { "@type": "HowToStep", position: 3, name: "온도 관리", text: formatTemperatureGuide(plant) },
+          { "@type": "HowToStep", position: 4, name: "습도 관리", text: formatHumidityGuide(plant) }
+        ]
       }
     ]
   };
