@@ -97,7 +97,7 @@ const jsonLd = {
 };
 
 export default async function Home() {
-  const recentPosts = await getPublishedBlogPosts(6, 0).catch(() => []);
+  const recentPosts = await getPublishedBlogPosts(4, 0).catch(() => []);
 
   return (
     <>
