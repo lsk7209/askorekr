@@ -100,35 +100,59 @@ export default async function CategoryPage({ params }: Props) {
         </p>
       </section>
 
+      {category.plants.length >= 3 && (
+        <section className="category-top3" aria-labelledby="top3-title">
+          <h2 id="top3-title">{category.title} 추천 TOP 3</h2>
+          <div className="top3-grid">
+            {category.plants.slice(0, 3).map((plant, i) => {
+              const diff = plant.difficultyScore;
+              const diffLabel = diff == null ? null : diff <= 35 ? "초보 OK" : diff <= 65 ? "중급" : "까다로움";
+              return (
+                <Link key={plant.id} href={`/plant/${plant.slug}`} className="top3-card">
+                  <span className="top3-rank">#{i + 1}</span>
+                  <strong className="top3-name">{plant.koreanName}</strong>
+                  <span className="top3-score">서울 적합도 {plant.climateScore}점</span>
+                  {diffLabel && <span className="top3-diff">{diffLabel}</span>}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <section className="category-list" aria-label={`${category.title} 식물 목록`}>
         {category.plants.length > 0 ? (
-          category.plants.map((plant) => (
-            <article className="category-card" key={plant.id}>
-              <div>
-                <h2>{plant.koreanName}</h2>
-                <p>{plant.scientificName}</p>
-              </div>
-              <dl>
+          category.plants.map((plant) => {
+            const diff = plant.difficultyScore;
+            const diffLabel = diff == null ? "-" : diff <= 35 ? "초보" : diff <= 65 ? "중급" : "까다로움";
+            return (
+              <article className="category-card" key={plant.id}>
                 <div>
-                  <dt>서울 기준 적합도</dt>
-                  <dd>
-                    {plant.climateScore}점 {plant.climateGrade}
-                  </dd>
+                  <h2>{plant.koreanName}</h2>
+                  <p>{plant.scientificName}</p>
                 </div>
-                <div>
-                  <dt>난이도</dt>
-                  <dd>{plant.difficultyScore ?? "-"}점</dd>
-                </div>
-                <div>
-                  <dt>환경</dt>
-                  <dd>{formatEnvironment(plant.indoorOutdoorClass)}</dd>
-                </div>
-              </dl>
-              <Link className="text-link" href={`/plant/${plant.slug}`}>
-                도감 보기
-              </Link>
-            </article>
-          ))
+                <dl>
+                  <div>
+                    <dt>서울 기준 적합도</dt>
+                    <dd>
+                      {plant.climateScore}점 {plant.climateGrade}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>난이도</dt>
+                    <dd>{diffLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>환경</dt>
+                    <dd>{formatEnvironment(plant.indoorOutdoorClass)}</dd>
+                  </div>
+                </dl>
+                <Link className="text-link" href={`/plant/${plant.slug}`}>
+                  도감 보기
+                </Link>
+              </article>
+            );
+          })
         ) : (
           <div className="empty-result">
             <h2>아직 연결된 식물이 없습니다</h2>
