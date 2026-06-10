@@ -4,16 +4,9 @@ import { getScheduledPostsToPublish, publishBlogPost } from "@/features/blog/que
 import { publicEnv } from "@/env";
 
 function verifyToken(request: NextRequest) {
-  const token = process.env.INTERNAL_API_TOKEN;
-  if (!token) return false;
-
   const authHeader = request.headers.get("Authorization");
-  const cronSecret = request.headers.get("x-vercel-cron-signature");
-
-  if (authHeader === `Bearer ${token}`) return true;
-  if (cronSecret) return true;
-
-  return false;
+  const tokens = [process.env.INTERNAL_API_TOKEN, process.env.CRON_SECRET].filter(Boolean);
+  return tokens.some((token) => authHeader === `Bearer ${token}`);
 }
 
 async function pingIndexNow(slugs: string[]) {
@@ -50,7 +43,7 @@ async function pingSitemapToGoogle() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handlePublishTick(request: NextRequest) {
   if (!verifyToken(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -86,4 +79,13 @@ export async function POST(request: NextRequest) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+// Vercel Cron은 GET으로 호출하므로 GET을 반드시 지원해야 한다
+export async function GET(request: NextRequest) {
+  return handlePublishTick(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handlePublishTick(request);
 }
