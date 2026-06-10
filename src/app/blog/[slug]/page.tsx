@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { safeISODate } from "@/utils/date";
 import {
   getBlogPostBySlug,
   getBlogSitemapItems,
-  getRelatedBlogPosts
+  getRelatedBlogPosts,
 } from "@/features/blog/queries";
-import { getSuggestedPlants, getPlantNameSlugMap } from "@/features/plants/queries";
+import {
+  getSuggestedPlants,
+  getPlantNameSlugMap,
+} from "@/features/plants/queries";
 import { CopyLinkBtn } from "@/components/copy-link-btn";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
@@ -31,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImage = buildOgImageUrl({
     title: post.title,
     subtitle: post.metaDescription ?? "한국형 반려식물·가드닝 가이드",
-    label: post.category
+    label: post.category,
   });
 
   return {
@@ -44,23 +48,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       locale: "ko_KR",
       publishedTime: post.publishedAt?.toISOString(),
-      modifiedTime: post.updatedAt.toISOString(),
+      modifiedTime: safeISODate(post.updatedAt),
       tags: post.tags,
       images: [
         {
           url: ogImage,
           width: OG_IMAGE_WIDTH,
           height: OG_IMAGE_HEIGHT,
-          alt: `${post.title} 대표 이미지`
-        }
-      ]
+          alt: `${post.title} 대표 이미지`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${post.title} | 플랜티프렌즈`,
       description: post.metaDescription ?? undefined,
-      images: [ogImage]
-    }
+      images: [ogImage],
+    },
   };
 }
 
@@ -74,12 +78,14 @@ type ParseResult = {
 };
 
 function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .slice(0, 80) || "section";
+  return (
+    text
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s-]/gu, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .slice(0, 80) || "section"
+  );
 }
 
 function isQuestionHeading(text: string): boolean {
@@ -89,7 +95,10 @@ function isQuestionHeading(text: string): boolean {
 function buildPlantLinker(nameMap: Record<string, string>) {
   const names = Object.keys(nameMap).sort((a, b) => b.length - a.length);
   if (names.length === 0) return (text: string) => text;
-  const pattern = new RegExp(`(${names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
+  const pattern = new RegExp(
+    `(${names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`,
+    "g",
+  );
   return (text: string) =>
     text.replace(pattern, (match) => {
       const slug = nameMap[match];
@@ -97,7 +106,10 @@ function buildPlantLinker(nameMap: Record<string, string>) {
     });
 }
 
-function parseMarkdown(md: string, plantNameMap: Record<string, string> = {}): ParseResult {
+function parseMarkdown(
+  md: string,
+  plantNameMap: Record<string, string> = {},
+): ParseResult {
   const linkPlantNames = buildPlantLinker(plantNameMap);
 
   function inline(text: string): string {
@@ -146,12 +158,14 @@ function parseMarkdown(md: string, plantNameMap: Record<string, string> = {}): P
       const id = uniqId(slugify(text));
       toc.push({ id, text });
       html.push(`<h2 id="${id}">${inline(text)}</h2>`);
-      if (lines.length > 1) html.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
+      if (lines.length > 1)
+        html.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
     } else if (first.startsWith("# ")) {
       const text = first.slice(2);
       const id = uniqId(slugify(text));
       html.push(`<h1 id="${id}">${inline(text)}</h1>`);
-      if (lines.length > 1) html.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
+      if (lines.length > 1)
+        html.push(`<p>${inline(lines.slice(1).join(" "))}</p>`);
     } else if (first === "---") {
       html.push("<hr>");
     } else if (lines.every((l) => l.startsWith("> "))) {
@@ -160,7 +174,9 @@ function parseMarkdown(md: string, plantNameMap: Record<string, string> = {}): P
       const cls = isCaution ? "blog-callout caution" : "blog-callout tip";
       html.push(`<div class="${cls}">${inline(content)}</div>`);
     } else if (lines.every((l) => /^[-*] /.test(l))) {
-      const items = lines.map((l) => `<li>${inlineWithPlants(l.slice(2))}</li>`).join("");
+      const items = lines
+        .map((l) => `<li>${inlineWithPlants(l.slice(2))}</li>`)
+        .join("");
       html.push(`<ul>${items}</ul>`);
     } else if (lines.every((l) => /^\d+\. /.test(l))) {
       const items = lines
@@ -170,7 +186,10 @@ function parseMarkdown(md: string, plantNameMap: Record<string, string> = {}): P
     } else if (lines.every((l) => l.startsWith("|"))) {
       const dataLines = lines.filter((l) => !/^\|[-| :]+\|$/.test(l.trim()));
       const rows = dataLines.map((l, i) => {
-        const cells = l.slice(1, -1).split("|").map((c) => c.trim());
+        const cells = l
+          .slice(1, -1)
+          .split("|")
+          .map((c) => c.trim());
         const tag = i === 0 ? "th" : "td";
         return `<tr>${cells.map((c) => `<${tag}>${inline(c)}</${tag}>`).join("")}</tr>`;
       });
@@ -193,14 +212,22 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  const INDOOR_KEYWORDS = ["아파트", "실내", "거실", "방", "사무실", "반려동물", "초보"];
+  const INDOOR_KEYWORDS = [
+    "아파트",
+    "실내",
+    "거실",
+    "방",
+    "사무실",
+    "반려동물",
+    "초보",
+  ];
   const preferIndoor = INDOOR_KEYWORDS.some(
-    (k) => post.title.includes(k) || post.tags.some((t) => t.includes(k))
+    (k) => post.title.includes(k) || post.tags.some((t) => t.includes(k)),
   );
   const [relatedPosts, suggestedPlants, plantNameMap] = await Promise.all([
     getRelatedBlogPosts(post.category, post.slug, 4).catch(() => []),
     getSuggestedPlants(3, preferIndoor).catch(() => []),
-    getPlantNameSlugMap().catch(() => ({} as Record<string, string>))
+    getPlantNameSlugMap().catch(() => ({}) as Record<string, string>),
   ]);
   const parsed = parseMarkdown(post.bodyMarkdown, plantNameMap);
   const readingMin = estimateReadingMinutes(parsed.charCount);
@@ -209,9 +236,9 @@ export default async function BlogPostPage({ params }: Props) {
     buildOgImageUrl({
       title: post.title,
       subtitle: post.metaDescription ?? "한국형 반려식물·가드닝 가이드",
-      label: post.category
+      label: post.category,
     }),
-    publicEnv.siteUrl
+    publicEnv.siteUrl,
   ).toString();
 
   const articleJsonLd = {
@@ -221,11 +248,11 @@ export default async function BlogPostPage({ params }: Props) {
     description: post.metaDescription,
     image: [ogImageAbs],
     datePublished: post.publishedAt?.toISOString(),
-    dateModified: post.updatedAt.toISOString(),
+    dateModified: safeISODate(post.updatedAt),
     author: {
       "@type": "Organization",
       name: "플랜티프렌즈 편집팀",
-      url: publicEnv.siteUrl
+      url: publicEnv.siteUrl,
     },
     publisher: {
       "@type": "Organization",
@@ -233,8 +260,8 @@ export default async function BlogPostPage({ params }: Props) {
       url: publicEnv.siteUrl,
       logo: {
         "@type": "ImageObject",
-        url: `${publicEnv.siteUrl}/icon.svg`
-      }
+        url: `${publicEnv.siteUrl}/icon.svg`,
+      },
     },
     keywords: post.tags.join(", "),
     articleSection: post.category,
@@ -243,8 +270,8 @@ export default async function BlogPostPage({ params }: Props) {
     url: `${publicEnv.siteUrl}/blog/${post.slug}`,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${publicEnv.siteUrl}/blog/${post.slug}`
-    }
+      "@id": `${publicEnv.siteUrl}/blog/${post.slug}`,
+    },
   };
 
   const breadcrumbJsonLd = {
@@ -255,21 +282,21 @@ export default async function BlogPostPage({ params }: Props) {
         "@type": "ListItem",
         position: 1,
         name: "홈",
-        item: `${publicEnv.siteUrl}/`
+        item: `${publicEnv.siteUrl}/`,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "블로그",
-        item: `${publicEnv.siteUrl}/blog`
+        item: `${publicEnv.siteUrl}/blog`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: post.title,
-        item: `${publicEnv.siteUrl}/blog/${post.slug}`
-      }
-    ]
+        item: `${publicEnv.siteUrl}/blog/${post.slug}`,
+      },
+    ],
   };
 
   const faqJsonLd =
@@ -282,9 +309,9 @@ export default async function BlogPostPage({ params }: Props) {
             name: f.q,
             acceptedAnswer: {
               "@type": "Answer",
-              text: f.a
-            }
-          }))
+              text: f.a,
+            },
+          })),
         }
       : null;
 
@@ -294,8 +321,8 @@ export default async function BlogPostPage({ params }: Props) {
     "@id": `${publicEnv.siteUrl}/blog/${post.slug}#speakable`,
     speakable: {
       "@type": "SpeakableSpecification",
-      cssSelector: [".lead", ".blog-content h2", ".blog-content h3"]
-    }
+      cssSelector: [".lead", ".blog-content h2", ".blog-content h3"],
+    },
   };
 
   return (
@@ -338,14 +365,16 @@ export default async function BlogPostPage({ params }: Props) {
             )}
             <div className="blog-post-meta">
               <span className="blog-author">
-                <Link href="/about" className="blog-author-link">플랜티프렌즈 편집팀</Link>
+                <Link href="/about" className="blog-author-link">
+                  플랜티프렌즈 편집팀
+                </Link>
               </span>
               {post.publishedAt && (
                 <time dateTime={post.publishedAt.toISOString()}>
                   {post.publishedAt.toLocaleDateString("ko-KR", {
                     year: "numeric",
                     month: "long",
-                    day: "numeric"
+                    day: "numeric",
                   })}
                 </time>
               )}
@@ -355,7 +384,9 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
             <div className="blog-tag-row">
               {post.tags.map((tag) => (
-                <span key={tag} className="blog-tag">#{tag}</span>
+                <span key={tag} className="blog-tag">
+                  #{tag}
+                </span>
               ))}
             </div>
           </header>
@@ -406,12 +437,18 @@ export default async function BlogPostPage({ params }: Props) {
               <Link href="/tools/diagnose" className="primary-link">
                 나에게 맞는 식물 찾기 →
               </Link>
-              <CopyLinkBtn url={`${publicEnv.siteUrl}/blog/${post.slug}`} title={post.title} />
+              <CopyLinkBtn
+                url={`${publicEnv.siteUrl}/blog/${post.slug}`}
+                title={post.title}
+              />
             </div>
           </footer>
 
           {suggestedPlants.length > 0 && (
-            <section className="blog-plant-suggest" aria-labelledby="plant-suggest-title">
+            <section
+              className="blog-plant-suggest"
+              aria-labelledby="plant-suggest-title"
+            >
               <h2 id="plant-suggest-title" className="blog-related-title">
                 함께 보면 좋은 식물 가이드
               </h2>
@@ -422,10 +459,18 @@ export default async function BlogPostPage({ params }: Props) {
                     href={`/plant/${plant.slug}`}
                     className="blog-plant-suggest-card"
                   >
-                    <span className="blog-related-category">서울 적합 {plant.climateScore}점</span>
-                    <span className="blog-related-card-title">{plant.koreanName} 키우기</span>
+                    <span className="blog-related-category">
+                      서울 적합 {plant.climateScore}점
+                    </span>
+                    <span className="blog-related-card-title">
+                      {plant.koreanName} 키우기
+                    </span>
                     <span className="blog-related-card-desc">
-                      {plant.difficultyScore !== null && plant.difficultyScore <= 35 ? "초보자도 쉬운 식물" : "관리 가이드 보기"} →
+                      {plant.difficultyScore !== null &&
+                      plant.difficultyScore <= 35
+                        ? "초보자도 쉬운 식물"
+                        : "관리 가이드 보기"}{" "}
+                      →
                     </span>
                   </Link>
                 ))}
@@ -459,7 +504,6 @@ export default async function BlogPostPage({ params }: Props) {
           )}
         </article>
       </main>
-
     </>
   );
 }
