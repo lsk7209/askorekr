@@ -258,6 +258,18 @@ main().catch((e) => {
     process.exit(0);
   }
 
+  if (message.includes("fetch failed")) {
+    console.log(
+      JSON.stringify({
+        ok: false,
+        skipped: true,
+        source: "nongsaro-garden",
+        reason: "transient_nongsaro_fetch_failed"
+      })
+    );
+    process.exit(0);
+  }
+
   console.error(message);
   process.exit(1);
 });
