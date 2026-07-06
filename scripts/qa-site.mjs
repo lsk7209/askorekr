@@ -1,8 +1,8 @@
 import { XMLParser } from "fast-xml-parser";
 
-const DEFAULT_BASE_URL = process.env.QA_SITE_URL ?? "https://www.askore.kr";
+const DEFAULT_BASE_URL = process.env.QA_SITE_URL ?? "https://askore.kr";
 const DEFAULT_INDEX_ORIGIN =
-  process.env.QA_INDEX_ORIGIN ?? "https://www.askore.kr";
+  process.env.QA_INDEX_ORIGIN ?? "https://askore.kr";
 const USER_AGENT = "askorekr-site-qa/1.0";
 const REQUIRED_JSON_LD_PATHS = [/^\/$/, /^\/plant\//, /^\/category\//];
 const STATIC_ENDPOINTS = [
