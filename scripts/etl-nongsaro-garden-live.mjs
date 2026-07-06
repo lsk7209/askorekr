@@ -243,4 +243,21 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error(e.message ?? e); process.exit(1); });
+main().catch((e) => {
+  const message = e?.message ?? String(e);
+
+  if (/Nongsaro API error 11/.test(message)) {
+    console.log(
+      JSON.stringify({
+        ok: false,
+        skipped: true,
+        source: "nongsaro-garden",
+        reason: "nongsaro_api_key_not_registered"
+      })
+    );
+    process.exit(0);
+  }
+
+  console.error(message);
+  process.exit(1);
+});
