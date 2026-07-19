@@ -247,27 +247,27 @@ main().catch((e) => {
   const message = e?.message ?? String(e);
 
   if (/Nongsaro API error 11/.test(message)) {
-    console.log(
+    console.error(
       JSON.stringify({
         ok: false,
-        skipped: true,
+        retryable: false,
         source: "nongsaro-garden",
         reason: "nongsaro_api_key_not_registered"
       })
     );
-    process.exit(0);
+    process.exit(1);
   }
 
   if (message.includes("fetch failed")) {
-    console.log(
+    console.error(
       JSON.stringify({
         ok: false,
-        skipped: true,
+        retryable: true,
         source: "nongsaro-garden",
         reason: "transient_nongsaro_fetch_failed"
       })
     );
-    process.exit(0);
+    process.exit(1);
   }
 
   console.error(message);
