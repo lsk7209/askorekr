@@ -8,7 +8,7 @@ const EMPTY_VALUES = new Set(["", "-", "null", "undefined"]);
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
   trimValues: true,
-  parseTagValue: false
+  parseTagValue: false,
 });
 
 export type GardenListItem = {
@@ -240,7 +240,7 @@ function mapSafety(toxicity: string | null) {
     return {
       petSafetyScoreDog: null,
       petSafetyScoreCat: null,
-      childSafetyScore: null
+      childSafetyScore: null,
     };
   }
 
@@ -248,14 +248,14 @@ function mapSafety(toxicity: string | null) {
     return {
       petSafetyScoreDog: 85,
       petSafetyScoreCat: 85,
-      childSafetyScore: 85
+      childSafetyScore: 85,
     };
   }
 
   return {
     petSafetyScoreDog: 45,
     petSafetyScoreCat: 45,
-    childSafetyScore: 55
+    childSafetyScore: 55,
   };
 }
 
@@ -277,7 +277,7 @@ export function buildNongsaroGardenUrl(
   operation: string,
   apiKey: string,
   params: Record<string, string | number | undefined> = {},
-  baseUrl = DEFAULT_BASE_URL
+  baseUrl = DEFAULT_BASE_URL,
 ) {
   const url = new URL(`${baseUrl}/${operation}`);
   url.searchParams.set("apiKey", apiKey);
@@ -291,42 +291,57 @@ export function buildNongsaroGardenUrl(
   return url;
 }
 
-export async function fetchNongsaroXml(url: URL) {
-  const response = await fetch(url);
+export async function fetchNongsaroXml(url: URL, retries = 3) {
+  let lastError: unknown;
 
-  if (!response.ok) {
-    throw new Error(`Nongsaro HTTP error ${response.status}`);
+  for (let attempt = 0; attempt < retries; attempt += 1) {
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`Nongsaro HTTP error ${response.status}`);
+      }
+
+      const xml = await response.text();
+      const parsed = parseNongsaroXml(xml);
+      assertNongsaroSuccess(parsed);
+      return parsed;
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 2 ** attempt * 1000),
+        );
+      }
+    }
   }
 
-  const xml = await response.text();
-  const parsed = parseNongsaroXml(xml);
-  assertNongsaroSuccess(parsed);
-  return parsed;
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 export async function fetchGardenList(
   apiKey: string,
   params: Record<string, string | number | undefined> = {},
-  baseUrl = DEFAULT_BASE_URL
+  baseUrl = DEFAULT_BASE_URL,
 ) {
   const parsed = await fetchNongsaroXml(
-    buildNongsaroGardenUrl("gardenList", apiKey, params, baseUrl)
+    buildNongsaroGardenUrl("gardenList", apiKey, params, baseUrl),
   );
   const body = getBody(parsed);
 
   return {
     items: getItems(body),
-    totalCount: getTotalCount(body)
+    totalCount: getTotalCount(body),
   };
 }
 
 export async function fetchGardenDetail(
   apiKey: string,
   cntntsNo: string | number,
-  baseUrl = DEFAULT_BASE_URL
+  baseUrl = DEFAULT_BASE_URL,
 ) {
   const parsed = await fetchNongsaroXml(
-    buildNongsaroGardenUrl("gardenDtl", apiKey, { cntntsNo }, baseUrl)
+    buildNongsaroGardenUrl("gardenDtl", apiKey, { cntntsNo }, baseUrl),
   );
   return getItem(getBody(parsed));
 }
@@ -350,7 +365,7 @@ function getImageUrl(listItem?: GardenListItem) {
 
 export function normalizeNongsaroGardenPlant(
   detail: GardenDetailItem,
-  listItem?: GardenListItem
+  listItem?: GardenListItem,
 ): NormalizedGardenPlant | null {
   const cntntsNo = readText(detail.cntntsNo ?? listItem?.cntntsNo);
   const scientificName = readText(detail.plntbneNm);
@@ -376,8 +391,8 @@ export function normalizeNongsaroGardenPlant(
       synonyms: readText(detail.distbNm) ? [readText(detail.distbNm)!] : [],
       origin: readText(detail.orgplceInfo) ?? SOURCE_LABEL,
       sourceRefs: {
-        농사로: `${SOURCE_LABEL}:${cntntsNo}`
-      }
+        농사로: `${SOURCE_LABEL}:${cntntsNo}`,
+      },
     },
     metrics: {
       difficultyScore: mapDifficulty(readText(detail.managelevelCode)),
@@ -388,15 +403,15 @@ export function normalizeNongsaroGardenPlant(
         readText(detail.watercycleSprngCode),
         readText(detail.watercycleSummerCode),
         readText(detail.watercycleAutumnCode),
-        readText(detail.watercycleWinterCode)
+        readText(detail.watercycleWinterCode),
       ]),
       tempMinC: temp.min,
       tempMaxC: temp.max,
       humidityMinPct: humidity.min,
       humidityMaxPct: humidity.max,
       toxicityNotes,
-      ...safety
+      ...safety,
     },
-    imageUrl: getImageUrl(listItem)
+    imageUrl: getImageUrl(listItem),
   };
 }
