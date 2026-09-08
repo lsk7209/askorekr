@@ -1,3 +1,4 @@
+import { authorizeInternalRequest } from "@/lib/internal-api-auth";
 import { NextResponse } from "next/server";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -19,6 +20,14 @@ async function getAccessToken() {
 }
 
 export async function GET(request: Request) {
+  const internalAuth = authorizeInternalRequest(request);
+  if (!internalAuth.configured) {
+    return NextResponse.json({ error: "Internal API token not configured" }, { status: 503 });
+  }
+  if (!internalAuth.authorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const days = parseInt(searchParams.get("days") ?? "30");
   const propertyId = process.env.GA4_PROPERTY_ID ?? "536871374";
