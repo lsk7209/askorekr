@@ -5,7 +5,8 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN
 });
 
-const now = Date.now();
+// Drizzle timestamp 컬럼(mode: "timestamp")은 초 단위를 기대한다 (DATA-01).
+const now = Math.floor(Date.now() / 1000);
 
 const regions = [
   { code: "11680", sido: "서울특별시", sigungu: "강남구", latitude: 37.5172, longitude: 127.0473 },
