@@ -78,14 +78,10 @@ const jsonLd = {
       inLanguage: "ko-KR",
       description:
         "한국 생활 환경에 맞는 반려식물 선택을 돕는 데이터 기반 가드닝 가이드",
-      potentialAction: {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: `${publicEnv.siteUrl}/tools/diagnose?q={search_term_string}`,
-        },
-        "query-input": "required name=search_term_string",
-      },
+      // SearchAction(Sitelinks 검색창)은 제거했다. /tools/diagnose가 q 쿼리
+      // 파라미터를 처리하는 텍스트 검색 기능을 실제로 제공하지 않아, 이 마크업이
+      // 있으면 검색 결과의 검색창이 동작하지 않는 기능을 약속하게 된다 (SEO-02).
+      // 실제 이름 검색 라우트가 구현되면 그때 다시 추가한다.
     },
     {
       "@type": "FAQPage",
