@@ -7,6 +7,7 @@
     "build": "next build",
     "lint": "eslint .",
     "type-check": "next typegen && tsc --noEmit",
+    "test": "node --test scripts/tests/*.test.mjs",
     "audit:marketing": "node scripts/audit-marketing.mjs",
     "qa:site": "node scripts/qa-site.mjs",
     "env:check": "node scripts/env-check.mjs",
