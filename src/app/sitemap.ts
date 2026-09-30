@@ -28,24 +28,44 @@ function safeLastModified(value: Date, fallback: Date) {
   return value;
 }
 
+/**
+ * 사이트맵 하위 쿼리 실패 시 조용히 빈 배열로 대체하면, DB 일시 오류가
+ * '이 URL들이 전부 삭제됨'이라는 정상 200 사이트맵으로 검색엔진에 전달될 수 있다.
+ * 완전한 해결(마지막 성공 결과 캐싱)은 별도 캐시 인프라가 필요해 이번 범위 밖이지만,
+ * 최소한 실패를 조용히 숨기지 않고 로그로 남겨 운영자가 실제 원인을 인지할 수 있게 한다.
+ */
+async function safeSitemapQuery<T>(
+  queryName: string,
+  query: () => Promise<T[]>
+): Promise<T[]> {
+  try {
+    return await query();
+  } catch (error) {
+    console.error(`[sitemap] ${queryName} query failed, falling back to empty list:`, error);
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const [categories, plants, blogPosts] = await Promise.all([
-    getCategorySitemapItems().catch(() => [] as { slug: string }[]),
-    getPlantSitemapItems().catch(() => [] as { slug: string; updatedAt: Date }[]),
-    getBlogSitemapItems().catch(() => [] as { slug: string; publishedAt: Date }[])
+    safeSitemapQuery("categories", getCategorySitemapItems),
+    safeSitemapQuery("plants", getPlantSitemapItems),
+    safeSitemapQuery("blogPosts", getBlogSitemapItems)
   ]);
 
+  // 정적 라우트와 카테고리 목록은 실제 콘텐츠 변경 이력을 추적하지 않으므로,
+  // 확실하지 않은 lastModified(요청 시각을 매번 넣는 가짜 최신성)를 채우지 않고
+  // 필드 자체를 생략한다. Google 사이트맵 가이드는 정확한 변경일만 사용할 것을
+  // 권고하며, 불명확하면 생략하는 편이 매 요청마다 달라지는 현재 시각보다 정직하다.
   const staticPages = STATIC_ROUTES.map(({ path, priority, changeFreq }) => ({
     url: absoluteUrl(path),
-    lastModified: now,
     changeFrequency: changeFreq,
     priority
   }));
 
   const categoryPages = categories.map((category) => ({
     url: absoluteUrl(`/category/${category.slug}`),
-    lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.7
   }));
