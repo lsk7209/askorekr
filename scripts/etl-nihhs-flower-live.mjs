@@ -139,8 +139,13 @@ async function getExistingSlugs(db) {
   return new Set(rows.rows.map(r => String(r.slug)));
 }
 
+// Drizzle timestamp 컬럼(mode: "timestamp")은 초 단위를 기대한다 (DATA-01).
+function nowSeconds() {
+  return Math.floor(Date.now() / 1000);
+}
+
 async function upsertPlant(db, n) {
-  const now = Date.now();
+  const now = nowSeconds();
   const ex = await db.execute({ sql: "SELECT source_refs FROM plants WHERE slug = ? LIMIT 1", args: [n.plant.slug] });
   const sourceRefs = { ...parseJson(ex.rows[0]?.source_refs), ...n.plant.sourceRefs };
 
@@ -170,7 +175,7 @@ async function upsertMetrics(db, plantId, m) {
             derived_at=excluded.derived_at`,
     args: [plantId, null, null, null, null, null, m.indoorOutdoorClass,
            null, null, null, null, null, null, null,
-           m.flowerMeaning ? JSON.stringify({ primary: m.flowerMeaning }) : null, Date.now()]
+           m.flowerMeaning ? JSON.stringify({ primary: m.flowerMeaning }) : null, nowSeconds()]
   });
 }
 
