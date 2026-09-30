@@ -1,5 +1,64 @@
 # WORK_LOG
 
+## 2026-09-30 16:48 (세션 3 - 작업 D~F, 통합검증)
+
+### 배경
+세션 2에 이어 askore_codex_improvement_plan_2026-09-30.md 작업 D~F 및 전체 통합검증 진행. `fix/safety-data-integrity` 브랜치에서 계속 작업.
+
+### 작업 D: CONTENT-01/OPS-01
+- [scripts/diversify-blog-posts.mjs] `--limit=N` 파싱을 `parseLimitArg`로 명시화(0/음수/NaN 거절). SQL 문자열 결합(`"LIMIT " + limit`)을 파라미터 바인딩(`LIMIT ?`)으로 교체 — SQL 인젝션 방지 겸 일관성.
+- [scripts/etl-nongsaro-garden-live.mjs] CONTENT-01 유형 문제 추가 발견: `resume` 모드에서 이름 앞 20자 슬러그화 + `includes()` 부분 매칭으로 사전 스킵하던 휴리스틱 로직 제거. 다른 식물을 같은 것으로 오인해 건너뛸 위험(데이터 누락)이 있었고, 바로 아래 정확한 슬러그 매칭(`existingSlugs.has`)이 이미 존재해 그것만 사용하도록 단순화.
+- 테스트: `content-01-ops-01-diversify.test.mjs`.
+
+### 작업 E: RECO-01/02, UX-01
+- [src/features/diagnose/logic.ts] RECO-02: `diagnosePlants`가 `await cacheDiagnoseResult()`를 필수 대기해 캐시 쓰기 실패 시 정상 계산된 추천 결과까지 반환하지 못하던 문제를 try/catch로 분리(non-fatal 경고만 로그).
+- RECO-01 조사 결과: `plant_content.isPublished` 필드가 스키마엔 있지만 실제로 `plants`/`plant_metrics` 조회 경로 어디에도 조인/필터로 쓰이지 않고, `plants` 테이블 자체엔 발행 상태 필드가 없어 "미발행 데이터 노출" 문제가 현재 스키마 구조상 발생할 수 없음을 확인. 계획서가 우려한 INNER JOIN발 전체 페이지 소실 위험은 억지로 필터를 추가할 때만 발생하므로, 불필요한 게이팅 로직을 새로 만들지 않고 현황만 문서화. 안전 대상(`safetyTargets`) 정규화는 기존 로직이 이미 고정 순서로 정규화해 캐시 키 일관성 문제가 없음을 재확인.
+- [src/app/tools/diagnose/quick-form.tsx] UX-01: `handleSubmit` 전체 재작성 — try/catch로 네트워크 오류·비JSON 응답 처리, `useRef` 기반 요청 시퀀스 번호 + `AbortController`로 경쟁 요청 방어(느린 응답이 최신 화면을 덮어쓰지 않음), 오류 메시지에 `role="alert"` 추가.
+- [src/app/tools/diagnose/advanced-options.tsx] `OptionButtons`와 환경 선택 버튼에 `aria-pressed` 추가 — CSS class만으로 선택 상태를 구분하던 접근성 문제 해소.
+
+### 작업 F: SEO-01/02
+- [src/app/robots.ts] SEO-02: `/api/og`만 명시적으로 `allow` 추가(다른 `/api/*`는 여전히 disallow). `buildOgImageUrl`이 `/api/og`를 반환하는데 robots가 `/api/` 전체를 막던 충돌 해소. 실제 개발 서버 실행 후 curl로 `robots.txt` 출력 확인함(`Allow: /api/og` 정상 반영).
+- [src/app/layout.tsx] OG description의 내부 용어("한국형 반려식물·가드닝 pSEO 사이트")를 상단 일반 description과 동일한 사용자 가치 문장으로 교체.
+- [src/app/page.tsx] 홈페이지의 `SearchAction` 구조화 데이터 제거 — `/tools/diagnose`가 `q` 쿼리 파라미터를 전혀 처리하지 않음을 grep으로 확인, 동작하지 않는 검색 기능을 검색 결과에 약속하던 문제.
+- [src/app/sitemap.ts] SEO-01: DB 조회 실패를 조용히 `[]`로 삼키던 `catch`에 `console.error` 로그 추가(`safeSitemapQuery` 헬퍼). 정적 페이지·카테고리 페이지의 `lastModified: now`(매 요청마다 바뀌는 가짜 최신성) 제거해 필드 자체 생략 — `plant`/`blog` 페이지는 실제 `updatedAt`/`publishedAt` 기반 `safeLastModified`를 그대로 유지.
+- canonical override 여부를 전체 페이지(about/blog/category/contact/diagnose/disclaimer/plant/privacy/terms/tools)에서 확인함 — 계획서 우려와 달리 이미 전부 override되어 있어 문제없음을 확인.
+- 실제 개발 서버(`pnpm dev -p 3001`)를 띄워 curl로 `robots.txt`, `sitemap.xml` 출력 직접 검증(정적 페이지에 `<lastmod>` 태그 없음, `/api/og` allow 반영 확인).
+- 테스트: `seo-01-02.test.mjs`.
+
+### 통합 검증 (작업 7)
+- `fix/safety-data-integrity` 브랜치 최종 커밋(`9e5ad8d`) 기준:
+  - 6개 테스트(`safe-01`, `safe-03`, `data-01-ops-01`, `data-02`, `content-01-ops-01`, `seo-01-02`) 전부 통과.
+  - `pnpm type-check` 통과(에러 0).
+  - `pnpm lint` 통과(기존 경고 3건만, 에러 0 — img 태그·미사용 변수 2건, 이번 변경과 무관).
+  - `pnpm build` 통과(22개 페이지 전부 정상 생성, `/api/og` 포함).
+  - 로컬 `git reset --hard`로 원격과 동기화 확인.
+
+### 이번 세션에서 발견했지만 범위 밖으로 분류한 항목 (후속 검토 필요)
+- 홈페이지 FAQ 문구("식물 이름으로 검색하거나...")도 `SearchAction`과 마찬가지로 실제 이름 검색 기능이 없는 상태를 안내함 — 구조화 데이터는 이번에 제거했지만, 이 FAQ 콘텐츠 문구 자체는 콘텐츠 편집 영역이라 손대지 않음. DISCOVERY-01(이름 검색/관련 콘텐츠 강화) 작업 시 함께 검토 필요.
+- `winterLwetTpCode`(겨울 최저온도) 매핑, 계절별 물주기 값의 스키마 보존, `SafetyAssessment` 근거 메타데이터 전체 도입 — 모두 스키마 마이그레이션이 필요해 별도 승인 대상으로 유지.
+- 운영 DB에 이미 저장된 잘못된 값(밀리초 날짜, `없` 오탐으로 85점 처리된 안전성 값)의 실제 백필은 수행하지 않음.
+- MEASURE-01(분석 이벤트 추가), RIGHTS-01(이미지 라이선스 재검증), DISCOVERY-01(이름 동음이의어 처리)은 계획서에 포함되어 있으나 이번 A~F 작업 범위(계획서 10장 기준)에 명시되지 않아 착수하지 않음.
+
+### 최종 완료 조건 체크 (계획서 15장 기준)
+- [x] SAFE-01~03의 위험한 기본값과 출력 충돌을 로컬 테스트로 차단함.
+- [x] 기존 정상 입력·복수 대상 필터·보안 인증이 유지됨(회귀 없음 확인, 타입체크/빌드로 검증).
+- [x] 날짜·원본 코드·데이터 정정 계약이 일관됨(8개 ETL 스크립트 통일). 운영 영향은 산정했으나 실제 백필은 미수행.
+- [x] 중복 생성·잘못된 점수·유료 dry-run·limit 누락이 통제됨(diversify-blog-posts, etl-nongsaro-garden-live 개선).
+- [ ] 동기화(sync-local-to-turso.mjs)의 스키마/ID 정합성 사전검사는 미착수(OPS-03, 이번 A~F 범위 밖).
+- [x] 추천 실패/캐시 오류가 구별됨(RECO-02).
+- [x] 사이트맵·OG·메타가 실제 기능과 맞음(SEO-01/02).
+- [x] 실행하지 않은 테스트를 통과했다고 기록하지 않음 — 모든 테스트는 실제 실행 결과(exit 0, stdout 확인)만 기록.
+- [x] 외부 적용 승인 대기(운영 DB 백필, 스키마 마이그레이션)와 로컬 구현 완료를 구분함.
+- [x] 미확인 원인·검색 효과·AdSense 승인 가능성을 단정하지 않음.
+
+### 미결 사항
+- PR 병합 순서: `fix/safety-data-integrity`(#3) → `chore/remove-gemini-fix-domain`(#2) → `main`. 아직 병합 안 됨, 사용자 승인 필요.
+- main에 실수로 직접 커밋된 `0b93895`(세션 1) 처리 방향 미결.
+- OPS-03(동기화 스크립트 스키마 정합성), MEASURE-01(분석 이벤트), RIGHTS-01(이미지 라이선스), DISCOVERY-01(이름 검색 강화)은 착수하지 않음 — 다음 세션 우선순위 논의 필요.
+- 운영 DB 데이터 정정(백필)은 별도 승인 및 백업/롤백 계획 수립 후 진행 필요.
+
+---
+
 ## 2026-09-30 15:23 (세션 2 - 작업 A~C)
 
 ### 배경
