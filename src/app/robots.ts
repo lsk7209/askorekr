@@ -17,7 +17,7 @@ export default function robots(): MetadataRoute.Robots {
           "OAI-SearchBot",
           "Google-Extended"
         ],
-        allow: "/",
+        allow: ["/", "/api/og"],
         disallow: ["/api/", "/admin/"]
       },
       {
@@ -26,7 +26,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "*",
-        allow: "/",
+        allow: ["/", "/api/og"],
         disallow: ["/api/", "/admin/"]
       }
     ],
