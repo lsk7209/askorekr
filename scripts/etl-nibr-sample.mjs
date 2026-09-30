@@ -6,7 +6,8 @@ const db = createClient({
 });
 
 const stage = "etl:nibr:layer1";
-const now = Date.now();
+// Drizzle timestamp 컬럼(mode: "timestamp")은 초 단위를 기대한다 (DATA-01).
+const now = Math.floor(Date.now() / 1000);
 
 const fixtures = [
   {
@@ -147,7 +148,7 @@ async function finishPipelineRun(id, outputCount, rejectedCount) {
       set finished_at = ?, status = ?, output_count = ?, rejected_count = ?
       where id = ?
     `,
-    args: [Date.now(), "success", outputCount, rejectedCount, id]
+    args: [Math.floor(Date.now() / 1000), "success", outputCount, rejectedCount, id]
   });
 }
 
