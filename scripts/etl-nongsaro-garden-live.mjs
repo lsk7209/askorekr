@@ -234,13 +234,6 @@ async function main() {
         const cntntsNo = item.cntntsNo;
         if (!cntntsNo) { rejected.push({ reason: "cntntsNo 없음", item }); continue; }
 
-        // resume 모드에서 이미 있는 식물 건너뜀
-        const previewSlug = String(item.cntntsSj ?? "").toLowerCase().replace(/\s+/g, "-").slice(0, 20);
-        if (resume && [...existingSlugs].some(s => s.includes(previewSlug))) {
-          skipped++;
-          continue;
-        }
-
         await sleep(delay);
         let detail;
         try {
