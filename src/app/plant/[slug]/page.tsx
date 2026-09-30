@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { safeISODate } from "@/utils/date";
+import { summarizeSafety, describeSafetyForCopy } from "@/features/plants/safety-policy";
 import {
   getPlantBySlug,
   getPlantSitemapItems,
@@ -72,13 +73,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           : "고급";
     metaParts.push(`난이도 ${diff}`);
   }
-  const hasPetData =
-    plant.petSafetyScoreDog !== null || plant.petSafetyScoreCat !== null;
+  const safety = summarizeSafety(plant);
+  const hasPetData = plant.petSafetyScoreDog !== null || plant.petSafetyScoreCat !== null;
   if (hasPetData) {
-    const petSafe =
-      (plant.petSafetyScoreDog ?? 0) >= 4 &&
-      (plant.petSafetyScoreCat ?? 0) >= 4;
-    metaParts.push(petSafe ? "반려동물 안전" : "반려동물 독성 주의");
+    metaParts.push(
+      safety.anyToxic
+        ? "반려동물 독성 주의"
+        : safety.allSafeEvidence
+          ? "반려동물 안전 근거 확인"
+          : "반려동물 안전성 확인 필요"
+    );
   }
   const dataLead = metaParts.length > 0 ? `${metaParts.join(" · ")}. ` : "";
   const description =
@@ -136,10 +140,7 @@ function buildPlantLead(
   const water = plant.waterFreqDays
     ? `물주기는 약 ${plant.waterFreqDays}일 간격이 기준이며,`
     : "물주기는 흙 상태 기준으로 확인하며,";
-  const pet =
-    (plant.petSafetyScoreDog ?? 0) >= 4 && (plant.petSafetyScoreCat ?? 0) >= 4
-      ? "반려동물 안전도 높아 함께 키우기 좋습니다."
-      : "반려동물 독성 여부를 먼저 확인해야 합니다.";
+  const pet = describeSafetyForCopy(summarizeSafety(plant));
   return `${diffLabel} 식물로, ${climate}입니다. ${water} ${pet}`;
 }
 
