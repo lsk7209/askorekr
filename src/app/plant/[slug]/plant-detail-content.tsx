@@ -17,6 +17,7 @@ import {
   formatWaterCycle,
   formatWaterGuide
 } from "./plant-formatters";
+import { summarizeSafety, describeSafetyForCopy } from "@/features/plants/safety-policy";
 import { PlantRelatedLinks } from "./plant-related-links";
 
 export type PlantFaq = {
@@ -44,7 +45,7 @@ export function getPlantFaqs(plant: PlantDetail): PlantFaq[] {
     },
     {
       question: `${plant.koreanName}는 반려동물에게 안전한가요?`,
-      answer: `${plant.koreanName}의 안전성은 강아지 ${formatScore(plant.petSafetyScoreDog)}, 고양이 ${formatScore(plant.petSafetyScoreCat)} 기준으로 기록되어 있습니다. 반려동물이 잎을 씹지 않게 두고, 이상 반응이 있으면 전문가에게 확인해야 합니다.`
+      answer: `${describeSafetyForCopy(summarizeSafety(plant))} (강아지 ${formatScore(plant.petSafetyScoreDog)}, 고양이 ${formatScore(plant.petSafetyScoreCat)} 기준). 반려동물이 잎을 씹지 않게 두고, 이상 반응이 있으면 전문가에게 확인해야 합니다.`
     }
   ];
 }
@@ -126,6 +127,7 @@ export function PlantGuideContent({ plant, faqs, relatedPlants, relatedBlogPosts
 
       <section className="plant-section" aria-labelledby="safety-title">
         <h2 id="safety-title">반려동물·아이 안전성</h2>
+        <p>{describeSafetyForCopy(summarizeSafety(plant))}</p>
         <p>
           강아지 {formatScore(plant.petSafetyScoreDog)}, 고양이{" "}
           {formatScore(plant.petSafetyScoreCat)}, 어린 자녀{" "}
