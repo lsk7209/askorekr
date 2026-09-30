@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "플랜티프렌즈",
-    description: "한국형 반려식물·가드닝 pSEO 사이트",
+    description: "한국 기후 적합도, 반려동물 안전성, 난이도, 꽃말까지 함께 보는 데이터 기반 반려식물 가이드입니다.",
     url: siteUrl,
     siteName: "플랜티프렌즈",
     locale: "ko_KR",
