@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState, useTransition } from "react";
+import { FormEvent, useMemo, useRef, useState, useTransition } from "react";
 import type {
   CareTimeLevel,
   DiagnoseResponse,
@@ -40,6 +40,10 @@ export function DiagnoseQuickForm({ regions }: Props) {
   const [result, setResult] = useState<DiagnoseResponse | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  // 조건을 바꿔 다시 제출했을 때, 먼저 보낸 느린 요청의 응답이 나중에 도착해
+  // 최신 조건의 화면을 덮어쓰지 않도록 요청 순번을 추적한다 (UX-01).
+  const latestRequestId = useRef(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const sidoOptions = useMemo(
     () => Array.from(new Set(regions.map((region) => region.sido))),
@@ -73,26 +77,59 @@ export function DiagnoseQuickForm({ regions }: Props) {
     event.preventDefault();
     setError("");
 
+    // 이전 요청이 아직 진행 중이면 취소한다 (가능한 경우 서버 낭비도 줄인다).
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    const requestId = ++latestRequestId.current;
+
     startTransition(async () => {
-      const response = await fetch("/api/diagnose", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          regionCode,
-          environment,
-          safetyTargets,
-          lightLevel,
-          experience,
-          careTime
-        })
-      });
+      let response: Response;
 
-      const data = (await response.json()) as DiagnoseResponse & {
-        error?: string;
-      };
+      try {
+        response = await fetch("/api/diagnose", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            regionCode,
+            environment,
+            safetyTargets,
+            lightLevel,
+            experience,
+            careTime
+          }),
+          signal: controller.signal
+        });
+      } catch (fetchError) {
+        // 최신 요청이 아니면(더 최근 제출이 이미 진행 중) 이 오류는 화면에 반영하지 않는다.
+        if (requestId !== latestRequestId.current) return;
+        if (fetchError instanceof DOMException && fetchError.name === "AbortError") {
+          // 사용자가 조건을 바꿔 새 요청을 보낸 경우의 정상적인 취소이므로 오류로 표시하지 않는다.
+          return;
+        }
+        setError("네트워크 연결을 확인하고 다시 시도해 주세요.");
+        setResult(null);
+        return;
+      }
 
-      if (!response.ok) {
-        setError(data.error ?? "진단 결과를 불러오지 못했어요.");
+      let data: (DiagnoseResponse & { error?: string; fieldErrors?: unknown }) | null = null;
+      try {
+        data = await response.json();
+      } catch {
+        // 비JSON 응답(HTML 오류 페이지 등)도 사용자에게 원인을 알 수 없는 오류로 처리한다.
+        if (requestId !== latestRequestId.current) return;
+        setError("진단 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
+        setResult(null);
+        return;
+      }
+
+      // 이 응답이 도착하는 동안 사용자가 조건을 바꿔 새 요청을 보냈다면,
+      // 오래된 이 응답으로 최신 조건의 화면을 덮어쓰지 않는다 (경쟁 요청 방어).
+      if (requestId !== latestRequestId.current) return;
+
+      if (!response.ok || !data) {
+        setError(data?.error ?? "진단 결과를 불러오지 못했어요.");
         setResult(null);
         return;
       }
@@ -139,12 +176,13 @@ export function DiagnoseQuickForm({ regions }: Props) {
 
         <fieldset>
           <legend>환경</legend>
-          <div className="segment-group">
+          <div className="segment-group" role="group" aria-label="환경">
             {(Object.keys(environmentLabels) as Environment[]).map((value) => (
               <button
                 key={value}
                 type="button"
                 className={environment === value ? "selected" : ""}
+                aria-pressed={environment === value}
                 onClick={() => {
                   setEnvironment(value);
                   clearResult();
@@ -178,7 +216,11 @@ export function DiagnoseQuickForm({ regions }: Props) {
           {isPending ? "진단 중" : "진단하기"}
         </button>
 
-        {error ? <p className="form-error">{error}</p> : null}
+        {error ? (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        ) : null}
       </form>
 
       <DiagnoseResults result={result} selectedRegionName={selectedRegionName} />
