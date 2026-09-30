@@ -39,16 +39,41 @@ function loadEnv() {
 }
 
 // ── CLI 파싱 ──────────────────────────────────────────────
+/**
+ * "--flag value"와 "--flag=value" 두 형태를 모두 지원한다.
+ * 문서(주석 상단 사용법)는 "--limit N" 형태를 보이지만, 등호 형태로 호출해도
+ * 조용히 무제한(Infinity)으로 해석되지 않도록 두 형태 모두 인식한다.
+ */
+function getFlagValue(args, flag) {
+  const eqPrefix = `${flag}=`;
+  const eqArg = args.find((a) => a.startsWith(eqPrefix));
+  if (eqArg !== undefined) {
+    return eqArg.slice(eqPrefix.length);
+  }
+  const i = args.indexOf(flag);
+  return i >= 0 ? args[i + 1] : undefined;
+}
+
+/** 양의 정수만 허용. 누락/음수/0/NaN은 명시적으로 거절한다 (조용히 무제한 실행하지 않음). */
+function parsePositiveIntOrThrow(raw, flagName, fallback) {
+  if (raw === undefined) {
+    return fallback;
+  }
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`${flagName} 값이 올바르지 않습니다: "${raw}" (양의 정수만 허용)`);
+  }
+  return parsed;
+}
+
 function parseArgs() {
   const args = process.argv.slice(2);
-  const get = (flag) => {
-    const i = args.indexOf(flag);
-    return i >= 0 ? args[i + 1] : undefined;
-  };
+  const limitRaw = getFlagValue(args, "--limit");
+
   return {
-    limit: get("--limit") ? parseInt(get("--limit")) : Infinity,
-    pageSize: parseInt(get("--page-size") ?? "100"),
-    delay: parseInt(get("--delay") ?? "500"),
+    limit: limitRaw === undefined ? Infinity : parsePositiveIntOrThrow(limitRaw, "--limit"),
+    pageSize: parsePositiveIntOrThrow(getFlagValue(args, "--page-size"), "--page-size", 100),
+    delay: parsePositiveIntOrThrow(getFlagValue(args, "--delay"), "--delay", 500),
     dryRun: args.includes("--dry-run"),
     resume: args.includes("--resume")
   };
@@ -56,6 +81,16 @@ function parseArgs() {
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Drizzle 스키마의 timestamp 컬럼(mode: "timestamp")은 초 단위 유닉스 타임을 기대한다
+ * (읽을 때 value*1000으로 밀리초 변환). 원시 SQL로 직접 쓸 때 Date.now()(밀리초)를 그대로
+ * 넣으면 나중에 Drizzle이 읽을 때 1000배 부풀려진 날짜(비정상 미래)가 된다.
+ * 이 스크립트의 모든 timestamp 쓰기는 이 함수를 사용해 초 단위로 통일한다.
+ */
+function nowSeconds() {
+  return Math.floor(Date.now() / 1000);
 }
 
 function parseJson(v) {
@@ -71,7 +106,7 @@ async function getExistingSlugs(db) {
 async function createPipelineRun(db, inputCount) {
   const r = await db.execute({
     sql: "INSERT INTO pipeline_runs (stage, started_at, status, input_count, output_count, rejected_count, meta) VALUES (?, ?, 'running', ?, 0, 0, ?) RETURNING id",
-    args: ["etl:nongsaro-garden:layer1", Date.now(), inputCount, JSON.stringify({ source: "nongsaro_garden" })]
+    args: ["etl:nongsaro-garden:layer1", nowSeconds(), inputCount, JSON.stringify({ source: "nongsaro_garden" })]
   });
   return Number(r.rows[0].id);
 }
@@ -79,12 +114,12 @@ async function createPipelineRun(db, inputCount) {
 async function finishPipelineRun(db, id, status, outputCount, rejectedCount, errorLog) {
   await db.execute({
     sql: "UPDATE pipeline_runs SET finished_at = ?, status = ?, output_count = ?, rejected_count = ?, error_log = ? WHERE id = ?",
-    args: [Date.now(), status, outputCount, rejectedCount, errorLog ?? null, id]
+    args: [nowSeconds(), status, outputCount, rejectedCount, errorLog ?? null, id]
   });
 }
 
 async function upsertPlant(db, normalized) {
-  const now = Date.now();
+  const now = nowSeconds();
   const ex = await db.execute({ sql: "SELECT source_refs FROM plants WHERE slug = ? LIMIT 1", args: [normalized.plant.slug] });
   const sourceRefs = { ...parseJson(ex.rows[0]?.source_refs), ...normalized.plant.sourceRefs };
 
@@ -110,16 +145,23 @@ async function upsertPlant(db, normalized) {
 }
 
 async function upsertMetrics(db, plantId, metrics) {
+  // 안전성 관련 필드(pet_safety_score_*, child_safety_score, toxicity_notes)는
+  // coalesce로 기존 값을 보존하지 않고 재수집 시 원본(excluded) 값을 그대로 덮어쓴다.
+  // 이유: SAFE-01 수정 이후 mapSafety는 근거가 애매하면 null(unknown)을 반환하는데,
+  // coalesce(excluded.pet_safety_score_dog, plant_metrics.pet_safety_score_dog)를 쓰면
+  // 재수집으로 null이 들어와도 과거 잘못 저장된 85점 등이 계속 유지되어 정정 효과가 사라진다.
+  // 다른 필드(난이도/광량/온도/습도 등)는 원본 API가 일시적으로 필드를 누락해도 기존 값을
+  // 보존하는 편이 안전하므로 coalesce를 그대로 유지한다.
   await db.execute({
     sql: `INSERT INTO plant_metrics (plant_id, pet_safety_score_dog, pet_safety_score_cat, child_safety_score, toxicity_notes,
             difficulty_score, indoor_outdoor_class, light_lux_min, light_lux_max, water_freq_days,
             temp_min_c, temp_max_c, humidity_min_pct, humidity_max_pct, derived_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(plant_id) DO UPDATE SET
-            pet_safety_score_dog = coalesce(excluded.pet_safety_score_dog, plant_metrics.pet_safety_score_dog),
-            pet_safety_score_cat = coalesce(excluded.pet_safety_score_cat, plant_metrics.pet_safety_score_cat),
-            child_safety_score = coalesce(excluded.child_safety_score, plant_metrics.child_safety_score),
-            toxicity_notes = coalesce(excluded.toxicity_notes, plant_metrics.toxicity_notes),
+            pet_safety_score_dog = excluded.pet_safety_score_dog,
+            pet_safety_score_cat = excluded.pet_safety_score_cat,
+            child_safety_score = excluded.child_safety_score,
+            toxicity_notes = excluded.toxicity_notes,
             difficulty_score = coalesce(excluded.difficulty_score, plant_metrics.difficulty_score),
             indoor_outdoor_class = coalesce(excluded.indoor_outdoor_class, plant_metrics.indoor_outdoor_class),
             light_lux_min = coalesce(excluded.light_lux_min, plant_metrics.light_lux_min),
@@ -133,7 +175,7 @@ async function upsertMetrics(db, plantId, metrics) {
     args: [plantId, metrics.petSafetyScoreDog, metrics.petSafetyScoreCat, metrics.childSafetyScore,
            metrics.toxicityNotes, metrics.difficultyScore, metrics.indoorOutdoorClass,
            metrics.lightLuxMin, metrics.lightLuxMax, metrics.waterFreqDays,
-           metrics.tempMinC, metrics.tempMaxC, metrics.humidityMinPct, metrics.humidityMaxPct, Date.now()]
+           metrics.tempMinC, metrics.tempMaxC, metrics.humidityMinPct, metrics.humidityMaxPct, nowSeconds()]
   });
 }
 
@@ -149,8 +191,10 @@ async function insertImageIfNeeded(db, plantId, imageUrl) {
 
 // ── 메인 ──────────────────────────────────────────────────
 async function main() {
-  loadEnv();
+  // CLI 인자를 가장 먼저 검증한다. 잘못된 --limit/--page-size/--delay는
+  // env 로드나 API 호출 같은 부작용이 실행되기 전에 즉시 실패해야 한다.
   const { limit, pageSize, delay, dryRun, resume } = parseArgs();
+  loadEnv();
   const apiKey = process.env.NONGSARO_API_KEY?.trim();
   if (!apiKey) throw new Error("NONGSARO_API_KEY가 .env.local에 없습니다.\n  공공데이터포털 > 농촌진흥청_농사로 실내정원용 식물 정보 서비스 > 일반 인증키(Encoding) 발급");
 
