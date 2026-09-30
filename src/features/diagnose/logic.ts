@@ -105,7 +105,15 @@ export async function diagnosePlants(
     .sort((a, b) => b.climateScore - a.climateScore)
     .slice(0, RESULT_LIMIT);
 
-  await cacheDiagnoseResult(request, results.map((plant) => plant.id));
+  // 캐시는 다음 조회를 위한 선택적 최적화일 뿐, 이미 계산된 추천 결과의 정확성과는
+  // 무관하다. 캐시 쓰기가 실패해도(DB 일시 오류 등) 정상 계산된 결과는 그대로
+  // 반환해야 한다 (RECO-02). 캐시 실패로 사용자가 방금 계산된 추천을 못 받는 것은
+  // 안전성 판단 실패보다 훨씬 낮은 심각도이므로 예외를 삼키고 경고만 남긴다.
+  try {
+    await cacheDiagnoseResult(request, results.map((plant) => plant.id));
+  } catch (error) {
+    console.error("[diagnosePlants] cacheDiagnoseResult failed (non-fatal):", error);
+  }
 
   return {
     regionCode: request.regionCode,
