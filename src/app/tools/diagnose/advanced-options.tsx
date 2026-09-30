@@ -130,12 +130,13 @@ function OptionButtons<T extends string>({
   return (
     <div className="option-group">
       <span>{label}</span>
-      <div className="segment-group wrap">
+      <div className="segment-group wrap" role="group" aria-label={label}>
         {options.map((value) => (
           <button
             key={value}
             type="button"
             className={selected === value ? "selected" : ""}
+            aria-pressed={selected === value}
             onClick={() => onSelect(value)}
           >
             {labels[value]}
