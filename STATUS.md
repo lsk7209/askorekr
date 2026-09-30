@@ -1,7 +1,8 @@
-# Status | 마지막: 2026-05-10
+# Status | 마지막: 2026-09-30
 ## 현재 작업
-사이트맵 대표 URL www 고정 완료
+대표 도메인 non-www(askore.kr)로 재정정 완료 (env.ts/middleware.ts 실제 동작과 문서 불일치 해소)
 ## 최근 변경 (최근 5개만)
+- 09-30: 대표 도메인 문서를 non-www(askore.kr) 실제 코드 동작에 맞춰 정정, Gemini API 콘텐츠 생성 스크립트 제거
 - 05-10: sitemap/robots 대표 URL을 `https://www.askore.kr`로 고정하고 QA 검사 강화
 - 05-10: `/api/health` 추가 및 `qa:site`에 헬스 체크 검사 연결
 - 05-10: 슬롯 env가 있을 때만 렌더링되는 AdSense 공통 컴포넌트와 위치 연결 추가
@@ -11,9 +12,9 @@
 - [ ] AdSense 신청 전 운영자 계정에서 최종 제출
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
-- IndexNow keyLocation은 `https://www.askore.kr/{INDEXNOW_KEY}.txt`
+- IndexNow keyLocation은 제출 URL origin 기준으로 동적 생성 (`{origin}/{INDEXNOW_KEY}.txt`)
 - IndexNow payload는 제출 URL origin별로 나눠 `host/keyLocation` 생성
-- 대표 도메인: https://www.askore.kr
+- 대표 도메인: https://askore.kr (non-www, GSC 등록 도메인 기준. www 접속 시 301 리다이렉트)
 - 배포 기준 GitHub: https://github.com/lsk7209/askorekr
 - DB: Drizzle + libSQL/Turso 호환 SQLite 스키마 우선
 ## 주의

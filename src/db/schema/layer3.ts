@@ -31,7 +31,7 @@ export const plantContent = sqliteTable(
       factual: number;
       aiCliche: number;
     }>(),
-    generatedBy: text("generated_by").default("gemini-2.5-pro"),
+    generatedBy: text("generated_by").default("manual"),
     publishedAt: integer("published_at", { mode: "timestamp" }),
     lastRevalidatedAt: integer("last_revalidated_at", { mode: "timestamp" }),
     isPublished: integer("is_published", { mode: "boolean" }).default(false)
@@ -102,7 +102,7 @@ export const blogPosts = sqliteTable(
       aiCliche: number;
     }>(),
     researchJson: text("research_json", { mode: "json" }),
-    generatedBy: text("generated_by").default("gemini-2.5-pro"),
+    generatedBy: text("generated_by").default("manual"),
     scheduledAt: integer("scheduled_at", { mode: "timestamp" }),
     publishedAt: integer("published_at", { mode: "timestamp" }),
     isPublished: integer("is_published", { mode: "boolean" }).default(false),
