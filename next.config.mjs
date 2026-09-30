@@ -7,9 +7,6 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400
   },
-  experimental: {
-    optimizePackageImports: ["date-fns", "lucide-react"]
-  },
   async headers() {
     return [
       {
@@ -18,6 +15,10 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload"
+          },
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()"
