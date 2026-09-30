@@ -12,8 +12,21 @@
 import { createClient } from "@libsql/client";
 
 const isDryRun = process.argv.includes("--dry-run");
-const limitArg = process.argv.find((a) => a.startsWith("--limit="));
-const limit = limitArg ? parseInt(limitArg.split("=")[1]) : 9999;
+
+/** "--limit=N" 형태만 지원(기존 문서 계약). 값이 있는데 양의 정수가 아니면 명시적으로 거절한다. */
+function parseLimitArg(argv) {
+  const limitArg = argv.find((a) => a.startsWith("--limit="));
+  if (!limitArg) return 9999;
+
+  const raw = limitArg.split("=")[1];
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`--limit 값이 올바르지 않습니다: "${raw}" (양의 정수만 허용)`);
+  }
+  return parsed;
+}
+
+const limit = parseLimitArg(process.argv);
 
 const client = createClient({
   url: process.env.TURSO_DATABASE_URL ?? "file:local.db",
@@ -131,9 +144,10 @@ function replacePhrases(md) {
 
 // ── 메인 ──────────────────────────────────────────────────
 async function main() {
-  const result = await client.execute(
-    "SELECT id, title, body_markdown FROM blog_posts ORDER BY id LIMIT " + limit
-  );
+  const result = await client.execute({
+    sql: "SELECT id, title, body_markdown FROM blog_posts ORDER BY id LIMIT ?",
+    args: [limit]
+  });
 
   console.log(`📋 처리 대상: ${result.rows.length}개 글 (${isDryRun ? "드라이런" : "실제 업데이트"})`);
 
