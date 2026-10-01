@@ -19,7 +19,7 @@ export const REQUIRED_TABLE_COLUMNS = {
     "synonyms", "origin", "gbif_id", "wiki_url_ko", "source_refs", "created_at", "updated_at"
   ],
   plant_metrics: [
-    "id", "plant_id", "climate_score_by_region", "pet_safety_score_dog", "pet_safety_score_cat",
+    "plant_id", "climate_score_by_region", "pet_safety_score_dog", "pet_safety_score_cat",
     "child_safety_score", "toxicity_notes", "difficulty_score", "indoor_outdoor_class",
     "light_lux_min", "light_lux_max", "water_freq_days", "temp_min_c", "temp_max_c",
     "humidity_min_pct", "humidity_max_pct", "flower_meaning", "derived_at"
@@ -98,11 +98,11 @@ export function buildLocalToRemotePlantIdMap(localPlants, remotePlants) {
   return idMap;
 }
 
-export const PLANT_METRICS_UPSERT_SQL = `INSERT INTO plant_metrics (id, plant_id, climate_score_by_region, pet_safety_score_dog, pet_safety_score_cat,
+export const PLANT_METRICS_UPSERT_SQL = `INSERT INTO plant_metrics (plant_id, climate_score_by_region, pet_safety_score_dog, pet_safety_score_cat,
   child_safety_score, toxicity_notes, difficulty_score, indoor_outdoor_class,
   light_lux_min, light_lux_max, water_freq_days, temp_min_c, temp_max_c,
   humidity_min_pct, humidity_max_pct, flower_meaning, derived_at)
-VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ON CONFLICT(plant_id) DO UPDATE SET
   climate_score_by_region=coalesce(excluded.climate_score_by_region,plant_metrics.climate_score_by_region),
   pet_safety_score_dog=excluded.pet_safety_score_dog,
@@ -227,7 +227,7 @@ async function main() {
     );
 
     // ── 4. plant_metrics 동기화 ─────────────────────────────────
-    const metrics = await local.execute("SELECT * FROM plant_metrics ORDER BY id");
+    const metrics = await local.execute("SELECT * FROM plant_metrics ORDER BY plant_id");
     console.log(`\n📊 plant_metrics ${metrics.rows.length}개 동기화 중...`);
     let metricsDone = 0;
     for (const r of metrics.rows) {
@@ -235,7 +235,7 @@ async function main() {
       await remote.execute({
         sql: PLANT_METRICS_UPSERT_SQL,
         args: [
-          r.id, targetPlantId, r.climate_score_by_region, r.pet_safety_score_dog, r.pet_safety_score_cat,
+          targetPlantId, r.climate_score_by_region, r.pet_safety_score_dog, r.pet_safety_score_cat,
           r.child_safety_score, r.toxicity_notes, r.difficulty_score, r.indoor_outdoor_class,
           r.light_lux_min, r.light_lux_max, r.water_freq_days, r.temp_min_c, r.temp_max_c,
           r.humidity_min_pct, r.humidity_max_pct, r.flower_meaning, r.derived_at
