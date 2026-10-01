@@ -1,7 +1,8 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { plantImages, plantMetrics, plants } from "@/db/schema";
 import { getClimateGrade } from "@/features/diagnose/logic";
+import { buildUniquePlantNameSlugMap, type PlantNameMap } from "./name-map";
 
 const DEFAULT_REGION_CODE = "11680";
 
@@ -146,28 +147,24 @@ export async function getPrimaryPlantImage(plantId: number): Promise<PlantImage 
       license: plantImages.license,
       attribution: plantImages.attribution,
       width: plantImages.width,
-      height: plantImages.height,
-      isPrimary: plantImages.isPrimary
+      height: plantImages.height
     })
     .from(plantImages)
     .where(eq(plantImages.plantId, plantId))
     .orderBy(desc(plantImages.isPrimary))
     .limit(1);
 
-  if (!rows[0]) return null;
-  const { isPrimary: _, ...rest } = rows[0];
-  return rest;
+  return rows[0] ?? null;
 }
 
-export type PlantNameMap = Record<string, string>; // koreanName → slug
+export type { PlantNameMap };
 
 export async function getPlantNameSlugMap(): Promise<PlantNameMap> {
   const rows = await db
     .select({ koreanName: plants.koreanName, slug: plants.slug })
-    .from(plants);
-  const map: PlantNameMap = {};
-  for (const r of rows) map[r.koreanName] = r.slug;
-  return map;
+    .from(plants)
+    .orderBy(asc(plants.id));
+  return buildUniquePlantNameSlugMap(rows);
 }
 
 export async function getSuggestedPlants(limit = 3, preferIndoor = false): Promise<PlantCard[]> {
