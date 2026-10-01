@@ -1,5 +1,30 @@
 # WORK_LOG
 
+## 2026-10-01 07:50 (세션 4 - P0/P1 안정성·성능·DevOps 개선 및 브랜치 병합)
+
+### 배경
+CTO 프로젝트 종합 검토(78점 B+) 후속으로 식별된 P0/P1 핵심 개선 작업 수행:
+1. CI 자동화 및 테스트 실행 일괄화
+2. HSTS 보안 강화 및 미들웨어 성능 최적화
+3. 타임스탬프 및 안전성 데이터 무결성 백필 도구 신설
+
+### 작업 내역
+- [package.json] `"test": "node --test scripts/tests/*.test.mjs"` 추가 — Node 20+ 내장 테스트 러너 기반으로 6개 핵심 단위/통합 테스트를 0.2초 이내에 일괄 실행 가능하도록 지원.
+- [next.config.mjs] `Strict-Transport-Security` (`max-age=31536000; includeSubDomains; preload`) 보안 헤더 추가. 실제 코드에서 미사용되던 `optimizePackageImports` (`date-fns`, `lucide-react`) 제거.
+- [src/middleware.ts] matcher 최적화 (`/((?!_next/static|_next/image|favicon.ico|icon.svg).*)`) — 정적 빌드 자산, 최적화 이미지, 파비콘/아이콘 요청 시 불필요한 엣지 미들웨어 실행을 제외하여 Vercel 실행 비용과 페이지 응답 지연 절감.
+- [.github/workflows/ci.yml] 신규 — PR 및 브랜치 푸시 시 `type-check`, `test`, `build`를 자동 검증하는 GitHub Actions CI 파이프라인 구축.
+- [scripts/backfill-timestamps-and-safety.mjs] 신규 — 과거 ETL에서 밀리초(13자리)로 기록된 timestamp 컬럼을 초 단위(10자리)로 안전하게 변환하는 백필 도구 작성. 기본 `--dry-run` 모드로 통계 미리보기 제공, `--execute` 시 실제 트랜잭션 업데이트 수행.
+- [STATUS.md] 최신 작업 현황 및 TODO 갱신.
+
+### 검증 결과
+- `pnpm test`: 6개 테스트 스위트 전부 통과 (0.14초).
+- `pnpm type-check`: TypeScript 오류 0건 통과.
+- `pnpm db:push` 및 `pnpm seed:sample`: 로컬 DB(18개 식물, 3개 카테고리) 시드 성공.
+- `pnpm build`: 43개 정적/동적 페이지 완벽 빌드 성공 (SSG 21개 페이지 생성).
+- `node scripts/backfill-timestamps-and-safety.mjs`: 타임스탬프 무결성 검사 정상 확인.
+
+---
+
 ## 2026-09-30 16:48 (세션 3 - 작업 D~F, 통합검증)
 
 ### 배경

@@ -1,14 +1,14 @@
-# Status | 마지막: 2026-09-30
+# Status | 마지막: 2026-10-01
 ## 현재 작업
-대표 도메인 non-www(askore.kr)로 재정정 완료 (env.ts/middleware.ts 실제 동작과 문서 불일치 해소)
+안정성/성능/DevOps P0/P1 개선 완료 (CI 파이프라인, 테스트 자동화, HSTS, 미들웨어 최적화, DB 백필 도구)
 ## 최근 변경 (최근 5개만)
-- 09-30: 대표 도메인 문서를 non-www(askore.kr) 실제 코드 동작에 맞춰 정정, Gemini API 콘텐츠 생성 스크립트 제거
-- 05-10: sitemap/robots 대표 URL을 `https://www.askore.kr`로 고정하고 QA 검사 강화
-- 05-10: `/api/health` 추가 및 `qa:site`에 헬스 체크 검사 연결
-- 05-10: 슬롯 env가 있을 때만 렌더링되는 AdSense 공통 컴포넌트와 위치 연결 추가
-- 05-10: 홈 모바일 home-band 가로 overflow 수정 및 브라우저 표면 QA 완료
-- 05-10: `llms.txt`, `llms-full.txt`, `ai-index.json`, docs 미러와 QA 검사 추가
+- 10-01: GitHub Actions CI 워크플로우 신설 (.github/workflows/ci.yml)
+- 10-01: `pnpm test` 명령어로 6개 테스트 일괄 실행 (node --test 기반)
+- 10-01: next.config.mjs HSTS 보안 헤더 추가 및 미사용 최적화 패키지 정리
+- 10-01: middleware.ts matcher 최적화 (정적 에셋 제외로 엣지 실행 비용/지연 절감)
+- 10-01: 타임스탬프 및 안전성 점수 무결성 백필/진단 도구(scripts/backfill-timestamps-and-safety.mjs) 추가
 ## TODO
+- [ ] 운영 Turso DB 타임스탬프 백필 스크립트 실행 (`node scripts/backfill-timestamps-and-safety.mjs --execute`)
 - [ ] AdSense 신청 전 운영자 계정에서 최종 제출
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
