@@ -29,6 +29,10 @@ CTO 프로젝트 종합 검토(78점 B+) 후속으로 식별된 P0/P1 핵심 개
 - `pnpm lint`: 에러 0건 통과 (`queries.ts` 경고 2건 해소).
 - `pnpm build`: Next.js 15.5.27 기반 43개 정적/동적 페이지 완벽 빌드 성공.
 - `fix/safety-data-integrity` → `chore/remove-gemini-fix-domain` → `main` Fast-Forward 병합 및 원격 푸시 완료.
+- **운영 Turso DB 백필 (`db-backfill.yml`)**:
+  1. 1차 `dry-run` (Run `36801859628`): `plant_metrics.derived_at` 474건, `pipeline_runs.started_at` 3건, `pipeline_runs.finished_at` 3건(총 480건) 밀리초 타임스탬프 감지. 또한 농사로 독성(`toxcty`) 필드 단독 `"없음"` 값 11건을 확인하여 `mapSafety` 정규식에서 명시적 비독성(85점)으로 보존하도록 보강(`c5bb48f`).
+  2. `execute` 실행 (Run `36802059889`): 480건 타임스탬프 초 단위 변환 완료.
+  3. 사후 검증 `dry-run` (Run `36802124208`): 밀리초 잔여 레코드 0건, 안전성 오탐 0건 최종 확인.
 
 ---
 
