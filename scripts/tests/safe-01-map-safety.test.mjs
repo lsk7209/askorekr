@@ -40,7 +40,8 @@ function mapSafety(toxicity) {
   }
   if (isInfoMissing) return unknown;
 
-  const isExplicitNonToxic = /(독성|유독성)\s*(이|가)?\s*없|무독성|비독성/.test(normalized);
+  const isExplicitNonToxic =
+    /(독성|유독성)\s*(이|가)?\s*없|무독성|비독성|^없(음|다|습니다)\.?$/.test(normalized);
   if (isExplicitNonToxic) {
     return { petSafetyScoreDog: 85, petSafetyScoreCat: 85, childSafetyScore: 85 };
   }
@@ -63,10 +64,12 @@ function mapSafety(toxicity) {
   assert.equal(result.petSafetyScoreDog, 45, "T02: 이중부정은 낮은 점수(45)로 처리되어야 함");
 }
 
-// 회귀: 명시적 비독성 표현("독성이 없음")은 안전 근거로 인정
+// 회귀: 명시적 비독성 표현("독성이 없음", 단독 "없음")은 안전 근거로 인정
 {
   const result = mapSafety("독성이 없음");
   assert.equal(result.petSafetyScoreDog, 85, "명시적 비독성 표현은 85점이어야 함");
+  const standaloneResult = mapSafety("없음");
+  assert.equal(standaloneResult.petSafetyScoreDog, 85, "농사로 독성 필드 단독 '없음'은 85점이어야 함");
 }
 
 // 회귀: null 입력은 unknown

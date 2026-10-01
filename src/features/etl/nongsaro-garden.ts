@@ -309,8 +309,9 @@ function mapSafety(toxicity: string | null) {
     return unknown;
   }
 
-  // "독성이 없음", "무독성" 류 명시적 비독성 표현만 안전 근거로 인정한다.
-  const isExplicitNonToxic = /(독성|유독성)\s*(이|가)?\s*없|무독성|비독성/.test(normalized);
+  // "독성이 없음", "무독성" 또는 독성(toxcty) 필드 값 자체가 단독 "없음"인 경우만 안전 근거로 인정한다.
+  const isExplicitNonToxic =
+    /(독성|유독성)\s*(이|가)?\s*없|무독성|비독성|^없(음|다|습니다)\.?$/.test(normalized);
 
   if (isExplicitNonToxic) {
     return {

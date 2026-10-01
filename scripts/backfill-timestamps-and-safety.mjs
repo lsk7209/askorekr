@@ -61,7 +61,8 @@ function evaluateSafetyFromToxicity(toxicity) {
     return unknown;
   }
 
-  const isExplicitNonToxic = /(독성|유독성)\s*(이|가)?\s*없|무독성|비독성/.test(normalized);
+  const isExplicitNonToxic =
+    /(독성|유독성)\s*(이|가)?\s*없|무독성|비독성|^없(음|다|습니다)\.?$/.test(normalized);
   if (isExplicitNonToxic) {
     return {
       petSafetyScoreDog: 85,
