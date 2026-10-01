@@ -1,27 +1,34 @@
 # WORK_LOG
 
-## 2026-10-01 07:50 (세션 4 - P0/P1 안정성·성능·DevOps 개선 및 브랜치 병합)
+## 2026-10-01 10:22 (세션 4 - P0/P1 안정성·성능·DevOps 개선, OPS-03/DISCOVERY-01 및 보안 패치 완료)
 
 ### 배경
-CTO 프로젝트 종합 검토(78점 B+) 후속으로 식별된 P0/P1 핵심 개선 작업 수행:
+CTO 프로젝트 종합 검토(78점 B+) 후속으로 식별된 P0/P1 핵심 개선 작업 및 미결 과제(OPS-03, DISCOVERY-01, 의존성 보안 취약점) 전수 해결:
 1. CI 자동화 및 테스트 실행 일괄화
 2. HSTS 보안 강화 및 미들웨어 성능 최적화
 3. 타임스탬프 및 안전성 데이터 무결성 백필 도구 신설
+4. OPS-03(동기화 스키마·ID 정합성 사전검사) 및 DISCOVERY-01(국명 동음이의어 오링크 방지·홈 FAQ 정합성) 구현
+5. Next.js 15.5.27 및 하위 의존성 보안 패치(`pnpm audit --prod` 취약점 0건 달성)
 
 ### 작업 내역
-- [package.json] `"test": "node --test scripts/tests/*.test.mjs"` 추가 — Node 20+ 내장 테스트 러너 기반으로 6개 핵심 단위/통합 테스트를 0.2초 이내에 일괄 실행 가능하도록 지원.
+- [package.json] `"test": "node --test scripts/tests/*.test.mjs"` 추가 — Node 내장 테스트 러너 기반으로 7개 핵심 단위/통합 테스트를 일괄 실행 가능하도록 지원. `next` 및 `eslint-config-next`를 `^15.5.27`로 업그레이드하고 `pnpm.overrides`(`ws`, `postcss`, `nanoid`, `sharp`)를 적용해 프로덕션 취약점 20건을 0건으로 해소.
 - [next.config.mjs] `Strict-Transport-Security` (`max-age=31536000; includeSubDomains; preload`) 보안 헤더 추가. 실제 코드에서 미사용되던 `optimizePackageImports` (`date-fns`, `lucide-react`) 제거.
 - [src/middleware.ts] matcher 최적화 (`/((?!_next/static|_next/image|favicon.ico|icon.svg).*)`) — 정적 빌드 자산, 최적화 이미지, 파비콘/아이콘 요청 시 불필요한 엣지 미들웨어 실행을 제외하여 Vercel 실행 비용과 페이지 응답 지연 절감.
 - [.github/workflows/ci.yml] 신규 — PR 및 브랜치 푸시 시 `type-check`, `test`, `build`를 자동 검증하는 GitHub Actions CI 파이프라인 구축.
-- [scripts/backfill-timestamps-and-safety.mjs] 신규 — 과거 ETL에서 밀리초(13자리)로 기록된 timestamp 컬럼을 초 단위(10자리)로 안전하게 변환하는 백필 도구 작성. 기본 `--dry-run` 모드로 통계 미리보기 제공, `--execute` 시 실제 트랜잭션 업데이트 수행.
+- [scripts/backfill-timestamps-and-safety.mjs] 신규 — 과거 ETL에서 밀리초(13자리)로 기록된 timestamp 컬럼을 초 단위(10자리)로 안전하게 변환하는 백필 도구 작성. 기본 `--dry-run` 모드로 통계 미리보기 제공, `--execute` 시 실제 업데이트 수행.
+- [scripts/sync-local-to-turso.mjs] OPS-03/DATA-03: 동기화 전 로컬·리모트 테이블 필수 컬럼 검증(`validateTableColumns`) 및 `plants` ID/slug 정합성 사전검사(`inspectPlantIdentityAlignment`) 추가. 리모트 `slug -> id` 기준 외래키 매핑(`buildLocalToRemotePlantIdMap`) 적용. 안전성 필드 4개에서 `coalesce`를 제거해 로컬 `null(unknown)` 정정값이 리모트 오염값을 덮어쓰도록 통일.
+- [src/features/plants/name-map.ts, src/features/plants/queries.ts] DISCOVERY-01: 동일 국명을 가진 동음이의어가 복수 존재할 때 블로그 본문에서 문맥 없이 임의의 종으로 오링크되는 문제를 차단하는 `buildUniquePlantNameSlugMap` 구현 및 `ORDER BY id ASC` 적용. 미사용 변수 ESLint 경고 2건 제거.
+- [src/app/page.tsx] 홈페이지 FAQ 문구에서 미구현된 "식물 이름으로 검색하거나" 표현을 제거하고 실제 제공 기능(주제별 카테고리 탐색 + 반려식물 진단 도구)으로 정합성 있게 수정.
+- [scripts/tests/ops-03-discovery-01.test.mjs] 신규 — OPS-03, DATA-03, DISCOVERY-01 단위 테스트 추가.
 - [STATUS.md] 최신 작업 현황 및 TODO 갱신.
 
 ### 검증 결과
-- `pnpm test`: 6개 테스트 스위트 전부 통과 (0.14초).
+- `pnpm audit --prod`: 프로덕션 취약점 0건 (`No known vulnerabilities found`).
+- `pnpm test`: 7개 테스트 스위트 전부 통과.
 - `pnpm type-check`: TypeScript 오류 0건 통과.
-- `pnpm db:push` 및 `pnpm seed:sample`: 로컬 DB(18개 식물, 3개 카테고리) 시드 성공.
-- `pnpm build`: 43개 정적/동적 페이지 완벽 빌드 성공 (SSG 21개 페이지 생성).
-- `node scripts/backfill-timestamps-and-safety.mjs`: 타임스탬프 무결성 검사 정상 확인.
+- `pnpm lint`: 에러 0건 통과 (`queries.ts` 경고 2건 해소).
+- `pnpm build`: Next.js 15.5.27 기반 43개 정적/동적 페이지 완벽 빌드 성공.
+- `fix/safety-data-integrity` → `chore/remove-gemini-fix-domain` → `main` Fast-Forward 병합 및 원격 푸시 완료.
 
 ---
 
