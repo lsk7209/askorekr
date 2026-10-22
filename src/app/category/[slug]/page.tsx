@@ -1,3 +1,4 @@
+import { decodeSlugParam } from "@/utils/slug";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -26,7 +27,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = decodeSlugParam((await params).slug);
   const category = await getCategoryBySlug(slug);
 
   if (!category) {
@@ -75,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { slug } = await params;
+  const slug = decodeSlugParam((await params).slug);
   const category = await getCategoryBySlug(slug);
 
   if (!category) {

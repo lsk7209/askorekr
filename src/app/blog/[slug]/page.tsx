@@ -1,3 +1,4 @@
+import { decodeSlugParam } from "@/utils/slug";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -28,7 +29,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = decodeSlugParam((await params).slug);
   const post = await getBlogPostBySlug(slug);
 
   if (!post) return { title: "글을 찾을 수 없습니다" };
@@ -194,7 +195,7 @@ function estimateReadingMinutes(charCount: number): number {
 }
 
 export default async function BlogPostPage({ params }: Props) {
-  const { slug } = await params;
+  const slug = decodeSlugParam((await params).slug);
   const post = await getBlogPostBySlug(slug);
 
   if (!post) notFound();

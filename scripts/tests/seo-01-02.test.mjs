@@ -71,3 +71,19 @@ function readSource(relativePath) {
 }
 
 console.log("SEO_01_02_OK");
+
+// SEO-03: 비ASCII(한글) slug는 퍼센트 인코딩되어 전달되므로 디코딩 후 조회해야 함 (sitemap URL 404 방지)
+{
+  const util = readSource("../../src/utils/slug.ts");
+  assert.ok(util.includes("decodeURIComponent"), "slug 유틸은 decodeURIComponent를 사용해야 함");
+  for (const page of [
+    "../../src/app/blog/[slug]/page.tsx",
+    "../../src/app/plant/[slug]/page.tsx",
+    "../../src/app/category/[slug]/page.tsx"
+  ]) {
+    const source = readSource(page);
+    assert.ok(source.includes("decodeSlugParam"), `${page}는 slug 파라미터를 디코딩해야 함`);
+    assert.equal(/const \{ slug \} = await params;/.test(source), false, `${page}에 디코딩 없는 slug 사용이 남아 있음`);
+  }
+  console.log("SEO_03_SLUG_DECODE_OK");
+}

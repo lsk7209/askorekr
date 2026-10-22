@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getScheduledPostsToPublish, publishBlogPost } from "@/features/blog/queries";
@@ -6,7 +7,12 @@ import { publicEnv } from "@/env";
 function verifyToken(request: NextRequest) {
   const authHeader = request.headers.get("Authorization");
   const tokens = [process.env.INTERNAL_API_TOKEN, process.env.CRON_SECRET].filter(Boolean);
-  return tokens.some((token) => authHeader === `Bearer ${token}`);
+  if (!authHeader) return false;
+  const supplied = Buffer.from(authHeader);
+  return tokens.some((token) => {
+    const expected = Buffer.from(`Bearer ${token}`);
+    return supplied.length === expected.length && timingSafeEqual(supplied, expected);
+  });
 }
 
 async function pingIndexNow(slugs: string[]) {
@@ -28,18 +34,6 @@ async function pingIndexNow(slugs: string[]) {
     });
   } catch {
     // IndexNow failure should not block publish response
-  }
-}
-
-async function pingSitemapToGoogle() {
-  try {
-    const sitemapUrl = `${publicEnv.siteUrl}/sitemap.xml`;
-    await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`, {
-      method: "GET",
-      cache: "no-store"
-    });
-  } catch {
-    // Google ping failure should not block publish response
   }
 }
 
@@ -65,11 +59,8 @@ async function handlePublishTick(request: NextRequest) {
       results.push(post.slug);
     }
 
-    // 비동기로 IndexNow + Google sitemap ping (발행 응답 차단 안 함)
-    void Promise.allSettled([
-      pingIndexNow(results),
-      pingSitemapToGoogle()
-    ]);
+    // 비동기로 IndexNow 알림 (발행 응답 차단 안 함). Google sitemap ping은 2023년 중단되어 제거.
+    void pingIndexNow(results);
 
     return NextResponse.json({
       published: results.length,

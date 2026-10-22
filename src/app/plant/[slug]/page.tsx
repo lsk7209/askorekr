@@ -1,3 +1,4 @@
+import { decodeSlugParam } from "@/utils/slug";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -36,7 +37,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = decodeSlugParam((await params).slug);
   const plant = await getPlantBySlug(slug);
 
   if (!plant) {
@@ -145,7 +146,7 @@ function buildPlantLead(
 }
 
 export default async function PlantDetailPage({ params }: Props) {
-  const { slug } = await params;
+  const slug = decodeSlugParam((await params).slug);
   const plant = await getPlantBySlug(slug);
 
   if (!plant) {
