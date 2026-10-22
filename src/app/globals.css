@@ -5,10 +5,10 @@
 :root {
   --background: #fbfaf4;
   --foreground: #233126;
-  --sage: #6f8c72;
+  --sage: #567559;
   --sage-dark: #35523a;
   --ivory: #fffdf7;
-  --terracotta: #c6724a;
+  --terracotta: #a85a35;
   --border: #d9d8c7;
 
   /* PLANTY HOUSE LAB V2 토큰 (홈·공통 헤더·푸터에서 사용) */
@@ -999,8 +999,8 @@ h2 {
   }
 
   .entry-links a:first-child:hover {
-    background: #b05e38;
-    border-color: #b05e38;
+    background: #8f4a2a;
+    border-color: #8f4a2a;
   }
 }
 
