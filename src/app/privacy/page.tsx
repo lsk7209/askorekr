@@ -125,10 +125,10 @@ export default function PrivacyPage() {
 
         <section className="policy-section" aria-labelledby="outsourcing-title">
           <h2 id="outsourcing-title">6. 처리 위탁 및 국외 이전</h2>
-          <p>서비스 운영을 위해 아래 사업자의 서비스를 이용하며, 이 과정에서 정보가 국외(미국)에서 처리될 수 있습니다.</p>
+          <p>서비스 운영을 위해 아래 사업자의 서비스를 이용하며, 이 과정에서 정보가 국외 데이터센터에서 처리될 수 있습니다.</p>
           <ul>
-            <li>Google LLC — 광고 게재(AdSense), 방문 분석(Analytics)</li>
-            <li>Vercel Inc. — 웹사이트 호스팅 및 접속 로그 처리</li>
+            <li>Google LLC(미국) — 광고 게재(AdSense), 방문 분석(Analytics)</li>
+            <li>OVHcloud — 웹사이트 서버 호스팅 및 접속 로그 처리</li>
           </ul>
         </section>
 
