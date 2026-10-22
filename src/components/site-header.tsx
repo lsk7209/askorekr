@@ -42,7 +42,7 @@ export function SiteHeader() {
   const close = () => setOpen(false);
 
   return (
-    <>
+    <header className={styles.header}>
       <div className={`${styles.topline} ${styles.mono}`}>
         <span>THE PLANT RESIDENCE BUREAU</span>
         <span className={styles.toplineLinks}>
@@ -50,8 +50,7 @@ export function SiteHeader() {
           <Link href="/contact" aria-current={current("/contact")}>문의</Link>
         </span>
       </div>
-      <header className={styles.header}>
-        <div className={`${styles.layout} ${styles.nav}`}>
+      <div className={`${styles.layout} ${styles.nav}`}>
           <Link href="/" className={styles.wordmark} aria-label="플랜티프렌즈 홈으로" onClick={close}>
             <span className={styles.mark} aria-hidden="true">✳</span>
             <span>
@@ -110,8 +109,7 @@ export function SiteHeader() {
           >
             <span aria-hidden="true">{open ? "✕" : "☰"}</span>
           </button>
-        </div>
-      </header>
-    </>
+      </div>
+    </header>
   );
 }
