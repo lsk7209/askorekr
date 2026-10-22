@@ -1,0 +1,314 @@
+/* 공통 헤더 (PLANTY HOUSE LAB V2). 모든 페이지에서 공유되므로 이 파일의 클래스만 사용한다. */
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", "Noto Sans Mono CJK KR", monospace;
+  letter-spacing: 0.09em;
+}
+
+.topline {
+  min-height: 32px;
+  background: var(--hl-lime);
+  color: var(--hl-ink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 max(50px, calc((100% - 1460px) / 2));
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.toplineLinks {
+  display: flex;
+  gap: 4px;
+}
+
+.toplineLinks a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  color: var(--hl-ink);
+  text-decoration: none;
+}
+
+.toplineLinks a:hover,
+.toplineLinks a[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.header {
+  position: relative;
+  z-index: 20;
+  background: var(--hl-ink);
+  border-bottom: 1px solid #36525b;
+  color: #f6f5ec;
+}
+
+.header a,
+.header button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header a:focus-visible,
+.header button:focus-visible,
+.topline a:focus-visible {
+  outline: 3px solid var(--hl-coral);
+  outline-offset: 3px;
+}
+
+.layout {
+  width: min(1460px, calc(100% - 100px));
+  margin-inline: auto;
+}
+
+.nav {
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mark {
+  width: 46px;
+  height: 46px;
+  background: var(--hl-lime);
+  color: var(--hl-ink);
+  display: grid;
+  place-items: center;
+  border-radius: 100%;
+  font-size: 23px;
+  font-weight: 900;
+  position: relative;
+  transform: rotate(-9deg);
+}
+
+.mark::after {
+  content: "";
+  position: absolute;
+  border: 1px solid var(--hl-ink);
+  border-radius: 100%;
+  inset: 6px;
+}
+
+.wordmarkTitle {
+  display: block;
+  font-size: 23px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.wordmarkSub {
+  display: block;
+  font-size: 9px;
+  line-height: 1.3;
+  color: var(--hl-lime);
+  letter-spacing: 0.15em;
+  margin-top: 4px;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  margin-left: auto;
+}
+
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #d6e2dd;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.links a:hover {
+  color: var(--hl-lime);
+}
+
+.links a[aria-current="page"] {
+  color: var(--hl-lime);
+  box-shadow: inset 0 -2px 0 var(--hl-lime);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 23px;
+  min-height: 44px;
+  padding: 12px 20px;
+  border: 1px solid var(--hl-lime);
+  color: var(--hl-lime);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cta:hover,
+.cta[aria-current="page"] {
+  background: var(--hl-lime);
+  color: var(--hl-ink);
+}
+
+.links a.cta:hover,
+.links a.cta[aria-current="page"] {
+  color: var(--hl-ink);
+}
+
+.arrow {
+  font-size: 21px;
+  line-height: 1;
+}
+
+.toggle {
+  display: none;
+  background: none;
+  color: var(--hl-lime);
+  border: 1px solid #698084;
+  padding: 10px 12px;
+  min-width: 47px;
+  min-height: 44px;
+  font: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileOnly {
+  display: none !important;
+}
+
+@media (max-width: 880px) {
+  .topline {
+    padding: 0 12px 0 25px;
+  }
+
+  .nav {
+    height: 75px;
+  }
+
+  .links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--hl-ink);
+    border-top: 1px solid #416069;
+    padding: 12px 24px 24px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-left: 0;
+    box-shadow: 0 13px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .links.linksOpen {
+    display: flex;
+  }
+
+  .links a {
+    min-height: 48px;
+    font-size: 16px;
+    border-bottom: 1px solid #2c4850;
+  }
+
+  .links a.mobileOnly {
+    display: inline-flex !important;
+  }
+
+  .links a.cta {
+    margin-top: 16px;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--hl-lime);
+  }
+
+  .desktopOnly {
+    display: none;
+  }
+
+  .toggle {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 650px) {
+  .topline {
+    min-height: 28px;
+    font-size: 8px;
+    padding: 0 17px;
+  }
+
+  .toplineLinks {
+    display: none;
+  }
+
+  .layout {
+    width: calc(100% - 34px);
+  }
+
+  .wordmarkTitle {
+    font-size: 21px;
+  }
+
+  .wordmarkSub {
+    font-size: 8px;
+  }
+
+  .mark {
+    width: 39px;
+    height: 39px;
+    font-size: 21px;
+  }
+
+  .nav {
+    height: 68px;
+  }
+}
+
+@media (max-width: 880px) and (min-width: 651px) {
+  .layout {
+    width: calc(100% - 44px);
+  }
+}
+
+@media (max-width: 1250px) and (min-width: 881px) {
+  .layout {
+    width: min(1200px, calc(100% - 64px));
+  }
+
+  .links {
+    gap: 22px;
+  }
+
+  .nav {
+    gap: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .links a,
+  .cta {
+    transition: none;
+  }
+}

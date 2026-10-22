@@ -1,0 +1,1327 @@
+/* PLANTY HOUSE LAB V2 — 홈 전용 스타일 (CSS Module). 다른 페이지에는 영향을 주지 않는다.
+   색 토큰은 globals.css 의 --hl-* 를 사용한다. */
+
+.home {
+  background: var(--hl-paper);
+  color: var(--hl-ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.home a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home a:focus-visible,
+.home button:focus-visible,
+.home summary:focus-visible {
+  outline: 3px solid var(--hl-coral);
+  outline-offset: 5px;
+}
+
+.home h1,
+.home h2,
+.home h3,
+.home p {
+  margin-top: 0;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", "Noto Sans Mono CJK KR", monospace;
+  letter-spacing: 0.09em;
+}
+
+.layout {
+  width: min(1460px, calc(100% - 100px));
+  margin-inline: auto;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.eyebrow::before {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: currentColor;
+}
+
+/* ── Hero ── */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--hl-ink);
+  color: #fbfcf5;
+  isolation: isolate;
+}
+
+.hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  background-image:
+    linear-gradient(90deg, rgba(169, 218, 200, 0.044) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(169, 218, 200, 0.044) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 8%;
+  right: -22%;
+  width: 70vw;
+  height: 70vw;
+  max-width: 1000px;
+  max-height: 1000px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(89, 163, 152, 0.1), transparent 65%);
+  pointer-events: none;
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: 35px;
+  padding-top: 54px;
+  padding-bottom: 62px;
+  min-height: 710px;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 2;
+  padding-bottom: 14px;
+}
+
+.heroEyebrow {
+  color: var(--hl-lime);
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--hl-lime);
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(221, 247, 94, 0.13);
+}
+
+.hero h1 {
+  font-size: clamp(65px, 5.85vw, 108px);
+  line-height: 1.07;
+  letter-spacing: -0.087em;
+  font-weight: 900;
+  margin: 0 0 30px;
+  color: #fbfcf5;
+  word-break: keep-all;
+}
+
+.line {
+  display: block;
+}
+
+.outlined {
+  color: var(--hl-lime);
+  font-style: normal;
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+}
+
+.outlined::after {
+  content: "";
+  height: 8px;
+  bottom: 3px;
+  left: 0;
+  right: 0;
+  position: absolute;
+  background: var(--hl-coral);
+  z-index: -1;
+  transform: rotate(-1.5deg);
+}
+
+.heroLead {
+  max-width: 470px;
+  color: #d5e3dd;
+  font-size: 17px;
+  line-height: 1.9;
+  margin: 0 0 34px;
+  word-break: keep-all;
+}
+
+.heroLead b {
+  color: #fff;
+}
+
+.ctaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.home .buttonMain {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 18px 24px 18px 25px;
+  background: var(--hl-lime);
+  font-size: 15px;
+  font-weight: 900;
+  min-width: 230px;
+  color: var(--hl-ink);
+  box-shadow: 6px 6px 0 0 var(--hl-coral);
+  transition: transform 0.17s, box-shadow 0.17s;
+}
+
+.home .buttonMain:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 0 var(--hl-coral);
+}
+
+.textCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 4px;
+  color: #eff5ec;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.heroAside {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 510px;
+  margin-top: 58px;
+  padding-top: 21px;
+  border-top: 1px solid #5a7177;
+  gap: 10px;
+}
+
+.heroAside div {
+  display: grid;
+  gap: 5px;
+}
+
+.heroAside span {
+  color: var(--hl-lime);
+  font-size: 11px;
+}
+
+.heroAside strong {
+  color: #d0ddd9;
+  font-weight: 650;
+  font-size: 12px;
+}
+
+/* ── 집 단면도 ── */
+
+.sceneWrap {
+  position: relative;
+}
+
+.sceneHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px 9px;
+  color: #c5d4cc;
+  font-size: 10px;
+  gap: 10px;
+}
+
+.sceneHeading span:last-child {
+  color: var(--hl-lime);
+}
+
+.scene {
+  position: relative;
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid #567078;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 16px 16px 0 rgba(7, 19, 24, 0.45);
+}
+
+.scene::before,
+.scene::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--hl-lime);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.scene::before {
+  top: 8px;
+  left: 8px;
+  border-left: 2px solid;
+  border-top: 2px solid;
+}
+
+.scene::after {
+  bottom: 8px;
+  right: 8px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+}
+
+.scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.roomHit {
+  position: absolute;
+  border: 1.5px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.roomHit:hover,
+.roomHit[aria-pressed="true"] {
+  background: rgba(221, 247, 94, 0.065);
+  border-color: rgba(221, 247, 94, 0.8);
+}
+
+.home .roomHit:focus-visible {
+  outline: 3px solid var(--hl-coral);
+  outline-offset: -3px;
+}
+
+.hitLiving { left: 11%; top: 32%; width: 40%; height: 28%; }
+.hitBed { left: 52%; top: 32%; width: 37%; height: 28%; }
+.hitBalcony { left: 11%; top: 62%; width: 78%; height: 24%; }
+
+.roomPin {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--hl-lime);
+  color: var(--hl-ink);
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  pointer-events: none;
+  box-shadow: 3px 3px 0 var(--hl-ink);
+  transition: transform 0.15s;
+}
+
+.roomPin::before {
+  content: "+";
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.roomPin[data-active="true"] {
+  background: var(--hl-coral);
+  transform: translateY(-3px);
+}
+
+.pinLiving { left: 13%; top: 35%; }
+.pinBed { left: 55%; top: 35%; }
+.pinBalcony { left: 14%; top: 66%; }
+
+.sceneCaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 7px 0;
+  color: #adc3c0;
+  font-size: 10px;
+}
+
+.inspector {
+  display: grid;
+  grid-template-columns: 1.07fr 1fr;
+  gap: 20px;
+  margin-top: 22px;
+  background: #233941;
+  border: 1px solid #58747b;
+  padding: 17px 20px;
+  min-height: 102px;
+}
+
+.inspectorLeft {
+  border-right: 1px solid #6f8886;
+  padding-right: 14px;
+}
+
+.inspectorMini {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--hl-lime);
+  margin-bottom: 5px;
+}
+
+.inspector h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+}
+
+.inspector p {
+  font-size: 13px;
+  color: #c4d9d4;
+  margin: 0;
+  line-height: 1.65;
+}
+
+.home .inspector .inspectorBrief {
+  color: var(--hl-lime);
+  font-weight: 800;
+  margin-top: 7px;
+}
+
+.home .inspectorCta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--hl-lime);
+}
+
+/* ── 띠 ── */
+
+.strip {
+  background: var(--hl-lime);
+  border-bottom: 2px solid var(--hl-ink);
+  border-top: 2px solid var(--hl-ink);
+  overflow: hidden;
+}
+
+.stripInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 69px;
+  color: var(--hl-ink);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.cross {
+  font-size: 25px;
+}
+
+/* ── 공통 섹션 ── */
+
+.section {
+  padding: 112px 0;
+}
+
+.sectionIntro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: end;
+  margin-bottom: 41px;
+}
+
+.sectionIndex {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  color: #4a605e;
+  margin-bottom: 25px;
+}
+
+.sectionTitle {
+  font-size: clamp(39px, 4vw, 66px);
+  line-height: 1.19;
+  letter-spacing: -0.075em;
+  font-weight: 900;
+  margin: 0;
+  color: var(--hl-ink);
+  word-break: keep-all;
+}
+
+.sectionIntro p {
+  max-width: 510px;
+  font-size: 16px;
+  color: #43575a;
+  line-height: 1.9;
+  margin: 0 0 4px;
+  word-break: keep-all;
+}
+
+/* ── 절차 ── */
+
+.process {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 2px solid var(--hl-ink);
+  border-bottom: 2px solid var(--hl-ink);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.processStep {
+  min-height: 212px;
+  padding: 25px 24px 23px;
+  border-right: 1px solid #b9c0ba;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.processStep:last-child {
+  border-right: 0;
+}
+
+.processCount {
+  color: #5b6f6b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.processStep h3 {
+  font-size: 27px;
+  letter-spacing: -0.065em;
+  margin: 0 0 6px;
+  font-weight: 900;
+}
+
+.processStep p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4f5e5c;
+  margin: 0;
+}
+
+.processIcon {
+  font-size: 28px;
+  font-weight: 650;
+  color: #d9482d;
+}
+
+/* ── 광고 띠: 메뉴·CTA·카드와 구분되는 별도 영역 ── */
+
+.adBand {
+  width: min(1460px, calc(100% - 100px));
+  margin: 0 auto;
+  padding: 18px 0 22px;
+  border-top: 1px dashed #aab4ac;
+  border-bottom: 1px dashed #aab4ac;
+}
+
+.adLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 10px;
+  color: #5b6f6b;
+  text-align: center;
+}
+
+.adBand aside {
+  margin: 0 auto;
+  max-width: 970px;
+}
+
+/* ── 입주자 명부 ── */
+
+.indexSection {
+  background: #e7e4d9;
+  border-top: 1px solid var(--hl-rule);
+  padding-top: 110px;
+  padding-bottom: 115px;
+}
+
+.indexSection .sectionIntro {
+  margin-bottom: 50px;
+}
+
+.home .indexDetail {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 800;
+  font-size: 14px;
+  min-height: 44px;
+  border-bottom: 1px solid;
+  justify-self: start;
+  width: max-content;
+  padding-bottom: 8px;
+}
+
+.specimens {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.specimen {
+  display: block;
+  border: 2px solid var(--hl-ink);
+  background: #f9f8ec;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.specimen:hover {
+  transform: translateY(-6px);
+  box-shadow: 8px 9px 0 var(--hl-ink);
+}
+
+.specimenTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 18px;
+  background: #faf9ef;
+  border-bottom: 2px solid var(--hl-ink);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.specimenTop i {
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.specimenArt {
+  height: 300px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.specimenArt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent 0 23px, rgba(15, 39, 44, 0.08) 24px);
+}
+
+.specimenA .specimenArt { background: #b7dfb3; }
+.specimenB .specimenArt { background: #efb495; }
+.specimenC .specimenArt { background: #c3bce3; }
+
+.specimenArt svg {
+  width: 90%;
+  height: 91%;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(10px 13px 0 rgba(17, 35, 44, 0.08));
+}
+
+.artCaption {
+  position: absolute;
+  z-index: 2;
+  left: 19px;
+  bottom: 14px;
+  color: var(--hl-ink);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.specimenBottom {
+  padding: 24px 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.caption {
+  font-size: 11px;
+  color: #4f5e59;
+  margin: 0 0 6px;
+  font-weight: 800;
+}
+
+.specimenBottom h3 {
+  font-size: 27px;
+  letter-spacing: -0.07em;
+  margin: 0;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.specimenBottom p:not(.caption) {
+  font-size: 14px;
+  margin: 9px 0 0;
+  color: #3f524f;
+  line-height: 1.55;
+}
+
+.specimenArrow {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--hl-ink);
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+  flex-shrink: 0;
+}
+
+/* ── SOS ── */
+
+.sos {
+  background: var(--hl-coral);
+  overflow: hidden;
+  position: relative;
+  border-top: 2px solid var(--hl-ink);
+  border-bottom: 2px solid var(--hl-ink);
+}
+
+.sosGrid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 100px;
+  align-items: center;
+  min-height: 510px;
+  padding-top: 66px;
+  padding-bottom: 66px;
+  position: relative;
+}
+
+.sosEyebrow {
+  font-size: 13px;
+  color: var(--hl-ink);
+  font-weight: 900;
+}
+
+.sosBig {
+  font-weight: 900;
+  font-size: clamp(135px, 15vw, 255px);
+  line-height: 0.92;
+  letter-spacing: -0.115em;
+  margin: 36px 0 0;
+  color: var(--hl-ink);
+}
+
+.sosDrawing {
+  position: absolute;
+  width: 250px;
+  height: 200px;
+  right: 0;
+  bottom: -37px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.sosSide {
+  padding-left: 15px;
+  border-left: 2px solid var(--hl-ink);
+  position: relative;
+  z-index: 1;
+}
+
+.sosSide h2 {
+  font-size: clamp(35px, 3.2vw, 50px);
+  line-height: 1.27;
+  letter-spacing: -0.065em;
+  margin: 0 0 20px;
+  font-weight: 900;
+  color: var(--hl-ink);
+  word-break: keep-all;
+}
+
+.sosSide p {
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 0 0 25px;
+  max-width: 500px;
+}
+
+.sosTags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 31px;
+  padding: 0;
+  list-style: none;
+}
+
+.sosTags li {
+  border: 1.5px solid var(--hl-ink);
+  font-size: 13px;
+  font-weight: 900;
+  padding: 9px 13px;
+}
+
+.home .sosLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 48px;
+  background: var(--hl-ink);
+  color: #fff;
+  font-weight: 800;
+  padding: 15px 20px;
+}
+
+/* ── 시즌 리포트 ── */
+
+.season {
+  padding-top: 115px;
+  padding-bottom: 120px;
+}
+
+.seasonBox {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  border: 2px solid var(--hl-ink);
+  background: var(--hl-paper-light);
+}
+
+.seasonCopy {
+  padding: 50px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.seasonCopy h2 {
+  font-size: clamp(40px, 4vw, 63px);
+  line-height: 1.22;
+  letter-spacing: -0.075em;
+  font-weight: 900;
+  margin: 20px 0 14px;
+  color: var(--hl-ink);
+  word-break: keep-all;
+}
+
+.seasonCopy p {
+  color: #3f5755;
+  max-width: 520px;
+  line-height: 1.85;
+  font-size: 15px;
+  margin: 0;
+}
+
+.home .seasonLink {
+  display: inline-flex;
+  gap: 27px;
+  align-items: center;
+  min-height: 44px;
+  border-bottom: 2px solid var(--hl-ink);
+  padding-bottom: 8px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.seasonGraphic {
+  background: var(--hl-sea);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  min-height: 430px;
+  border-left: 2px solid var(--hl-ink);
+}
+
+.seasonGraphic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 78% 20%, rgba(255, 255, 255, 0.5), transparent 22%);
+}
+
+.seasonNumber {
+  font-weight: 900;
+  font-size: 11px;
+  position: relative;
+  z-index: 1;
+}
+
+.seasonGraphic svg {
+  width: 100%;
+  height: 290px;
+  position: relative;
+  z-index: 1;
+}
+
+.seasonBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid var(--hl-ink);
+  padding-top: 13px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+}
+
+/* 기존 홈의 계절별 관리 포인트(실제 콘텐츠)를 시즌 리포트 아래에 보존 */
+.seasonNotesWrap {
+  margin-top: 40px;
+}
+
+.seasonNotesLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: #4a605e;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--hl-ink);
+}
+
+.seasonNotes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 2px solid var(--hl-ink);
+}
+
+.seasonNotes li {
+  padding: 24px 24px 26px 0;
+  margin-right: 24px;
+  border-right: 1px solid #b9c0ba;
+}
+
+.seasonNotes li:last-child {
+  border-right: 0;
+  margin-right: 0;
+}
+
+.seasonNotes h3 {
+  font-size: 19px;
+  letter-spacing: -0.05em;
+  font-weight: 900;
+  margin: 0 0 8px;
+}
+
+.seasonNotes p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #43575a;
+  margin: 0;
+}
+
+/* ── 가드닝 저널 (실제 최신 글) ── */
+
+.journal {
+  background: #e7e4d9;
+  border-top: 1px solid var(--hl-rule);
+  padding: 96px 0 100px;
+}
+
+.journalHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.journalHead .sectionTitle {
+  font-size: clamp(34px, 3.4vw, 54px);
+}
+
+.home .journalAll {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  border-bottom: 2px solid var(--hl-ink);
+  white-space: nowrap;
+}
+
+.journalList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journalItem {
+  position: relative;
+  border: 2px solid var(--hl-ink);
+  background: #f9f8ec;
+  padding: 22px 24px 26px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.journalItem:hover,
+.journalItem:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 6px 7px 0 var(--hl-ink);
+}
+
+.journalMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #4f5e59;
+  margin-bottom: 12px;
+}
+
+.journalMeta span:first-child {
+  color: #c2412a;
+}
+
+.journalItem h3 {
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.05em;
+  font-weight: 900;
+  margin: 0 0 8px;
+}
+
+/* 제목 링크가 카드 전체를 덮어 터치 영역을 넓힌다 */
+.journalItem h3 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.journalItem p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #43575a;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.journalState {
+  border: 2px dashed var(--hl-ink);
+  padding: 28px 24px;
+  font-size: 15px;
+  line-height: 1.8;
+  background: #f9f8ec;
+}
+
+.journalState p {
+  margin: 0 0 10px;
+}
+
+.home .journalState a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 900;
+  border-bottom: 2px solid var(--hl-ink);
+}
+
+/* ── 편집 기준 ── */
+
+.editorial {
+  border-top: 1px solid var(--hl-rule);
+  background: #eae7db;
+}
+
+.editorialGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 90px;
+  align-items: start;
+  padding: 100px 0;
+}
+
+.editorial h2 {
+  font-size: clamp(37px, 3.2vw, 51px);
+  line-height: 1.2;
+  letter-spacing: -0.07em;
+  font-weight: 900;
+  margin: 20px 0 14px;
+  color: var(--hl-ink);
+}
+
+.editorialLead {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #3f5755;
+  margin: 0;
+}
+
+.editorialNote {
+  margin-top: 28px;
+  padding: 16px 18px;
+  border: 1.5px solid var(--hl-ink);
+  background: #f9f8ec;
+}
+
+.editorialNote strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.editorialNote p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #3f5755;
+}
+
+.standards {
+  border-top: 2px solid var(--hl-ink);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.standard {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 16px;
+  padding: 23px 6px;
+  border-bottom: 1px solid #b9bdb4;
+}
+
+.standard > span {
+  font-size: 13px;
+  font-weight: 900;
+  color: #c2412a;
+}
+
+.standard h3 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.standard p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #43575a;
+}
+
+/* ── FAQ ── */
+
+.faq {
+  padding: 110px 0;
+  background: var(--hl-paper-light);
+}
+
+.faqGrid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 90px;
+}
+
+.faq h2 {
+  font-size: clamp(35px, 3.2vw, 50px);
+  letter-spacing: -0.07em;
+  line-height: 1.25;
+  font-weight: 900;
+  margin: 22px 0;
+  color: var(--hl-ink);
+}
+
+.faq details {
+  padding: 0;
+  border-bottom: 1px solid #c6c8bc;
+}
+
+.faq details:first-child {
+  border-top: 2px solid var(--hl-ink);
+}
+
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  min-height: 44px;
+  padding: 22px 0;
+  font-size: 17px;
+  font-weight: 800;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: "+";
+  font-size: 24px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.faq details[open] summary::after {
+  content: "−";
+}
+
+.faq details p {
+  line-height: 1.8;
+  color: #43575a;
+  font-size: 15px;
+  margin: 0 42px 22px 0;
+}
+
+/* ── 반응형 ── */
+
+@media (max-width: 1250px) {
+  .layout,
+  .adBand { width: min(1200px, calc(100% - 64px)); }
+  .heroGrid { gap: 25px; }
+  .hero h1 { font-size: clamp(55px, 6vw, 82px); }
+  .inspector { grid-template-columns: 1fr; gap: 8px; }
+  .inspectorLeft { border-right: 0; border-bottom: 1px solid #5d7b7d; padding: 0 0 10px; }
+  .sosGrid { gap: 35px; }
+  .specimenArt { height: 265px; }
+}
+
+@media (max-width: 880px) {
+  .layout,
+  .adBand { width: calc(100% - 44px); }
+  .heroGrid { grid-template-columns: 1fr; gap: 44px; padding-top: 65px; padding-bottom: 70px; min-height: 0; }
+  .hero h1 { font-size: clamp(65px, 9.6vw, 105px); }
+  .heroAside { margin-top: 36px; }
+  .sceneWrap { max-width: 700px; margin: auto; width: 100%; }
+  .inspector { grid-template-columns: 1fr 1fr; gap: 13px; }
+  .inspectorLeft { border-bottom: 0; border-right: 1px solid #5d7b7d; padding: 0 10px 0 0; }
+  .section { padding: 80px 0; }
+  .sectionIntro { gap: 28px; }
+  .process { grid-template-columns: repeat(2, 1fr); }
+  .processStep:nth-child(2) { border-right: 0; }
+  .processStep:nth-child(-n + 2) { border-bottom: 1px solid #b9c0ba; }
+  .specimens { gap: 10px; }
+  .specimenTop { padding: 12px; }
+  .specimenBottom { padding: 17px 12px; }
+  .specimenBottom h3 { font-size: 23px; }
+  .specimenArt { height: 215px; }
+  .sosGrid { grid-template-columns: 1fr; gap: 15px; min-height: auto; }
+  .sosBig { margin: 18px 0; }
+  .sosSide { border-left: 0; padding-left: 0; padding-bottom: 26px; }
+  .sosDrawing { right: 5px; bottom: 0; }
+  .editorialGrid,
+  .faqGrid { gap: 35px; }
+  .seasonCopy { padding: 30px; }
+  .seasonGraphic { padding: 25px; }
+  .seasonNotes { grid-template-columns: 1fr; }
+  .seasonNotes li { border-right: 0; margin-right: 0; padding-right: 0; border-bottom: 1px solid #b9c0ba; }
+  .seasonNotes li:last-child { border-bottom: 0; }
+  .journal { padding: 70px 0; }
+}
+
+@media (max-width: 650px) {
+  .layout,
+  .adBand { width: calc(100% - 34px); }
+  .heroGrid { padding-top: 31px; padding-bottom: 46px; gap: 24px; }
+  .hero h1 { font-size: clamp(53px, 12vw, 76px); letter-spacing: -0.08em; margin-bottom: 21px; line-height: 1.12; }
+  .heroLead { font-size: 15px; line-height: 1.75; margin-bottom: 22px; }
+  .heroEyebrow { font-size: 10px; margin-bottom: 18px; }
+  .home .buttonMain { padding: 14px 15px 14px 19px; min-width: 205px; box-shadow: 4px 4px 0 var(--hl-coral); }
+  .ctaRow > .textCta { display: none; }
+  .heroAside { display: none; }
+  .sceneHeading { font-size: 9px; }
+  .scene { box-shadow: 7px 8px 0 #081b20; }
+  .roomPin { font-size: 9px; padding: 3px 6px; }
+  .roomPin::before { font-size: 10px; }
+  .sceneCaption { font-size: 9px; }
+  .inspector { margin-top: 21px; grid-template-columns: 1fr; padding: 15px; gap: 10px; }
+  .inspectorLeft { border-right: 0; border-bottom: 1px solid #5d7b7d; padding: 0 0 10px; }
+  .inspector h2 { font-size: 20px; }
+  .inspector p { font-size: 14px; }
+  .stripInner { min-height: 57px; font-size: 11px; gap: 7px; }
+  .stripInner span:nth-child(n + 3) { display: none; }
+  .cross { font-size: 22px; }
+  .section { padding: 67px 0; }
+  .sectionIndex { font-size: 11px; margin-bottom: 14px; }
+  .sectionIntro { grid-template-columns: 1fr; gap: 14px; margin-bottom: 27px; }
+  .sectionTitle { font-size: clamp(35px, 9vw, 47px); }
+  .sectionIntro p { font-size: 15px; line-height: 1.8; }
+  .process { grid-template-columns: 1fr; }
+  .processStep { min-height: 0; gap: 16px; padding: 18px 4px; border-right: 0; border-bottom: 1px solid #b9c0ba; }
+  .processStep:last-child { border-bottom: 0; }
+  .processStep h3 { font-size: 24px; }
+  .processIcon { font-size: 22px; }
+  .specimens { grid-template-columns: 1fr; gap: 21px; }
+  .specimenArt { height: 275px; }
+  .specimenArt svg { height: 95%; width: 73%; }
+  .specimenTop { padding: 12px 15px; }
+  .specimenBottom { padding: 21px 17px; }
+  .specimenBottom h3 { font-size: 28px; }
+  .indexSection { padding-top: 67px; padding-bottom: 70px; }
+  .sosGrid { padding-top: 54px; padding-bottom: 47px; }
+  .sosBig { font-size: 150px; }
+  .sosSide h2 { font-size: 34px; }
+  .sosSide p { font-size: 15px; }
+  .sosTags li { font-size: 12px; padding: 8px 10px; }
+  .sosDrawing { width: 160px; bottom: 50px; opacity: 0.35; }
+  .seasonBox { grid-template-columns: 1fr; }
+  .seasonCopy { padding: 27px 23px; gap: 25px; }
+  .seasonCopy h2 { font-size: 36px; }
+  .seasonCopy p { font-size: 14px; }
+  .seasonGraphic { border-left: 0; border-top: 2px solid var(--hl-ink); min-height: 320px; }
+  .seasonGraphic svg { height: 230px; }
+  .season { padding-top: 70px; padding-bottom: 80px; }
+  .journalHead { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .journalList { grid-template-columns: 1fr; }
+  .editorialGrid,
+  .faqGrid { grid-template-columns: 1fr; gap: 33px; padding: 70px 0; }
+  .editorial h2,
+  .faq h2 { font-size: 36px; }
+  .faq { padding: 0; }
+  .faqGrid { padding-top: 70px; padding-bottom: 80px; }
+  .faq summary { font-size: 16px; }
+}
+
+@media (max-width: 350px) {
+  .hero h1 { font-size: 49px; }
+  .roomPin { font-size: 8px; padding: 2px 4px; }
+  .pinBed { left: 57%; }
+  .pinBalcony { left: 18%; }
+  .sosBig { font-size: 130px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home *,
+  .home *::before,
+  .home *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

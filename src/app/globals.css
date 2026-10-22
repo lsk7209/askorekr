@@ -21,6 +21,28 @@
   --ivory: #fffdf7;
   --terracotta: #c6724a;
   --border: #d9d8c7;
+
+  /* PLANTY HOUSE LAB V2 토큰 (홈·공통 헤더·푸터에서 사용) */
+  --hl-ink: #10232c;
+  --hl-ink-2: #193640;
+  --hl-ink-line: #416069;
+  --hl-paper: #f3f0e7;
+  --hl-paper-light: #fbf9f1;
+  --hl-lime: #ddf75e;
+  --hl-coral: #ff7357;
+  --hl-apricot: #ffbb8b;
+  --hl-sea: #a1d7ca;
+  --hl-rule: #d9d7c9;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 * {
@@ -89,48 +111,6 @@ h2 {
   max-width: 680px;
   margin-bottom: 0;
   font-size: 18px;
-}
-
-.home-header {
-  border-bottom: 1px solid var(--border);
-  background: var(--ivory);
-}
-
-.home-nav,
-.home-footer nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-  width: min(920px, 100%);
-  margin: 0 auto;
-  padding: 14px 20px;
-}
-
-.home-nav a,
-.home-footer a {
-  color: var(--sage-dark);
-  font-weight: 800;
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-.home-nav a:hover {
-  color: var(--terracotta);
-}
-
-.home-nav a[aria-current="page"] {
-  color: var(--terracotta);
-  border-bottom: 2px solid var(--terracotta);
-  padding-bottom: 2px;
-}
-
-.home-nav a:first-child {
-  margin-right: auto;
-}
-
-.home-nav a:first-child:hover {
-  color: var(--sage-dark);
 }
 
 .entry-links {
@@ -244,79 +224,6 @@ h2 {
 
 .split-section {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-/* ── 사이트 푸터 (기존 home-footer 대체) ── */
-
-.site-footer {
-  border-top: 1px solid var(--border);
-  background: var(--ivory);
-  content-visibility: auto;
-  contain-intrinsic-size: 0 120px;
-  padding: 24px 20px;
-}
-
-.site-footer-inner {
-  display: grid;
-  gap: 14px;
-  width: min(920px, 100%);
-  margin: 0 auto;
-}
-
-.site-footer-nav,
-.site-footer-policy {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-}
-
-.site-footer-brand {
-  font-weight: 900;
-  font-size: 15px;
-  color: var(--sage-dark);
-  text-decoration: none;
-  margin-right: 6px;
-}
-
-.site-footer-nav a:not(.site-footer-brand),
-.site-footer-policy a {
-  color: var(--sage-dark);
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-.site-footer-nav a:not(.site-footer-brand):hover,
-.site-footer-policy a:hover {
-  color: var(--terracotta);
-}
-
-.site-footer-policy {
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-}
-
-.site-footer-policy a {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--sage);
-}
-
-.site-footer-copy {
-  margin: 0;
-  font-size: 12px;
-  color: var(--sage);
-}
-
-/* 기존 호환용 — home-footer 제거 시 같이 제거 가능 */
-.home-footer {
-  border-top: 1px solid var(--border);
-  background: var(--ivory);
-  content-visibility: auto;
-  contain-intrinsic-size: 0 60px;
 }
 
 .status-panel ul {
@@ -1112,10 +1019,6 @@ h2 {
 
   .policy-shell {
     padding: 36px 16px;
-  }
-
-  .home-nav a:first-child {
-    flex-basis: 100%;
   }
 
   .tool-grid,

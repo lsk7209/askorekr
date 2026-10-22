@@ -1,0 +1,169 @@
+/* 공통 푸터 (PLANTY HOUSE LAB V2). */
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", "Noto Sans Mono CJK KR", monospace;
+  letter-spacing: 0.09em;
+}
+
+.footer {
+  background: var(--hl-ink);
+  color: #eef2e9;
+  padding: 74px 0 30px;
+  border-top: 9px solid var(--hl-lime);
+  content-visibility: auto;
+  contain-intrinsic-size: 0 420px;
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer a:focus-visible {
+  outline: 3px solid var(--hl-coral);
+  outline-offset: 3px;
+}
+
+.layout {
+  width: min(1460px, calc(100% - 100px));
+  margin-inline: auto;
+}
+
+.grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 60px;
+  padding-bottom: 48px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--hl-lime);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.eyebrow::before {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: currentColor;
+}
+
+.title {
+  font-size: clamp(47px, 7vw, 100px);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.1em;
+  margin: 15px 0 18px;
+}
+
+.title span {
+  color: var(--hl-lime);
+}
+
+.note {
+  font-size: 14px;
+  color: #b8cdc4;
+  line-height: 1.8;
+  max-width: 550px;
+  margin: 0;
+}
+
+.nav {
+  display: grid;
+  gap: 2px;
+  min-width: 190px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nav a {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.nav a:hover,
+.policy a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--hl-lime);
+}
+
+.brand {
+  color: var(--hl-lime) !important;
+  font-weight: 900;
+}
+
+.policy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  padding: 14px 0;
+  border-top: 1px solid #4b6265;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c9d9d3;
+}
+
+.policy a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.bottom {
+  border-top: 1px solid #4b6265;
+  padding-top: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  color: #a8c0b9;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1250px) {
+  .layout {
+    width: min(1200px, calc(100% - 64px));
+  }
+}
+
+@media (max-width: 880px) {
+  .layout {
+    width: calc(100% - 44px);
+  }
+}
+
+@media (max-width: 650px) {
+  .footer {
+    padding-top: 57px;
+  }
+
+  .layout {
+    width: calc(100% - 34px);
+  }
+
+  .grid {
+    flex-direction: column;
+    gap: 30px;
+    padding-bottom: 36px;
+  }
+
+  .title {
+    font-size: 56px;
+  }
+
+  .bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
