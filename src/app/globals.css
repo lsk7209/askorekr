@@ -1,17 +1,6 @@
 @import "tailwindcss";
 
-/* Pretendard variable font — font-display:swap prevents invisible text during load */
-@font-face {
-  font-family: "Pretendard";
-  font-weight: 100 900;
-  font-display: swap;
-  font-style: normal;
-  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.woff2")
-    format("woff2-variations");
-  unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F, U+A960-A97F,
-    U+D7B0-D7FF, U+0030-0039, U+0041-005A, U+0061-007A, U+0020-002F,
-    U+003A-0040, U+005B-0060, U+007B-007E;
-}
+/* Pretendard Variable 은 layout.tsx 의 CDN 스타일시트(dynamic subset)가 제공한다. */
 
 :root {
   --background: #fbfaf4;
@@ -54,6 +43,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family:
+    "Pretendard Variable",
     Pretendard,
     "Spoqa Han Sans Neo",
     system-ui,
@@ -70,9 +60,7 @@ body {
   padding: 44px 20px 56px;
 }
 
-.hero,
-.status-panel,
-.home-section-inner {
+.hero {
   width: min(920px, 100%);
   margin: 0 auto;
 }
@@ -156,38 +144,11 @@ h2 {
   contain: layout style;
 }
 
-.status-panel {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--ivory);
-  padding: 24px;
-}
-
-.home-band {
-  margin-inline: -20px;
-  background: #f2f0e5;
-  padding: 36px 20px;
-}
-
-.home-section-inner {
-  display: grid;
-  gap: 18px;
-}
-
-.info-grid,
-.category-link-list,
-.faq-list,
-.split-section {
+.faq-list {
   display: grid;
   gap: 14px;
 }
 
-.info-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.info-card,
-.category-link,
 .faq-item {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -195,42 +156,14 @@ h2 {
   padding: 20px;
 }
 
-.info-card h3,
 .faq-item h3 {
   margin: 0 0 8px;
   color: var(--sage-dark);
   font-size: 18px;
 }
 
-.info-card p,
-.category-link p,
-.faq-item p,
-.split-section p {
+.faq-item p {
   margin-bottom: 0;
-}
-
-.category-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.category-link span {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--sage-dark);
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.split-section {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.status-panel ul {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-  padding-left: 22px;
 }
 
 .tool-shell {
@@ -1009,10 +942,6 @@ h2 {
     padding: 36px 16px;
   }
 
-  .home-band {
-    margin-inline: -16px;
-  }
-
   .tool-shell {
     padding: 36px 16px;
   }
@@ -1030,9 +959,7 @@ h2 {
   .condition-summary dl,
   .category-card,
   .category-card dl,
-  .category-guide-grid,
-  .info-grid,
-  .split-section {
+  .category-guide-grid {
     grid-template-columns: 1fr;
   }
 
