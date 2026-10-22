@@ -1,5 +1,26 @@
 # WORK_LOG
 
+## 2026-10-22 (세션 5 - AdSense 심사 대비 진단·개선)
+
+### 배경
+adsense-optimizer 7개 카테고리 진단(운영 사이트 실측). 상세: `docs/adsense/PATCH_PLAN.md`, `docs/adsense/APPLIED_CHANGES.md`.
+주요 발견: 블로그 식물명 자동 링크 단어 중간 오링크(조금→조, 자란다→자란), 문의 이메일 도메인 NXDOMAIN, 블로그 892개/하루 최대 96개 발행, 개인정보처리방침 AdSense 고지 부족, 과·속 숫자 코드 노출.
+
+### 작업 내역
+- [name-map.ts, blog/[slug]/page.tsx] 식물명 링커 재작성: 한글 단어 경계·조사, 1글자/일상어 국명 제외, 식물별 1회·글당 8개, <a> 내부 보호. 테스트 `adsense-01-plant-autolink.test.mjs`
+- [privacy] 10개 조항(AdSense 제3자 쿠키·해제, GA 차단, 쿠키 거부, 위탁(Google·OVHcloud), 파기, 보호책임자, 구제기관)
+- [about] 운영자 정보·작성/검수 원칙·오류 정정 정책, 콘텐츠 현황 DB 실측, Organization 스키마 publishingPrinciples/correctionsPolicy. 가상 실명·경력은 넣지 않음
+- [contact] 이메일 contact@askore.kr (표기용, 수신 설정 안 함 — 사용자 결정)
+- [plant-detail-content] 과·속 숫자 코드 숨김 / [blog] 출처 문구 구체화
+- [blog/queries.ts] 예약 발행 cron 틱당 1개(가장 오래된 예약부터)
+- 식물 상세 noindex는 보류: 474개 전수 크롤링 결과 전부 사진·관리 데이터 보유, 근거 없음
+
+### 검증
+- test 8/8, type-check, lint(오류 0), build 통과. Vercel 배포 success
+
+### 미완료
+- 운영 도메인은 OVH VPS(Caddy, `X-Askorekr-Hosting: ovh`)가 서빙 → Vercel 배포와 무관. 1시간 이상 대기했으나 미반영(askore용 자동배포 없음 추정). 이 PC에 `~/.ssh/ovh1_config`·E:\server-ovhcloud 없음, 로컬 SSH 키 전부 거부 → 배포 불가. STATUS.md TODO 참조
+
 ## 2026-10-01 10:22 (세션 4 - P0/P1 안정성·성능·DevOps 개선, OPS-03/DISCOVERY-01 및 보안 패치 완료)
 
 ### 배경

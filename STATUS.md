@@ -1,6 +1,6 @@
 # Status | 마지막: 2026-10-22
 ## 현재 작업
-OPS-03(동기화 스키마/ID 정합성), DISCOVERY-01(동음이의어 보호 및 FAQ 정합성), 의존성 보안 패치(취약점 0건) 완료 및 main 반영
+AdSense 심사 대비 개선 코드 main 반영 완료(6962e73·cfbb4ba·a9a13e3). **운영(OVH) 미반영** — 이 PC에 OVH 접속수단(ovh1_config·키) 없음, 10-22 13:25 기준 라이브 /privacy 구버전(etag 6aun6mr49he6u)
 ## 최근 변경 (최근 5개만)
 - 10-22: AdSense 심사 대비 개선(식물명 오링크 수정, 개인정보처리방침·운영자 정보 보강, 예약 발행 틱당 1개 제한) — docs/adsense/ 참조
 - 10-01: GitHub Actions(`db-backfill.yml`)로 운영 Turso DB 밀리초 타임스탬프 480건 초 단위 백필 및 안전성 전수 검증 완료
@@ -8,6 +8,10 @@ OPS-03(동기화 스키마/ID 정합성), DISCOVERY-01(동음이의어 보호 �
 - 10-01: OPS-03/DATA-03 `sync-local-to-turso.mjs` 스키마·ID/slug 정합성 사전검사 및 안전성 coalesce 제거
 - 10-01: DISCOVERY-01 국명 동음이의어 오링크 방지(`name-map.ts`) 및 홈 FAQ 안내 문구 정합성 개선
 ## TODO
+- [ ] OVH 서버에 askore main 배포 (OVH 접속 가능한 PC 또는 ~/.ssh/ovh1_config·키 복사). petjigi처럼 auto-deploy timer 설치 검토
+- [ ] 배포 후 라이브 확인 4건: /privacy 'myadcenter' 링크, /blog/6-plants-for-your-humid-bathroom 의 '조금·자란다' 오링크 제거, /plant/monstera-deliciosa 과·속 '063053' 미노출, /about 운영자 정보·블로그 수 실측
+- [ ] GSC 색인 요청(About·Privacy·상위 글), 거절 이력 있으면 30일 후 재신청
+- [ ] 상위 20~30개 글 직접 재작성(실사진·실경험) — GSC 데이터로 대상 선정
 - [ ] AdSense 신청 전 운영자 계정에서 최종 제출
 ## 결정사항
 - IndexNow 보호 토큰은 `INTERNAL_API_TOKEN`, 키는 `INDEXNOW_KEY` 사용
