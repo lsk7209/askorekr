@@ -1,12 +1,12 @@
-# Status | 마지막: 2026-10-01
+# Status | 마지막: 2026-10-22
 ## 현재 작업
 OPS-03(동기화 스키마/ID 정합성), DISCOVERY-01(동음이의어 보호 및 FAQ 정합성), 의존성 보안 패치(취약점 0건) 완료 및 main 반영
 ## 최근 변경 (최근 5개만)
+- 10-22: AdSense 심사 대비 개선(식물명 오링크 수정, 개인정보처리방침·운영자 정보 보강, 예약 발행 틱당 1개 제한) — docs/adsense/ 참조
 - 10-01: GitHub Actions(`db-backfill.yml`)로 운영 Turso DB 밀리초 타임스탬프 480건 초 단위 백필 및 안전성 전수 검증 완료
 - 10-01: Next.js 15.5.27 업그레이드 및 pnpm overrides 적용 (`pnpm audit --prod` 취약점 20건 → 0건 해소)
 - 10-01: OPS-03/DATA-03 `sync-local-to-turso.mjs` 스키마·ID/slug 정합성 사전검사 및 안전성 coalesce 제거
 - 10-01: DISCOVERY-01 국명 동음이의어 오링크 방지(`name-map.ts`) 및 홈 FAQ 안내 문구 정합성 개선
-- 10-01: GitHub Actions CI 워크플로우 신설 (.github/workflows/ci.yml) 및 `pnpm test` 일괄 실행 (7개 스위트)
 ## TODO
 - [ ] AdSense 신청 전 운영자 계정에서 최종 제출
 ## 결정사항
@@ -19,6 +19,6 @@ OPS-03(동기화 스키마/ID 정합성), DISCOVERY-01(동음이의어 보호 �
 ## 주의
 - 실제 API 키와 Turso 토큰은 커밋하지 않음
 - dev 서버는 검증 시 비어있는 3001/3002 포트 사용
-- Vercel 프로젝트: limsubs-projects/askorekr
+- Vercel 프로젝트: limsubs-projects/askorekr (단, 운영 도메인 askore.kr은 OVH VPS·Caddy가 서빙 — 응답 헤더 `X-Askorekr-Hosting: ovh`. Vercel 배포 성공 ≠ 운영 반영)
 - 광고 슬롯 ID가 없으면 `.adsense-unit`은 렌더링되지 않음
 - 모니터링 엔드포인트: `/api/health`
