@@ -11,6 +11,7 @@ import {
   getSuggestedPlants,
   getPlantNameSlugMap,
 } from "@/features/plants/queries";
+import { createPlantNameLinker } from "@/features/plants/name-map";
 import { CopyLinkBtn } from "@/components/copy-link-btn";
 import { publicEnv } from "@/env";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
@@ -92,25 +93,11 @@ function isQuestionHeading(text: string): boolean {
   return /[?？]\s*$/.test(text.trim());
 }
 
-function buildPlantLinker(nameMap: Record<string, string>) {
-  const names = Object.keys(nameMap).sort((a, b) => b.length - a.length);
-  if (names.length === 0) return (text: string) => text;
-  const pattern = new RegExp(
-    `(${names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`,
-    "g",
-  );
-  return (text: string) =>
-    text.replace(pattern, (match) => {
-      const slug = nameMap[match];
-      return slug ? `<a href="/plant/${slug}">${match}</a>` : match;
-    });
-}
-
 function parseMarkdown(
   md: string,
   plantNameMap: Record<string, string> = {},
 ): ParseResult {
-  const linkPlantNames = buildPlantLinker(plantNameMap);
+  const linkPlantNames = createPlantNameLinker(plantNameMap);
 
   function inline(text: string): string {
     return text
@@ -365,7 +352,7 @@ export default async function BlogPostPage({ params }: Props) {
             )}
             <div className="blog-post-meta">
               <span className="blog-author">
-                <Link href="/about" className="blog-author-link">
+                <Link href="/about#operator-title" className="blog-author-link">
                   플랜티프렌즈 편집팀
                 </Link>
               </span>
@@ -429,8 +416,10 @@ export default async function BlogPostPage({ params }: Props) {
 
           <footer className="plant-section plant-next-actions">
             <p>
-              <strong>정보 출처:</strong> 공개 자료 및 플랜티프렌즈 편집 기준에
-              따라 작성되었습니다. 반려동물·건강 관련 문제는 전문가 상담을
+              <strong>정보 출처:</strong> 농사로(농촌진흥청)·국립수목원·국립생물자원관·기상청
+              공개 자료를 바탕으로{" "}
+              <Link href="/about#editorial-title">플랜티프렌즈 편집 기준</Link>에
+              따라 작성했습니다. 반려동물·건강 관련 문제는 전문가 상담을
               권장합니다.
             </p>
             <div className="blog-post-actions">

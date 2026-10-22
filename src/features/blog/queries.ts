@@ -1,4 +1,4 @@
-import { and, count, desc, eq, lte, ne, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, lte, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { blogPosts } from "@/db/schema";
 
@@ -147,7 +147,15 @@ export async function getBlogPostsForPlant(limit = 2): Promise<BlogListItem[]> {
   return rows.map((r) => ({ ...r, tags: r.tags ?? [], publishedAt: r.publishedAt ?? null }));
 }
 
-export async function getScheduledPostsToPublish(): Promise<{ id: number; slug: string }[]> {
+/**
+ * ADSENSE-01: 밀린 예약 글이 한 번의 cron 틱에 몰려 발행되면(과거 하루 96개) 대량 양산 신호가 된다.
+ * 틱당 발행 수를 제한하고 가장 오래된 예약부터 순서대로 발행한다. (cron 5시간 주기 → 하루 최대 약 5개)
+ */
+export const MAX_POSTS_PER_PUBLISH_TICK = 1;
+
+export async function getScheduledPostsToPublish(
+  limit = MAX_POSTS_PER_PUBLISH_TICK
+): Promise<{ id: number; slug: string }[]> {
   const now = new Date();
   return db
     .select({ id: blogPosts.id, slug: blogPosts.slug })
@@ -157,7 +165,9 @@ export async function getScheduledPostsToPublish(): Promise<{ id: number; slug: 
         eq(blogPosts.isPublished, false),
         lte(blogPosts.scheduledAt, now)
       )
-    );
+    )
+    .orderBy(asc(blogPosts.scheduledAt), asc(blogPosts.id))
+    .limit(limit);
 }
 
 export async function publishBlogPost(id: number): Promise<void> {

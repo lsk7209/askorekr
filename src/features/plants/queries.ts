@@ -1,6 +1,6 @@
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { asc, count, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { plantImages, plantMetrics, plants } from "@/db/schema";
+import { plantImages, plantMetrics, plants, regions } from "@/db/schema";
 import { getClimateGrade } from "@/features/diagnose/logic";
 import { buildUniquePlantNameSlugMap, type PlantNameMap } from "./name-map";
 
@@ -199,4 +199,16 @@ export async function getPlantSitemapItems(): Promise<PlantSitemapItem[]> {
     })
     .from(plants)
     .innerJoin(plantMetrics, eq(plants.id, plantMetrics.plantId));
+}
+
+/** About 페이지 콘텐츠 현황용: 상세 가이드가 있는 식물 수와 기후 데이터 적용 지역 수 */
+export async function getCoverageCounts(): Promise<{ plants: number; regions: number }> {
+  const [plantRows, regionRows] = await Promise.all([
+    db
+      .select({ total: count() })
+      .from(plants)
+      .innerJoin(plantMetrics, eq(plants.id, plantMetrics.plantId)),
+    db.select({ total: count() }).from(regions)
+  ]);
+  return { plants: plantRows[0]?.total ?? 0, regions: regionRows[0]?.total ?? 0 };
 }

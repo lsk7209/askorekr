@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { publicEnv } from "@/env";
+import { CONTACT_EMAIL } from "@/lib/site-contact";
 
-const CONTACT_EMAIL = "hello@plantyfriends.com";
-const UPDATED_AT = "2026-06-02";
+const UPDATED_AT = "2026-10-22";
 
 const ogImage = buildOgImageUrl({
   title: "플랜티프렌즈 문의",

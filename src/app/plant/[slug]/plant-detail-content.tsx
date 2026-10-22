@@ -78,7 +78,7 @@ export function PlantGuideContent({ plant, faqs, relatedPlants, relatedBlogPosts
           <Fact label="학명" value={plant.scientificName} />
           <Fact
             label="과·속"
-            value={`${plant.family ?? "-"} / ${plant.genus ?? "-"}`}
+            value={`${taxonLabel(plant.family)} / ${taxonLabel(plant.genus)}`}
           />
           <Fact
             label="서울 기준 적합도"
@@ -221,6 +221,12 @@ function CareItem({ title, body }: { title: string; body: string }) {
       <p>{body}</p>
     </article>
   );
+}
+
+// 농사로 원천 데이터의 분류 코드(예: "063053")가 과명 자리에 들어온 경우 노출하지 않는다.
+function taxonLabel(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed && !/^\d+$/.test(trimmed) ? trimmed : "-";
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

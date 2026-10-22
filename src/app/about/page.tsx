@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { publicEnv } from "@/env";
+import { getPublishedBlogPostCount } from "@/features/blog/queries";
+import { getCoverageCounts } from "@/features/plants/queries";
+import { CONTACT_EMAIL } from "@/lib/site-contact";
 
-const UPDATED_AT = "2026-06-02";
+export const revalidate = 86400;
+
+const UPDATED_AT = "2026-10-22";
 const ogImage = buildOgImageUrl({
   title: "플랜티프렌즈 소개",
   subtitle: "한국 기후·생활 환경 기반 반려식물 데이터 가이드",
@@ -35,6 +40,9 @@ const jsonLd = {
       logo: { "@type": "ImageObject", url: `${publicEnv.siteUrl}/icon.svg` },
       description: "한국 기후 적합도와 생활 환경에 맞는 반려식물 정보를 공공 데이터 기반으로 제공하는 가드닝 가이드 사이트",
       foundingDate: "2026",
+      email: CONTACT_EMAIL,
+      publishingPrinciples: `${publicEnv.siteUrl}/about#process-title`,
+      correctionsPolicy: `${publicEnv.siteUrl}/about#correction-title`,
       areaServed: "KR",
       inLanguage: "ko-KR",
       sameAs: [`${publicEnv.siteUrl}/about`],
@@ -65,7 +73,13 @@ const DATA_SOURCES = [
   { name: "기상청 (KMA)", desc: "지역별 월 평균 기온·습도 기후 데이터", url: "https://www.weather.go.kr" }
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [coverage, blogCount] = await Promise.all([
+    getCoverageCounts().catch(() => null),
+    getPublishedBlogPostCount().catch(() => null)
+  ]);
+  const fmt = (n: number) => n.toLocaleString("ko-KR");
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -121,12 +135,58 @@ export default function AboutPage() {
             </p>
           </section>
 
+          <section className="policy-section" aria-labelledby="operator-title">
+            <h2 id="operator-title">운영자 정보</h2>
+            <ul>
+              <li>운영 주체: 플랜티프렌즈 (개인 운영, 2026년 개설)</li>
+              <li>운영 형태: 광고 수익으로 운영하는 독립 정보 사이트이며, 특정 화원·쇼핑몰·브랜드와 제휴하지 않습니다.</li>
+              <li>
+                연락처:{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-link">{CONTACT_EMAIL}</a>
+                {" · "}
+                <Link href="/contact" className="text-link">문의 페이지</Link>
+              </li>
+            </ul>
+            <p>
+              운영자는 공공 데이터 수집 파이프라인 관리, 식물 상세 페이지 검수,
+              블로그 글 기획·편집, 오류 제보 처리를 직접 맡고 있습니다. 모든
+              글은 &lsquo;플랜티프렌즈 편집팀&rsquo; 명의로 게시하며, 게시 책임은
+              운영자에게 있습니다.
+            </p>
+          </section>
+
+          <section className="policy-section" aria-labelledby="process-title">
+            <h2 id="process-title">콘텐츠 작성·검수 원칙</h2>
+            <ol>
+              <li>온도·습도·광량·물주기·독성 같은 수치와 안전 정보는 위 공공 기관 자료를 원출처로 삼습니다.</li>
+              <li>출처마다 값이 다르면 더 보수적인 값(반려동물 독성은 &lsquo;주의&rsquo; 쪽)을 우선합니다.</li>
+              <li>제품 구매를 유도하는 글, 확인되지 않은 효능·치료 주장은 게시하지 않습니다.</li>
+              <li>글에는 게시일을 표시하며, 계절·데이터 변경으로 내용을 고치면 수정일을 갱신합니다.</li>
+            </ol>
+          </section>
+
+          <section className="policy-section" aria-labelledby="correction-title">
+            <h2 id="correction-title">오류 정정 정책</h2>
+            <p>
+              잘못된 정보를 발견하면 <Link href="/contact" className="text-link">문의 페이지</Link>의
+              안내에 따라 제보해 주세요. 반려동물·어린이 안전과 관련된 제보는
+              다른 문의보다 먼저 확인하며, 사실관계가 확인되면 해당 페이지를
+              수정합니다.
+            </p>
+          </section>
+
           <section className="policy-section" aria-labelledby="coverage-title">
             <h2 id="coverage-title">콘텐츠 현황</h2>
             <ul>
-              <li>반려식물 데이터: <strong>474종</strong> (기후 적합도·난이도·안전성·꽃말 포함)</li>
-              <li>가드닝 블로그 글: <strong>600개 이상</strong> (키우기가이드·병충해·계절관리 등)</li>
-              <li>기후 데이터 적용 지역: 전국 <strong>250개 이상</strong> 시군구</li>
+              {coverage && coverage.plants > 0 && (
+                <li>반려식물 상세 가이드: <strong>{fmt(coverage.plants)}종</strong> (기후 적합도·난이도·안전성·꽃말 포함)</li>
+              )}
+              {blogCount !== null && blogCount > 0 && (
+                <li>가드닝 블로그 글: <strong>{fmt(blogCount)}개</strong> (키우기 가이드·병충해·계절 관리 등)</li>
+              )}
+              {coverage && coverage.regions > 0 && (
+                <li>기후 데이터 적용 지역: 전국 <strong>{fmt(coverage.regions)}개</strong> 시군구</li>
+              )}
             </ul>
           </section>
         </article>

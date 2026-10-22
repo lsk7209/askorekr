@@ -1017,11 +1017,13 @@ h2 {
 
 .policy-section p:last-child,
 .policy-section ul:last-child,
+.policy-section ol:last-child,
 .policy-footer p {
   margin-bottom: 0;
 }
 
-.policy-section ul {
+.policy-section ul,
+.policy-section ol {
   margin-top: 0;
   padding-left: 22px;
 }
