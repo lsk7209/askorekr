@@ -1,0 +1,74 @@
+async (page) => {
+  const checks = [];
+  const check = (ok, name) => { if (!ok) throw new Error(name); checks.push(name); };
+  await page.goto('http://localhost:3001/tools/diagnose');
+  const sample = await (await page.request.post('http://localhost:3001/api/diagnose', { data: { regionCode: '11680', environment: 'indoor' } })).json();
+  await page.evaluate(() => {
+    window.qaOriginalFetch = window.fetch;
+    window.fetch = (input, init) => {
+      if (String(input) !== '/api/diagnose') return window.qaOriginalFetch(input, init);
+      return new Promise((resolve, reject) => { window.qaPending = { resolve, reject, body: JSON.parse(init.body) }; });
+    };
+  });
+  const submit = () => page.getByRole('button', { name: '진단하기', exact: true }).click();
+  const waitPending = () => page.waitForFunction(() => Boolean(window.qaPending));
+  const respond = async (data) => {
+    await page.evaluate(data => {
+      const pending = window.qaPending;
+      window.qaPending = null;
+      pending.resolve(new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } }));
+    }, data);
+  };
+  const edits = [
+    ['region', () => page.getByRole('combobox', { name: '시·도', exact: true }).selectOption({ label: '서울특별시' })],
+    ['environment', () => page.getByRole('button', { name: '실외', exact: true }).click()],
+    ['safety', () => page.getByRole('checkbox', { name: '고양이', exact: true }).check()],
+    ['light', () => page.getByRole('group', { name: '광량', exact: true }).getByRole('button', { name: '간접광', exact: true }).click()],
+    ['experience', () => page.getByRole('button', { name: '초보', exact: true }).click()],
+    ['care time', () => page.getByRole('button', { name: '낮음', exact: true }).click()]
+  ];
+  for (const [name, edit] of edits) {
+    await submit();
+    await waitPending();
+    check(await page.locator('[aria-busy="true"]').isVisible(), name + ': pending state visible');
+    await edit();
+    await respond(sample);
+    await page.getByRole('heading', { name: '지역과 환경을 선택해 주세요', exact: true }).waitFor();
+    check(await page.locator('.plant-result').count() === 0, name + ': stale success ignored even if transport ignores abort');
+  }
+  await submit();
+  await waitPending();
+  await page.getByRole('button', { name: '실내', exact: true }).click();
+  await page.evaluate(() => { window.qaPending.reject(new Error('delayed stale network failure')); window.qaPending = null; });
+  await page.getByRole('heading', { name: '지역과 환경을 선택해 주세요', exact: true }).waitFor();
+  check(await page.locator('.form-error').count() === 0, 'stale network error ignored');
+  await submit();
+  await waitPending();
+  await page.evaluate(() => { window.qaPending.resolve(new Response('<html>error</html>', { status: 502 })); window.qaPending = null; });
+  await page.locator('.form-error').waitFor();
+  check((await page.locator('.form-error').innerText()).includes('잠시 후'), 'non-JSON response shows recovery message');
+  await submit();
+  await waitPending();
+  await page.evaluate(() => { window.qaPending.reject(new TypeError('Failed to fetch')); window.qaPending = null; });
+  await page.getByText('네트워크 연결을 확인하고 다시 시도해 주세요.', { exact: true }).waitFor();
+  check(true, 'network failure shows recovery message');
+  await submit();
+  await waitPending();
+  await respond({ ...sample, results: [] });
+  await page.getByRole('heading', { name: '조건에 맞는 식물이 아직 없습니다', exact: true }).waitFor();
+  check(await page.locator('.form-error').count() === 0, 'empty result replaces previous error');
+  await submit();
+  await waitPending();
+  await respond({ ...sample, results: [{ ...sample.results[0], difficultyScore: null, waterFreqDays: null }] });
+  await page.locator('.plant-result').first().waitFor();
+  check(await page.locator('.plant-result').getByText('정보 없음', { exact: true }).count() === 2, 'missing metrics display no invented score or interval');
+  await page.evaluate(() => { window.fetch = window.qaOriginalFetch; });
+  await page.getByRole('checkbox', { name: '고양이', exact: true }).uncheck();
+  await page.getByRole('group', { name: '광량', exact: true }).getByRole('button', { name: '상관없음', exact: true }).click();
+  await page.getByRole('group', { name: '경험', exact: true }).getByRole('button', { name: '상관없음', exact: true }).click();
+  await page.getByRole('group', { name: '관리 시간', exact: true }).getByRole('button', { name: '상관없음', exact: true }).click();
+  await submit();
+  await page.locator('.plant-result').first().waitFor();
+  check(await page.locator('.form-error').count() === 0, 'real API success recovers after errors');
+  return { checks };
+}

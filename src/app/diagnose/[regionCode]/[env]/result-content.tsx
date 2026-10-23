@@ -43,7 +43,7 @@ export function ResultPlants({ result }: { result: DiagnoseResponse }) {
       ) : (
         <div className="empty-result compact">
           <h2>조건에 맞는 식물이 아직 없습니다</h2>
-          <p>조건을 줄이거나 샘플 데이터가 확장된 뒤 다시 확인해 주세요.</p>
+          <p>빛이나 관리 시간 조건을 조정해 다시 확인해 주세요. 반려동물·아이 안전 조건은 필요한 대로 유지해 주세요.</p>
         </div>
       )}
     </section>

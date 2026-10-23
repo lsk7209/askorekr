@@ -17,3 +17,7 @@ next-env.d.ts
 /auth-wal
 /db
 /db-wal
+
+# Local browser verification artifacts
+.playwright-cli/
+output/playwright/

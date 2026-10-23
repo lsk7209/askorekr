@@ -3,6 +3,7 @@ import { getRegions } from "@/features/diagnose/logic";
 import { DiagnoseQuickForm } from "./quick-form";
 import { buildOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "@/seo/og";
 import { publicEnv } from "@/env";
+import styles from "./diagnose.module.css";
 
 const ogImage = buildOgImageUrl({
   title: "반려식물 진단",
@@ -86,10 +87,9 @@ export default async function DiagnosePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="tool-shell">
+      <main className={`${styles.surface} tool-shell`}>
         <section className="tool-hero" aria-labelledby="diagnose-title">
-          <p className="eyebrow">Quick Diagnose</p>
-          <h1 id="diagnose-title">반려식물 진단</h1>
+          <h1 id="diagnose-title">우리 집에 맞는<br />식물의 입주 심사</h1>
           <p className="lead">
             지역 기후, 실내·베란다·마당 환경, 반려동물 여부를 기준으로 잘 맞는
             식물을 추려드려요.
@@ -149,9 +149,10 @@ export default async function DiagnosePage() {
           <article>
             <h3>진단 결과는 저장되나요?</h3>
             <p>
-              아닙니다. 입력한 지역·환경·안전 조건은 현재 화면의 추천 계산에만
-              사용되며 서버에 저장되지 않습니다. 페이지를 새로고침하면
-              초기화됩니다.
+              선택한 조건과 추천 식물 목록은 서버에 캐시될 수 있습니다.
+              결과 페이지 링크로 같은 조건을 다시 확인할 수 있으며, 식물
+              데이터가 바뀌면 추천 결과도 달라질 수 있습니다. 입력 화면은
+              새로고침하면 초기화됩니다.
             </p>
           </article>
           <article>
@@ -216,9 +217,8 @@ export default async function DiagnosePage() {
             <h3>진단 결과에 나오지 않는 식물을 찾으려면 어떻게 하나요?</h3>
             <p>
               진단 도구는 입력한 조건에 맞는 후보를 좁히는 용도입니다. 특정
-              식물을 직접 찾으려면 검색창에 식물 이름을 입력하거나 카테고리 탐색
-              메뉴에서 분류별로 살펴보세요. 원하는 식물이 목록에 없다면 추가
-              요청 기능을 통해 의견을 남길 수 있습니다.
+              식물을 찾으려면 홈의 식물 입주자 명부에서 분류별로 살펴보세요.
+              원하는 식물이 목록에 없다면 문의 페이지로 의견을 남겨 주세요.
             </p>
           </article>
           <article>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import styles from "@/app/tools/diagnose/diagnose.module.css";
 import {
   assertRegionExists,
   diagnosePlants,
@@ -78,13 +79,12 @@ export default async function DiagnoseResultPage(props: Props) {
   };
 
   return (
-    <main className="diagnose-result-shell">
+    <main className={`${styles.surface} diagnose-result-shell`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <header className="diagnose-result-header">
-        <p className="eyebrow">Diagnose Result</p>
         <h1>{regionName} 반려식물 진단 결과</h1>
         <p className="lead">
           선택한 조건에 맞춰 기후 적합도와 관리 부담을 함께 본 추천 결과입니다.

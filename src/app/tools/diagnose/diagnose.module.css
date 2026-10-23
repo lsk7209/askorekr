@@ -1,0 +1,330 @@
+/* HOUSE LAB: existing global form structure, scoped to the two diagnose pages. */
+.surface {
+  background: var(--hl-paper);
+  color: var(--hl-ink);
+  padding: 64px max(24px, calc((100% - 1280px) / 2)) 80px;
+  gap: 40px;
+}
+
+.surface ::selection {
+  background: var(--hl-lime);
+  color: var(--hl-ink);
+}
+
+.surface :global(.tool-hero),
+.surface :global(.tool-grid),
+.surface :global(.diagnose-result-header),
+.surface :global(.condition-summary),
+.surface :global(.diagnose-result-list),
+.surface :global(.newsletter-box) {
+  width: min(1280px, 100%);
+}
+
+.surface :global(.tool-hero),
+.surface :global(.diagnose-result-header) {
+  padding: 0 0 32px;
+  border-bottom: 1px solid var(--hl-ink);
+}
+
+.surface h1 {
+  color: var(--hl-ink);
+  font-size: clamp(32px, 4.5vw, 64px);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  text-wrap: balance;
+  font-weight: 850;
+}
+
+.surface h2,
+.surface h3 {
+  color: var(--hl-ink);
+  text-wrap: balance;
+  font-weight: 800;
+}
+
+.surface :global(.lead) {
+  max-width: 65ch;
+  color: var(--hl-ink-2);
+}
+
+.surface :global(.tool-grid) {
+  grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+  gap: 40px;
+}
+
+.surface :global(.diagnose-form) {
+  background: var(--hl-paper-light);
+  border: 1px solid var(--hl-ink-line);
+  border-radius: 0;
+  padding: 28px;
+  gap: 24px;
+}
+
+.surface :global(.form-heading) {
+  border-bottom: 1px solid var(--hl-rule);
+  padding-bottom: 20px;
+}
+
+.surface :global(.form-heading) h2 {
+  font-size: 23px;
+  margin: 0 0 8px;
+}
+
+.surface :global(.form-heading) p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.surface :global(.region-fields) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.surface :global(.diagnose-form) select,
+.surface :global(.segment-group) button {
+  border: 1px solid var(--hl-ink-line);
+  border-radius: 0;
+  color: var(--hl-ink);
+  background: var(--hl-paper-light);
+  min-height: 46px;
+}
+
+.surface :global(.diagnose-form) span,
+.surface :global(.diagnose-form) legend {
+  color: var(--hl-ink);
+}
+
+.surface :global(.diagnose-form) legend {
+  margin-bottom: 8px;
+}
+
+.surface :global(.segment-group.wrap) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.surface :global(.segment-group) button:hover {
+  background: var(--hl-paper);
+}
+
+.surface :global(.segment-group) button[aria-pressed="true"] {
+  background: var(--hl-ink);
+  color: var(--hl-lime);
+}
+
+.surface :global(.diagnose-form) :global(.checkbox-option) {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  min-height: 46px;
+  padding: 8px;
+  border: 1px solid var(--hl-rule);
+  border-radius: 0;
+  font-size: 14px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.surface :global(.checkbox-option):has(input:checked) {
+  background: var(--hl-lime);
+  border-color: var(--hl-ink-line);
+}
+
+.surface :global(.checkbox-option) input {
+  accent-color: var(--hl-ink);
+  flex-shrink: 0;
+}
+
+.surface :global(.primary-action),
+.surface :global(.primary-link),
+.surface :global(.result-share-link) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 1px solid var(--hl-ink);
+  border-radius: 0;
+  background: var(--hl-lime);
+  color: var(--hl-ink);
+  font-weight: 800;
+}
+
+.surface :global(.primary-action):hover:enabled,
+.surface :global(.primary-link):hover,
+.surface :global(.result-share-link):hover {
+  background: var(--hl-ink);
+  color: var(--hl-lime);
+}
+
+.surface :global(.primary-action):disabled {
+  opacity: 1;
+  background: var(--hl-rule);
+  color: var(--hl-ink-line);
+  cursor: not-allowed;
+}
+
+.surface :global(.diagnose-results) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-width: 0;
+}
+
+.surface :global(.empty-result) {
+  padding: 32px;
+  border: 1px dashed var(--hl-ink-line);
+  background: var(--hl-paper-light);
+  min-height: 320px;
+}
+
+.surface :global(.empty-result) p {
+  max-width: 65ch;
+}
+
+.surface :global(.result-heading) {
+  align-items: baseline;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--hl-ink);
+  padding-bottom: 16px;
+}
+
+.surface :global(.result-heading) p,
+.surface :global(.recommendation-reason),
+.surface :global(.text-link) {
+  color: var(--hl-ink-2);
+}
+
+.surface :global(.plant-result) {
+  gap: 16px;
+  padding: 28px 0;
+  border-top: 0;
+  border-bottom: 1px solid var(--hl-ink-line);
+}
+
+.surface :global(.plant-result) h3 {
+  color: var(--hl-ink);
+  font-size: 27px;
+}
+
+.surface :global(.plant-result) p {
+  overflow-wrap: anywhere;
+}
+
+.surface :global(.plant-result) dl {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 18px 0;
+  border-block: 1px solid var(--hl-rule);
+  font-variant-numeric: tabular-nums;
+}
+
+.surface :global(.plant-result) dt,
+.surface :global(.condition-summary) dt {
+  color: var(--hl-ink-line);
+}
+
+.surface :global(.climate-score) dd {
+  font-size: 22px;
+}
+
+.surface :global(.text-link) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.surface :global(.condition-summary),
+.surface :global(.diagnose-result-list),
+.surface :global(.newsletter-box) {
+  background: var(--hl-paper-light);
+  border: 1px solid var(--hl-rule);
+  border-radius: 0;
+  padding: 32px;
+}
+
+.surface :global(.condition-summary) {
+  border-color: var(--hl-ink-line);
+}
+
+.surface :global(.diagnose-guide),
+.surface :global(.diagnose-faq) {
+  width: min(1280px, 100%);
+  margin-inline: auto;
+  border-top: 1px solid var(--hl-ink-line);
+  padding-top: 32px;
+}
+
+.surface :global(.diagnose-guide) > p,
+.surface :global(.diagnose-faq) p {
+  max-width: 75ch;
+}
+
+.surface :global(.diagnose-steps) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 40px;
+}
+
+.surface :global(.diagnose-steps) article,
+.surface :global(.diagnose-faq) article {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--hl-rule);
+}
+
+.surface :global(.diagnose-steps) h3,
+.surface :global(.diagnose-faq) h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.surface :global(.diagnose-steps) p,
+.surface :global(.diagnose-faq) p {
+  margin-bottom: 0;
+}
+
+.surface :is(a, button, input, select):focus-visible {
+  outline: 3px solid var(--hl-ink);
+  outline-offset: 3px;
+}
+
+@media (max-width: 880px) {
+  .surface {
+    padding: 40px 22px 56px;
+    gap: 32px;
+  }
+
+  .surface :global(.tool-grid) {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .surface {
+    padding: 32px 17px 48px;
+  }
+
+  .surface :global(.diagnose-form),
+  .surface :global(.condition-summary),
+  .surface :global(.diagnose-result-list),
+  .surface :global(.newsletter-box),
+  .surface :global(.empty-result) {
+    padding: 20px;
+  }
+
+  .surface :global(.region-fields),
+  .surface :global(.diagnose-steps) {
+    grid-template-columns: 1fr;
+  }
+
+  .surface :global(.plant-result) dl {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .surface :global(.plant-result) dl > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}

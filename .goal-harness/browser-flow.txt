@@ -1,0 +1,74 @@
+async (page) => {
+  const report = { checks: [], widths: [], axe: [], pageErrors: [] };
+  const check = (ok, name) => { if (!ok) throw new Error(name); report.checks.push(name); };
+  page.on('pageerror', error => report.pageErrors.push(error.message));
+  await page.goto('http://localhost:3001/tools/diagnose');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const submit = page.getByRole('button', { name: '진단하기', exact: true });
+  const responsePromise = page.waitForResponse(r => r.url().endsWith('/api/diagnose') && r.request().method() === 'POST');
+  await submit.click();
+  const response = await responsePromise;
+  const data = await response.json();
+  check(response.ok() && data.results.length > 0, 'real local API returns recommendations');
+  await page.locator('.plant-result').first().waitFor();
+  check(await page.locator('.plant-result').count() === data.results.length, 'inline result count matches API');
+  await page.getByRole('checkbox', { name: '강아지', exact: true }).check();
+  await page.getByRole('checkbox', { name: '고양이', exact: true }).check();
+  const safePromise = page.waitForResponse(r => r.url().endsWith('/api/diagnose') && r.request().method() === 'POST');
+  await submit.click();
+  const safe = await (await safePromise).json();
+  await page.locator('.plant-result').first().waitFor();
+  check(safe.safetyTargets.length === 2 && safe.results.every(p => p.petSafetyScoreDog >= 80 && p.petSafetyScoreCat >= 80), 'dog and cat safety filters preserved');
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.screenshot({ path: 'output/playwright/diagnose-desktop.png' });
+  for (const width of [1440, 1024, 881, 880, 640, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    const dimensions = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, main: document.querySelector('main').scrollWidth }));
+    check(dimensions.document <= width, 'input has no overflow at ' + width);
+    report.widths.push({ width, ...dimensions });
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => scrollTo(0, 0));
+  const summary = page.locator('header details > summary');
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  check(await page.getByRole('navigation', { name: '모바일 주 메뉴', exact: true }).isVisible(), 'keyboard opens native menu');
+  await page.getByRole('navigation', { name: '모바일 주 메뉴', exact: true }).getByRole('link').first().focus();
+  await page.keyboard.press('Escape');
+  check(await page.locator('header details').getAttribute('open') === null && await summary.evaluate(el => el === document.activeElement), 'Escape closes menu and restores focus');
+  await summary.click();
+  await page.screenshot({ path: 'output/playwright/menu-mobile.png' });
+  await page.getByRole('navigation', { name: '모바일 주 메뉴', exact: true }).getByRole('link', { name: '입주 심사 시작' }).click();
+  check(await page.locator('header details').getAttribute('open') === null, 'same-page navigation closes menu');
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.screenshot({ path: 'output/playwright/diagnose-mobile.png', fullPage: true });
+  await page.addScriptTag({ path: 'C:/Users/dlatj/AppData/Local/npm-cache/_npx/7a6546d165ac54d3/node_modules/axe-core/axe.min.js' });
+  report.axe.push({ page: 'input mobile with results', violations: await page.evaluate(async () => (await axe.run(document.querySelector('body'), { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))) });
+  await page.getByRole('link', { name: '결과 페이지 보기', exact: true }).click();
+  await page.locator('.condition-summary').waitFor();
+  check(page.url().includes(safe.resultPath), 'share result keeps selected query conditions');
+  check(await page.locator('.plant-result').count() === safe.results.length, 'server result matches inline result');
+  check((await page.locator('.condition-summary').innerText()).includes('강아지, 고양이'), 'share page displays safety conditions');
+  for (const width of [1440, 880, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'share result has no overflow at ' + width);
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({ path: 'output/playwright/result-desktop.png' });
+  await page.addScriptTag({ path: 'C:/Users/dlatj/AppData/Local/npm-cache/_npx/7a6546d165ac54d3/node_modules/axe-core/axe.min.js' });
+  report.axe.push({ page: 'shared result desktop', violations: await page.evaluate(async () => (await axe.run({ runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))) });
+  const browser = page.context().browser();
+  const noJsContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  try {
+    const noJs = await noJsContext.newPage();
+    await noJs.goto('http://localhost:3001/tools/diagnose');
+    const noJsSummary = noJs.locator('header details > summary');
+    await noJsSummary.focus();
+    await noJs.keyboard.press('Enter');
+    check(await noJs.getByRole('navigation', { name: '모바일 주 메뉴', exact: true }).isVisible(), 'menu opens with JavaScript disabled');
+    await noJs.getByRole('navigation', { name: '모바일 주 메뉴', exact: true }).getByRole('link', { name: '소개', exact: true }).click();
+    check(noJs.url().endsWith('/about'), 'no-JS menu navigation works');
+  } finally { await noJsContext.close(); }
+  check(report.pageErrors.length === 0, 'no browser page errors');
+  return report;
+}

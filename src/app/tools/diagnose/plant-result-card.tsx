@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import type { DiagnoseResultPlant } from "@/features/diagnose/types";
 
@@ -11,7 +9,7 @@ export function PlantResultCard({ plant }: { plant: DiagnoseResultPlant }) {
         <p>{plant.scientificName}</p>
       </div>
       <dl>
-        <div>
+        <div className="climate-score">
           <dt>적합도</dt>
           <dd>
             {plant.climateScore}점 {plant.climateGrade}
@@ -19,11 +17,11 @@ export function PlantResultCard({ plant }: { plant: DiagnoseResultPlant }) {
         </div>
         <div>
           <dt>난이도</dt>
-          <dd>{plant.difficultyScore ?? "-"}점</dd>
+          <dd>{plant.difficultyScore == null ? "정보 없음" : `${plant.difficultyScore}점`}</dd>
         </div>
         <div>
           <dt>물주기</dt>
-          <dd>{plant.waterFreqDays ? `${plant.waterFreqDays}일 간격` : "-"}</dd>
+          <dd>{plant.waterFreqDays ? `${plant.waterFreqDays}일 간격` : "정보 없음"}</dd>
         </div>
       </dl>
       <p className="recommendation-reason">{plant.recommendationReason}</p>

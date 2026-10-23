@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useRef, useState, useTransition } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type {
   CareTimeLevel,
   DiagnoseResponse,
@@ -45,6 +45,11 @@ export function DiagnoseQuickForm({ regions }: Props) {
   const latestRequestId = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  useEffect(() => () => {
+    latestRequestId.current += 1;
+    abortControllerRef.current?.abort();
+  }, []);
+
   const sidoOptions = useMemo(
     () => Array.from(new Set(regions.map((region) => region.sido))),
     [regions]
@@ -64,17 +69,19 @@ export function DiagnoseQuickForm({ regions }: Props) {
 
     setSelectedSido(nextSido);
     setRegionCode(nextRegion?.code ?? "");
-    setResult(null);
-    setError("");
+    clearResult();
   }
 
   function clearResult() {
+    latestRequestId.current += 1;
+    abortControllerRef.current?.abort();
     setResult(null);
     setError("");
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!regionCode) return;
     setError("");
 
     // 이전 요청이 아직 진행 중이면 취소한다 (가능한 경우 서버 낭비도 줄인다).
@@ -140,7 +147,16 @@ export function DiagnoseQuickForm({ regions }: Props) {
 
   return (
     <section className="tool-grid" aria-label="진단 입력과 결과">
-      <form className="diagnose-form" onSubmit={handleSubmit}>
+      <form className="diagnose-form" onSubmit={handleSubmit} aria-label="식물 입주 조건">
+        <div className="form-heading">
+          <h2>어떤 집에서 함께 살까요?</h2>
+          <p>지역과 공간을 고르고, 필요한 조건을 더해 주세요.</p>
+        </div>
+        {regions.length === 0 ? (
+          <p className="form-error" role="status">
+            지역 정보를 불러오지 못했어요. 잠시 후 새로고침해 주세요.
+          </p>
+        ) : null}
         <div className="region-fields">
           <label>
             <span>시·도</span>
@@ -223,7 +239,7 @@ export function DiagnoseQuickForm({ regions }: Props) {
         ) : null}
       </form>
 
-      <DiagnoseResults result={result} selectedRegionName={selectedRegionName} />
+      <DiagnoseResults result={result} selectedRegionName={selectedRegionName} isPending={isPending} />
     </section>
   );
 }

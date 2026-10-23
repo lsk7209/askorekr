@@ -1,0 +1,16 @@
+async (page) => {
+  const results = [];
+  const axePath = 'C:/Users/dlatj/AppData/Local/npm-cache/_npx/7a6546d165ac54d3/node_modules/axe-core/axe.min.js';
+  for (const route of ['/tools/diagnose', '/diagnose/11680/indoor?safety=dog%2Ccat', '/']) {
+    await page.goto('http://localhost:3001' + route);
+    await page.addScriptTag({ path: axePath });
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+      await page.evaluate(() => new Promise(requestAnimationFrame));
+      const violations = await page.evaluate(async () => (await axe.run({ runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })));
+      results.push({ route, width, violations });
+    }
+  }
+  return results;
+}
